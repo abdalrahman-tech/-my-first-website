@@ -1,39 +1,98 @@
-score = 0
-player_name = input("ادخل اسمك يا بطل: ")
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقعي الإلكتروني الأول | عبد الرحمن-تك</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 30px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        h1 { margin-bottom: 10px; color: #38bdf8; }
+        p { margin-bottom: 20px; color: #cbd5e1; }
+        .btn { background: #ff7b00; color: white; border: none; padding: 14px; margin: 8px 0; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; transition: 0.3s; }
+        .btn:hover { background: #e66f00; }
+        .option-btn { background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255, 255, 255, 0.3); padding: 12px; margin: 6px 0; border-radius: 10px; width: 100%; cursor: pointer; }
+        .hidden { display: none; }
+        .score { font-size: 1.2rem; margin-top: 15px; color: #4ade80; }
+    </style>
+</head>
+<body>
 
-print(f"\nأهلاً بك يا {player_name} في تحدي البايثون! 🚀\n")
+    <div class="card">
+        <!-- الشاشة الرئيسية -->
+        <div id="home">
+            <h1>عبد الرحمن-تك 🚀</h1>
+            <p>مرحباً بك في موقعي الأول! اضغط ابدأ لتجربة التحدي.</p>
+            <button class="btn" onclick="startQuiz()">ابدأ التحدي 🎮</button>
+        </div>
 
-print("السؤال الأول: ما هي الدالة المستخدمة لطباعة النصوص في بايثون؟")
-print("1. echo\n2. print\n3. write")
+        <!-- شاشة الأسئلة -->
+        <div id="quiz" class="hidden">
+            <h3 id="question-text" style="margin-bottom: 15px;"></h3>
+            <div id="options-container"></div>
+            <div class="score" id="score-display">النقاط: 0</div>
+        </div>
 
-answer1 = input("اختر رقم الإجابة الصحيحة (1-3): ")
+        <!-- شاشة النهاية -->
+        <div id="result" class="hidden">
+            <h1>🏆 انتهى التحدي!</h1>
+            <p id="final-score"></p>
+            <button class="btn" onclick="location.reload()">العب تاني 🔄</button>
+        </div>
+    </div>
 
-if answer1 == "2":
-    print("إجابة صحيحة! 🎉 +10 نقاط")
-    score += 10
-else:
-    print("إجابة خاطئة! ❌ الإجابة الصحيحة هي print")
+    <script>
+        const questions = [
+            { q: "ما هي اللغة المستخدمة لتصميم واجهات المواقع؟", o: ["Python", "HTML & CSS", "C++", "Java"], c: 1 },
+            { q: "ما هو أسرع حيوان بري في العالم؟", o: ["الأسد", "الفهد", "الغزال", "الحصان"], c: 1 },
+            { q: "ما هو أكبر كوكب في المجموعة الشمسية؟", o: ["الأرض", "المشتري", "المريخ", "زحل"], c: 1 }
+        ];
 
-print("----------------------------")
+        let currentQ = 0;
+        let score = 0;
 
-print("السؤال الثاني: أي من التالي يُستخدم لتخزين البيانات؟")
-print("1. Variable (المتغير)\n2. Loop\n3. Comment")
+        function startQuiz() {
+            document.getElementById('home').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            loadQ();
+        }
 
-answer2 = input("اختر رقم الإجابة الصحيحة (1-3): ")
+        function loadQ() {
+            const q = questions[currentQ];
+            document.getElementById('question-text').innerText = q.q;
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
 
-if answer2 == "1":
-    print("عاش يا بطل! إجابة صحيحة 👏 +10 نقاط")
-    score += 10
-else:
-    print("للأسف إجابة خاطئة! 😅")
+            q.o.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
 
-print("\n============================")
-print(f"النتيجة النهائية للاعب {player_name}: {score} من 20")
+        function checkAnswer(i) {
+            if (i === questions[currentQ].c) {
+                score += 10;
+                alert("إجابة صحيحة! 🎉 +10 نقاط");
+            } else {
+                alert("إجابة خاطئة! ❌");
+            }
 
-if score == 20:
-    print("التقييم: أسطورة البرمجة! 🏆")
-elif score == 10:
-    print("التقييم: جيد جداً، واصل التمرين! 👍")
-else:
-    print("التقييم: حاول مرة أخرى لتصبح أفضل 💪")
+            document.getElementById('score-display').innerText = "النقاط: " + score;
+            currentQ++;
+
+            if (currentQ < questions.length) {
+                loadQ();
+            } else {
+                document.getElementById('quiz').classList.add('hidden');
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('final-score').innerText = "مجموع نقاطك النهائي: " + score + " من " + (questions.length * 10);
+            }
+        }
+    </script>
+</body>
+</html>
 
