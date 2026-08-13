@@ -11,8 +11,14 @@
             margin: 0;
             padding: 0;
         }
+        
+        /* 1. إضافة خلفية صورة مع ألوان مدرجة شيك جداً */
         body {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), 
+                        url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: white;
             min-height: 100vh;
             display: flex;
@@ -20,31 +26,38 @@
             align-items: center;
             padding: 20px;
         }
+
+        /* 2. تصميم كارت اللعبة الشفاف والمضيء */
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
             padding: 30px;
             width: 100%;
             max-width: 450px;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
-        h1 {
-            font-size: 2rem;
+
+        .category-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 12px;
             margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        p {
-            font-size: 1.1rem;
-            margin-bottom: 25px;
-            color: #e0e0e0;
-        }
+
+        h1 { font-size: 2rem; margin-bottom: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p { font-size: 1.1rem; margin-bottom: 25px; color: #e2e8f0; }
+
         .btn {
-            background: #ff7b00;
+            background: linear-gradient(45deg, #ff7b00, #ffae00);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 15px;
             font-size: 1.2rem;
             font-weight: bold;
             border-radius: 12px;
@@ -52,214 +65,139 @@
             width: 100%;
             transition: 0.3s;
             margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(255, 123, 0, 0.4);
         }
-        .btn:hover {
-            background: #ff9500;
-            transform: translateY(-2px);
-        }
+
         .category-btn {
-            background: #ffffff22;
-            border: 2px solid #ffffff44;
-            font-size: 1.1rem;
-            text-align: right;
-            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 12px 20px;
         }
-        .category-btn:hover {
-            background: #ffffff44;
-        }
+
         .option-btn {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 14px;
             margin: 8px 0;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             width: 100%;
             font-size: 1rem;
             transition: 0.2s;
         }
-        .option-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        .progress-bar {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            height: 10px;
-            width: 100%;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        .progress {
-            background: #00ff88;
-            height: 100%;
-            width: 0%;
-            transition: 0.4s;
-        }
-        .hidden {
-            display: none;
-        }
-        .badge {
-            background: #ffcc00;
-            color: #000;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+
+        .hidden { display: none; }
+        .progress-bar { background: rgba(255, 255, 255, 0.2); height: 10px; width: 100%; margin-bottom: 20px; border-radius: 5px; }
+        .progress { background: #00ff88; height: 100%; width: 0%; transition: 0.4s; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <!-- 1. الشاشة الرئيسية -->
+        <!-- الشاشة الرئيسية -->
         <div id="home-screen">
             <h1>🏆 تحدي المعرفة</h1>
-            <p>هل أنت جاهز لتخطي 10 مراحل صعبة للوصول لخط النهاية؟</p>
-            <button class="btn" onclick="showCategories()">لعب 🎮</button>
+            <p>اختر المجال واختبر معلوماتك العامة الآن!</p>
+            <button class="btn" onclick="showCategories()">ابدأ اللعب 🎮</button>
         </div>
 
-        <!-- 2. شاشة اختيار القسم -->
+        <!-- شاشة اختيار القسم -->
         <div id="category-screen" class="hidden">
             <h2>اختر نوع التحدي 🎯</h2>
-            <p>اختر المجال وابدأ المرحلة الأولى:</p>
-            <button class="btn category-btn" onclick="startGame('football')">
-                <span>كرة القدم</span> ⚽
-            </button>
-            <button class="btn category-btn" onclick="startGame('cooking')">
-                <span>الطبخ والطهي</span> 🍳
-            </button>
-            <button class="btn category-btn" onclick="startGame('general')">
-                <span>أسئلة عامة</span> 🧠
-            </button>
+            <br>
+            <button class="btn category-btn" onclick="startGame('football')">كرة القدم ⚽</button>
+            <button class="btn category-btn" onclick="startGame('cooking')">الطبخ 🍳</button>
+            <button class="btn category-btn" onclick="startGame('general')">أسئلة عامة 🧠</button>
         </div>
 
-        <!-- 3. شاشة اللعب والأسئلة -->
+        <!-- شاشة اللعب -->
         <div id="quiz-screen" class="hidden">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span id="level-title" style="font-weight:bold;">المرحلة 1</span>
-                <span id="difficulty-badge" class="badge">سهل جداً</span>
-            </div>
-            <div class="progress-bar">
-                <div id="progress" class="progress"></div>
-            </div>
-            
-            <h3 id="question-text" style="margin-bottom: 20px;">نص السؤال هنا؟</h3>
-            
-            <div id="options-container">
-                <!-- الأجوبة هتظهر هنا -->
-            </div>
+            <img id="q-image" class="category-img" src="" alt="صورة السؤال">
+            <div class="progress-bar"><div id="progress" class="progress"></div></div>
+            <h3 id="question-text" style="margin-bottom: 15px;"></h3>
+            <div id="options-container"></div>
         </div>
 
-        <!-- 4. شاشة خط النهاية والتحفيز -->
+        <!-- شاشة الفوز -->
         <div id="win-screen" class="hidden">
-            <h1>🏁 خط النهاية!</h1>
-            <p>أسطورة! قدرت تتخطى 10 مراحل وتجاوب على أصعب الأسئلة بنجاح! 🎉👏</p>
-            <button class="btn" onclick="goHome()">العب تاني 🔄</button>
+            <h1>🏁 مبروك الفوز!</h1>
+            <p>أنت بطل ونجحت في تخطي التحدي بنجاح! 🎉</p>
+            <button class="btn" onclick="location.reload()">العب من جديد 🔄</button>
         </div>
     </div>
 
     <script>
         const questionsData = {
-            football: [
-                { q: "1. كم عدد اللاعبين في فريق كرة القدم داخل الملعب؟", options: ["9 لاعبين", "11 لاعب", "12 لاعب"], correct: 1, diff: "سهل جداً" },
-                { q: "2. كم مدة شوط المباراة الواحد بدون الوقت بدل الضائع؟", options: ["45 دقيقة", "30 دقيقة", "60 دقيقة"], correct: 0, diff: "سهل" },
-                { q: "3. ما هي الدولة التي فازت بكأس العالم 2022؟", options: ["فرنسا", "البرازيل", "الأنحاء/الأرجنتين"], correct: 2, diff: "سهل" },
-                { q: "4. ما هو النادي الملقب بـ 'المرنغي'؟", options: ["برشلونة", "ريال مدريد", "بايرن ميونخ"], correct: 1, diff: "متوسط" },
-                { q: "5. من هو الهداف التاريخي لدوري أبطال أوروبا؟", options: ["ليونيل ميسي", "كريستيانو رونالدو", "بنزيما"], correct: 1, diff: "متوسط" },
-                { q: "6. كم عدد بطولات كأس العالم التي فازت بها البرازيل؟", options: ["4 بطولات", "5 بطولات", "6 بطولات"], correct: 1, diff: "صعب" },
-                { q: "7. من الفائز بالكرة الذهبية لعام 2018؟", options: ["لوكا مودريتش", "ميسي", "رونالدو"], correct: 0, diff: "صعب" },
-                { q: "8. ما هو الملعب الشهير الخاص بنادي بروسيا دورتموند؟", options: ["أليانز أرينا", "سيغنال إدونا بارك", "السان سيرو"], correct: 1, diff: "صعب جداً" },
-                { q: "9. من هو المدرب الذي فاز بالسداسية التاريخية مع برشلونة عام 2009؟", options: ["مورينيو", "أنشيلوتي", "بيب جوارديولا"], correct: 2, diff: "خبير" },
-                { q: "10. السؤال الأخير: في أي عام تأسس الاتحاد الدولي لكرة القدم (FIFA)؟", options: ["1904", "1920", "1898"], correct: 0, diff: "مرحلة الأساطير 🔥" }
-            ],
-            cooking: [
-                { q: "1. ما هو المكون الأساسي لصنع الخبز؟", options: ["الأرز", "الدقيق", "السكر"], correct: 1, diff: "سهل جداً" },
-                { q: "2. أي من هذه الفواكه يوضع على البيتزا الإيطالية الشهيرة 'مارجريتا'؟", options: ["الصلصة والجبن", "الاناناس", "الموز"], correct: 0, diff: "سهل" },
-                { q: "3. ما هي المادة التي تجعل العجين ينتفخ ويخمر؟", options: ["الملح", "الخميرة", "النشا"], correct: 1, diff: "سهل" },
-                { q: "4. أصل طبق 'السوشي' الشهير من أي دولة؟", options: ["الصين", "كوريا", "اليابان"], correct: 2, diff: "متوسط" },
-                { q: "5. ما هو التابل (البهار) المعروف بأنه الأغلى ثماناً في العالم؟", options: ["الزعفران", "الفلفل الأسود", "القرفة"], correct: 0, diff: "متوسط" },
-                { q: "6. ما هي درجة حرارة غليان الماء المئوية؟", options: ["90°C", "100°C", "120°C"], correct: 1, diff: "صعب" },
-                { q: "7. طبق 'الباستا بومودورو' يعتمد بشكل أساسي على أي نوع صوص؟", options: ["صوص الطماطم", "الصوص الأبيض", "البيستو"], correct: 0, diff: "صعب" },
-                { q: "8. العشبة الأساسية المستخدمة في عمل صوص 'البيستو' الإيطالي هي؟", options: ["النعناع", "الريحان", "البقدونس"], correct: 1, diff: "صعب جداً" },
-                { q: "9. ما هو المكون الرئيسي لشوربة 'الميسو' الشهيرة؟", options: ["معجون معالج من فول الصويا", "السمك فقط", "الأرز المطحون"], correct: 0, diff: "خبير" },
-                { q: "10. السؤال الأخير: ما اسم الطبخة التي تحتاج طهي على نار هادئة جداً لفترة طويلة وتسمى بالفرنسية (Sous-vide)؟", options: ["الطهي بالتفريغ الهوائي", "الطهي بالبخار", "التحمير السريع"], correct: 0, diff: "مرحلة الأساطير 🔥" }
-            ],
-            general: [
-                { q: "1. ما هو أكبر كوكب في المجموعة الشمسية؟", options: ["الأرض", "المشتري", "المريخ"], correct: 1, diff: "سهل جداً" },
-                { q: "2. كم عدد القارات في كوكب الأرض؟", options: ["7 قارات", "5 قارات", "6 قارات"], correct: 0, diff: "سهل" },
-                { q: "3. ما هي عاصمة دولة فرنسا؟", options: ["لندن", "باريس", "روما"], correct: 1, diff: "سهل" },
-                { q: "4. ما هو أسرع حيوان بري في العالم؟", options: ["الأسد", "الفهد", "الغزال"], correct: 1, diff: "متوسط" },
-                { q: "5. ما هو العنصر الكيميائي الذي رمزه (O)؟", options: ["الذهب", "الأكسجين", "الحديد"], correct: 1, diff: "متوسط" },
-                { q: "6. ما هي أطول أنهار العالم؟", options: ["نهر النيل", "نهر الأمازون", "نهر الميسيسيبي"], correct: 0, diff: "صعب" },
-                { q: "7. من هو المخترع الذي اخترع المصباح الكهربائي؟", options: ["أديسون", "نيوتن", "أينشتاين"], correct: 0, diff: "صعب" },
-                { q: "8. كم عدد العظام في جسم الإنسان البالغ؟", options: ["206 عظيمة", "150 عظيمة", "300 عظيمة"], correct: 0, diff: "صعب جداً" },
-                { q: "9. ما هي ألمع وأشد النجوم إضاءة في السماء ليلاً؟", options: ["نجم القطب", "الشعرى اليمانية", "السهيل"], correct: 1, diff: "خبير" },
-                { q: "10. السؤال الأخير: ما هي أصغر دولة في العالم من حيث المساحة؟", options: ["موناكو", "الفاتيكان", "سان مارينو"], correct: 1, diff: "مرحلة الأساطير 🔥" }
-            ]
+            football: {
+                img: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800&auto=format&fit=crop",
+                questions: [
+                    { q: "كم عدد لاعبي الفريق داخل الملعب؟", o: ["9 لاعبين", "11 لاعب", "12 لاعب"], c: 1 },
+                    { q: "ما هي الدولة الفائزة بكأس العالم 2022؟", o: ["فرنسا", "الأرجنتين", "البرازيل"], c: 1 }
+                ]
+            },
+            cooking: {
+                img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop",
+                questions: [
+                    { q: "ما المكون الأساسي للخبز؟", o: ["الأرز", "الدقيق", "السكر"], c: 1 },
+                    { q: "ما هو التابل الأغلى ثمناً في العالم؟", o: ["الزعفران", "الفلفل الأسود", "الكمون"], c: 0 }
+                ]
+            },
+            general: {
+                img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop",
+                questions: [
+                    { q: "ما هو أكبر كوكب في المجموعة الشمسية؟", o: ["الأرض", "المشتري", "المريخ"], c: 1 },
+                    { q: "كم عدد قارات العالم؟", o: ["5", "7", "6"], c: 1 }
+                ]
+            }
         };
 
-        let currentCategory = [];
-        let currentLevel = 0;
+        let currentCat, currentLevel = 0;
 
         function showCategories() {
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('category-screen').classList.remove('hidden');
         }
 
-        function startGame(categoryKey) {
-            currentCategory = questionsData[categoryKey];
+        function startGame(catKey) {
+            currentCat = questionsData[catKey];
             currentLevel = 0;
             document.getElementById('category-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
-            loadQuestion();
+            document.getElementById('q-image').src = currentCat.img;
+            loadQ();
         }
 
-        function loadQuestion() {
-            const currentQ = currentCategory[currentLevel];
-            document.getElementById('level-title').innerText = `المرحلة ${currentLevel + 1} من 10`;
-            document.getElementById('difficulty-badge').innerText = currentQ.diff;
-            document.getElementById('question-text').innerText = currentQ.q;
+        function loadQ() {
+            const qData = currentCat.questions[currentLevel];
+            document.getElementById('question-text').innerText = qData.q;
+            const cont = document.getElementById('options-container');
+            cont.innerHTML = '';
             
-            // تحديث شريط التقدم
-            const progressPercent = ((currentLevel) / 10) * 100;
-            document.getElementById('progress').style.width = `${progressPercent}%`;
-
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = '';
-
-            currentQ.options.forEach((opt, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(index);
-                optionsContainer.appendChild(btn);
+            qData.o.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = 'option-btn';
+                b.innerText = opt;
+                b.onclick = () => {
+                    if (i === qData.c) {
+                        currentLevel++;
+                        if (currentLevel < currentCat.questions.length) {
+                            loadQ();
+                        } else {
+                            document.getElementById('quiz-screen').classList.add('hidden');
+                            document.getElementById('win-screen').classList.remove('hidden');
+                        }
+                    } else {
+                        alert("إجابة خاطئة! ❌ حاول مرة أخرى.");
+                    }
+                };
+                cont.appendChild(b);
             });
-        }
 
-        function checkAnswer(selectedIndex) {
-            const currentQ = currentCategory[currentLevel];
-            if (selectedIndex === currentQ.correct) {
-                currentLevel++;
-                if (currentLevel < 10) {
-                    loadQuestion();
-                } else {
-                    // وصل لخط النهاية
-                    document.getElementById('progress').style.width = `100%`;
-                    document.getElementById('quiz-screen').classList.add('hidden');
-                    document.getElementById('win-screen').classList.remove('hidden');
-                }
-            } else {
-                alert("إجابة خاطئة! ❌ حاول تاني في هذه المرحلة.");
-            }
-        }
-
-        function goHome() {
-            document.getElementById('win-screen').classList.add('hidden');
-            document.getElementById('home-screen').classList.remove('hidden');
+            document.getElementById('progress').style.width = ((currentLevel) / currentCat.questions.length) * 100 + "%";
         }
     </script>
 </body>
