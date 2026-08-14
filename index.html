@@ -44,13 +44,23 @@
       width: 100%;
       margin-bottom: 12px;
       transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .btn-cat:hover {
       background: #e14eca;
     }
+    .high-score-tag {
+      font-size: 13px;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
     .header-info {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 15px;
       font-size: 15px;
       color: #a9a9b9;
@@ -88,6 +98,11 @@
     .btn-option:hover { background: #3d4063; }
     .btn-option.correct { background: #2ed573 !important; }
     .btn-option.wrong { background: #ff4757 !important; }
+    .result-badge {
+      font-size: 18px;
+      color: #2ed573;
+      margin: 10px 0;
+    }
     .btn-restart {
       background: #e14eca;
       color: white;
@@ -106,9 +121,18 @@
     <!-- شاشة اختيار القسم -->
     <div id="category-box">
       <h2 class="category-title">اختر قسم المسابقة 🎯</h2>
-      <button class="btn-cat" onclick="selectCategory('football')">⚽ كرة القدم</button>
-      <button class="btn-cat" onclick="selectCategory('cooking')">🍳 الطبخ والطهي</button>
-      <button class="btn-cat" onclick="selectCategory('general')">🧠 معلومات عامة</button>
+      <button class="btn-cat" onclick="selectCategory('football')">
+        <span>⚽ كرة القدم</span>
+        <span class="high-score-tag" id="hs-football">أعلى سكور: 0</span>
+      </button>
+      <button class="btn-cat" onclick="selectCategory('cooking')">
+        <span>🍳 الطبخ والطهي</span>
+        <span class="high-score-tag" id="hs-cooking">أعلى سكور: 0</span>
+      </button>
+      <button class="btn-cat" onclick="selectCategory('general')">
+        <span>🧠 معلومات عامة</span>
+        <span class="high-score-tag" id="hs-general">أعلى سكور: 0</span>
+      </button>
     </div>
 
     <!-- شاشة الأسئلة -->
@@ -125,38 +149,59 @@
     <!-- شاشة النتيجة -->
     <div id="result-box" style="display: none;">
       <h2>🎉 انتهت اللعبة!</h2>
-      <p id="score-text" style="font-size: 22px; margin: 20px 0;"></p>
+      <p id="score-text" style="font-size: 22px; margin: 15px 0 5px 0;"></p>
+      <div id="rating-text" class="result-badge"></div>
+      <p id="high-score-msg" style="color: #ff9f43; font-weight: bold;"></p>
       <button class="btn-restart" onclick="goHome()">الرئيسية 🏠</button>
     </div>
   </div>
 
   <script>
+    // روابط المؤثرات الصوتية
+    const soundCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+    const soundWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
+    const soundWin = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+    const soundTimeout = new Audio('https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3');
+
     let allQuestions = [];
     let selectedQuestions = [];
+    let currentCategory = '';
     let currentIndex = 0;
     let score = 0;
     let timer;
     let timeLeft = 15;
 
+    // تحميل الأسئلة وتحديث أرقام أداء الأجهزة (High Scores)
     fetch('questions.json')
       .then(res => res.json())
-      .then(data => { allQuestions = data; })
+      .then(data => { 
+        allQuestions = data;
+        updateHighScoreDisplay();
+      })
       .catch(() => alert('تأكد من وجود ملف questions.json'));
 
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
     }
 
+    function updateHighScoreDisplay() {
+      ['football', 'cooking', 'general'].forEach(cat => {
+        let hs = localStorage.getItem('hs_' + cat) || 0;
+        let el = document.getElementById('hs-' + cat);
+        if(el) el.innerText = `أعلى سكور: ${hs}`;
+      });
+    }
+
     function selectCategory(cat) {
-      // تصفية الأسئلة حسب القسم
+      currentCategory = cat;
       let filtered = allQuestions.filter(q => q.category === cat);
       if (filtered.length === 0) {
         alert('لا توجد أسئلة في هذا القسم بعد!');
         return;
       }
 
-      // ترتيب الأسئلة حسب الصعوبة (من 1 إلى 3) مع خلط الأسئلة داخل كل مستوى صعوبة
-      filtered.sort((a, b) => a.level - b.level);
+      // ترتيب الأسئلة حسب المستوى من 1 لـ 3
+      filtered.sort((a, b) => (a.level || 1) - (b.level || 1));
       selectedQuestions = filtered;
 
       score = 0;
@@ -197,6 +242,7 @@
         document.getElementById('time-left').innerText = timeLeft;
         if (timeLeft <= 0) {
           clearInterval(timer);
+          soundTimeout.play();
           nextQuestion();
         }
       }, 1000);
@@ -209,9 +255,11 @@
 
       if (isCorrect) {
         selectedBtn.classList.add('correct');
+        soundCorrect.cloneNode(true).play();
         score++;
       } else {
         selectedBtn.classList.add('wrong');
+        soundWrong.cloneNode(true).play();
       }
 
       setTimeout(() => {
@@ -231,7 +279,32 @@
     function showResult() {
       document.getElementById('quiz-box').style.display = 'none';
       document.getElementById('result-box').style.display = 'block';
-      document.getElementById('score-text').innerText = `جبت ${score} من ${selectedQuestions.length}`;
+      
+      let total = selectedQuestions.length;
+      document.getElementById('score-text').innerText = `جبت ${score} من ${total}`;
+
+      // تقييم الأداء
+      let percentage = (score / total) * 100;
+      let ratingMsg = '';
+      if (percentage === 100) ratingMsg = '🌟 أداء أسطوري! ممتاز جداً';
+      else if (percentage >= 70) ratingMsg = '👏 ممتاز! أداء قوي جداً';
+      else if (percentage >= 50) ratingMsg = 'جيد! محتاج تدريب أكتير';
+      else ratingMsg = 'حاول مرة أخرى لتطوير معلوماتك! 💪';
+      
+      document.getElementById('rating-text').innerText = ratingMsg;
+
+      // حفظ أعلى سكور (High Score)
+      let currentHS = localStorage.getItem('hs_' + currentCategory) || 0;
+      let hsMsg = document.getElementById('high-score-msg');
+      if (score > currentHS) {
+        localStorage.setItem('hs_' + currentCategory, score);
+        hsMsg.innerText = '🔥 رقم قياسي جديد على جهازك!';
+      } else {
+        hsMsg.innerText = '';
+      }
+
+      soundWin.play();
+      updateHighScoreDisplay();
     }
 
     function goHome() {
