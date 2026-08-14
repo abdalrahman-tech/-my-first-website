@@ -5,57 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Global Game Hub</title>
   <style>
-    body { background: #0f0c29; color: #fff; margin: 0; padding: 10px; font-family: sans-serif; }
+    body { background: #0f0c29; color: #fff; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
     .container { max-width: 500px; margin: auto; background: #1a1a2e; padding: 20px; border-radius: 20px; text-align: center; }
     .btn { background: #4e44ce; border: none; padding: 15px; margin: 5px; border-radius: 10px; color: white; width: 90%; cursor: pointer; font-size: 16px; }
-    .btn:active { background: #3a32a0; }
-    #msg-box { height: 50px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-    .app-card { background: #262645; padding: 20px; border-radius: 15px; margin-bottom: 10px; cursor: pointer; }
+    .key-display { font-size: 20px; color: #ffd700; margin-bottom: 10px; font-weight: bold; }
     .hidden { display: none; }
+    #msg-box { height: 40px; margin: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
   </style>
 </head>
 <body>
 
-<div class="container" id="app">
+<div class="container">
   <!-- الشاشة الرئيسية -->
   <div id="home">
-    <h1>أهلاً بك في عالم الألعاب 🎮</h1>
-    <div class="app-card" onclick="openGame('quiz')">تحدي الأسئلة الذكية</div>
-    <div class="app-card" onclick="openGame('story')">رحلة المغامرة (قصص)</div>
+    <h1>عالم الألعاب 🎮</h1>
+    <button class="btn" onclick="openQuiz()">تحدي الأسئلة الذكية</button>
   </div>
 
   <!-- واجهة اللعبة -->
   <div id="game-ui" class="hidden">
-    <button class="btn" style="background: #333; width: auto;" onclick="goHome()">🏠 رجوع للقائمة</button>
+    <div class="key-display">🔑 المفاتيح: <span id="key-count">0</span></div>
     <div id="msg-box"></div>
     <div id="content"></div>
+    <button class="btn" style="background:#444;" onclick="goHome()">🏠 القائمة الرئيسية</button>
   </div>
 </div>
 
 <script>
-  // 1. بيانات الأسئلة
+  // أسئلة غير محدودة - يمكنك إضافة أي عدد هنا
   const quizData = [
-    { q: "ما هي عاصمة اليابان؟", o: ["طوكيو", "سيدني", "بكين"], a: 0 },
-    { q: "ما هو أسرع حيوان في العالم؟", o: ["الفهد", "الأسد", "الغزال"], a: 0 },
-    { q: "كم عدد كواكب المجموعة الشمسية؟", o: ["7", "8", "9"], a: 1 }
+    { q: "ما هي عاصمة مصر؟", o: ["القاهرة", "الرياض", "دبي"], a: 0 },
+    { q: "ما هو أسرع حيوان؟", o: ["الفهد", "الأسد", "الحصان"], a: 0 },
+    { q: "كم عدد كواكب المجموعة الشمسية؟", o: ["7", "8", "9"], a: 1 },
+    { q: "من مخترع المصباح؟", o: ["أديسون", "نيوتن", "أينشتاين"], a: 0 },
+    { q: "ما هو أطول نهر في العالم؟", o: ["النيل", "الأمازون", "الميسيسيبي"], a: 0 }
   ];
 
-  // 2. بيانات القصص (توسع فيها زي ما تحب)
-  const storyData = {
-    start: { t: "أنت بطل أسطوري، تستيقظ في قلعة مهجورة. ماذا تفعل؟", o: [{t: "الخروج للغابة", n: "forest"}, {t: "البحث في القلعة", n: "castle"}] },
-    forest: { t: "الغابة مخيفة، سمعت صوت ذئب! اهرب أم واجه؟", o: [{t: "الهروب", n: "start"}, {t: "المواجهة", n: "win"}] },
-    castle: { t: "وجدت كنزاً قديماً! هل تأخذه؟", o: [{t: "نعم", n: "win"}, {t: "لا", n: "start"}] },
-    win: { t: "🎉 مبروك! لقد فزت بالمغامرة.", o: [{t: "إعادة اللعب", n: "start"}] }
-  };
+  let keys = 0;
 
-  let currentGame = '';
-
-  function openGame(type) {
-    currentGame = type;
+  function openQuiz() {
     document.getElementById('home').classList.add('hidden');
     document.getElementById('game-ui').classList.remove('hidden');
-    if(type === 'quiz') nextQuiz();
-    else renderStory('start');
+    nextQuiz();
   }
 
   function goHome() {
@@ -63,42 +54,44 @@
     document.getElementById('game-ui').classList.add('hidden');
   }
 
-  // منطق لعبة الأسئلة
+  function updateKeys(amount) {
+    keys = Math.max(0, keys + amount);
+    document.getElementById('key-count').innerText = keys;
+  }
+
+  function speak(text) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'ar-EG';
+    window.speechSynthesis.speak(msg);
+  }
+
   function nextQuiz() {
     const q = quizData[Math.floor(Math.random() * quizData.length)];
     const cont = document.getElementById('content');
-    cont.innerHTML = `<h3>${q.q}</h3>`;
+    
+    cont.innerHTML = `<h3>${q.q}</h3>
+                      <button class="btn" style="background:#555; width:auto;" onclick="speak('${q.q}')">🔊 اسمع السؤال</button>`;
+    
     q.o.forEach((opt, idx) => {
       const b = document.createElement('button');
       b.className = 'btn';
       b.innerText = opt;
       b.onclick = () => {
-        const btns = document.querySelectorAll('.btn');
-        btns.forEach(btn => btn.disabled = true);
-        
-        if(idx === q.a) {
-          document.getElementById('msg-box').innerText = "✅ صحيح!";
-          b.style.background = "#27ae60";
-        } else {
-          document.getElementById('msg-box').innerText = "❌ خطأ!";
-          b.style.background = "#c0392b";
-        }
-        setTimeout(nextQuiz, 1000);
-      };
-      cont.appendChild(b);
-    });
-  }
+        // تعطيل الأزرار بعد الضغط
+        const allBtns = document.querySelectorAll('.btn');
+        allBtns.forEach(btn => btn.disabled = true);
 
-  // منطق لعبة القصص
-  function renderStory(id) {
-    const s = storyData[id];
-    const cont = document.getElementById('content');
-    cont.innerHTML = `<h3>${s.t}</h3>`;
-    s.o.forEach(opt => {
-      const b = document.createElement('button');
-      b.className = 'btn';
-      b.innerText = opt.t;
-      b.onclick = () => renderStory(opt.n);
+        if(idx === q.a) {
+          document.getElementById('msg-box').innerText = "✅ إجابة صحيحة!";
+          document.getElementById('msg-box').style.color = "#27ae60";
+          updateKeys(1); // زيادة مفتاح
+        } else {
+          document.getElementById('msg-box').innerText = "❌ إجابة خاطئة!";
+          document.getElementById('msg-box').style.color = "#c0392b";
+          updateKeys(-1); // نقصان مفتاح
+        }
+        setTimeout(nextQuiz, 1500); // الانتقال للسؤال التالي تلقائياً
+      };
       cont.appendChild(b);
     });
   }
