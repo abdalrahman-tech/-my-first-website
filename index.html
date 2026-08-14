@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +11,65 @@
 
   body {
     font-family: 'Tajawal', sans-serif;
-    background: #0a0e17;
+    background: #fef6ec;
     background-image:
-      radial-gradient(circle at 15% 10%, rgba(56,189,248,0.10) 0%, transparent 45%),
-      radial-gradient(circle at 85% 90%, rgba(251,146,60,0.08) 0%, transparent 45%);
+      radial-gradient(circle at 10% 10%, rgba(255,183,77,0.25) 0%, transparent 40%),
+      radial-gradient(circle at 90% 20%, rgba(129,212,250,0.30) 0%, transparent 40%),
+      radial-gradient(circle at 20% 90%, rgba(186,104,200,0.20) 0%, transparent 40%);
     min-height: 100vh;
-    color: #f1f5f9;
+    color: #2d2340;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
+  }
+
+  .top-bar {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    left: 20px;
+    display: flex;
+    justify-content: space-between;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .lang-switch {
+    display: flex;
+    background: #ffffff;
+    border: 2px solid #ffd28a;
+    border-radius: 30px;
+    padding: 4px;
+    box-shadow: 0 4px 14px rgba(255, 154, 60, 0.2);
+  }
+
+  .lang-btn {
+    border: none;
+    background: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    color: #9b8ab0;
+  }
+
+  .lang-btn.active { background: #ff9a3c; color: #fff; }
+
+  .streak-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 2px solid #ffd28a;
+    border-radius: 30px;
+    padding: 8px 14px;
+    font-weight: 800;
+    font-size: 13px;
+    color: #ff7a1a;
+    box-shadow: 0 4px 14px rgba(255, 154, 60, 0.2);
   }
 
   .screen { width: 100%; max-width: 480px; display: none; }
@@ -32,17 +81,18 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     letter-spacing: 3px;
-    color: #38bdf8;
+    color: #ff9a3c;
     text-transform: uppercase;
     margin-bottom: 14px;
+    font-weight: 700;
   }
 
-  #home-screen h1 { font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; }
-  #home-screen p { color: #64748b; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
+  #home-screen h1 { font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; color: #2d2340; }
+  #home-screen p { color: #7c6f92; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
 
   #play-btn {
-    background: #38bdf8;
-    color: #0a0e17;
+    background: linear-gradient(135deg, #ff9a3c, #ff5f6d);
+    color: #fff;
     border: none;
     border-radius: 16px;
     padding: 18px 56px;
@@ -50,15 +100,15 @@
     font-weight: 900;
     font-size: 19px;
     cursor: pointer;
-    transition: transform 0.15s, background 0.15s;
-    box-shadow: 0 12px 30px rgba(56,189,248,0.25);
+    transition: transform 0.15s;
+    box-shadow: 0 14px 30px rgba(255, 95, 109, 0.35);
   }
 
-  #play-btn:hover { background: #7dd3fc; transform: translateY(-2px); }
+  #play-btn:hover { transform: translateY(-2px); }
   #play-btn:active { transform: scale(0.97); }
 
   #category-screen h2 { font-size: 26px; font-weight: 900; text-align: center; margin-bottom: 8px; }
-  #category-screen .sub { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 32px; }
+  #category-screen .sub { text-align: center; color: #7c6f92; font-size: 14px; margin-bottom: 32px; }
 
   .categories { display: flex; flex-direction: column; gap: 14px; }
 
@@ -66,44 +116,66 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: #101d33;
-    border: 1px solid #1e2f4a;
+    background: #ffffff;
+    border: 2px solid #ffe3c2;
     border-radius: 18px;
     padding: 20px 22px;
     cursor: pointer;
     transition: border-color 0.15s, transform 0.15s;
+    box-shadow: 0 6px 18px rgba(255, 154, 60, 0.08);
   }
 
-  .cat-card:hover { border-color: #38bdf8; transform: translateX(-4px); }
+  .cat-card:hover { border-color: #ff9a3c; transform: translateX(-4px); }
 
   .cat-icon {
     font-size: 30px; width: 52px; height: 52px;
     display: flex; align-items: center; justify-content: center;
-    background: #08111f; border-radius: 14px;
+    background: #fff3e0; border-radius: 14px;
   }
 
   .cat-info { flex: 1; }
-  .cat-name { font-weight: 700; font-size: 17px; margin-bottom: 2px; }
-  .cat-desc { font-size: 13px; color: #64748b; }
-  .cat-arrow { color: #38bdf8; font-size: 20px; }
+  .cat-name { font-weight: 700; font-size: 17px; margin-bottom: 2px; color: #2d2340; }
+  .cat-desc { font-size: 13px; color: #a297b5; }
+  .cat-arrow { color: #ff9a3c; font-size: 20px; }
 
-  #quiz-screen { background: #101d33; border: 1px solid #1e2f4a; border-radius: 22px; padding: 26px 24px; }
+  #quiz-screen { background: #ffffff; border: 2px solid #ffe3c2; border-radius: 22px; padding: 26px 24px; box-shadow: 0 10px 30px rgba(255,154,60,0.1); }
 
-  .quiz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .quiz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 
   .quiz-cat-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; color: #38bdf8;
+    font-size: 12px; color: #ff9a3c; font-weight: 700;
     display: flex; align-items: center; gap: 6px;
   }
 
-  .quiz-progress-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #64748b; }
+  .quiz-progress-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a297b5; }
 
-  .progress-track { width: 100%; height: 6px; background: #08111f; border-radius: 4px; overflow: hidden; margin-bottom: 22px; }
+  .timer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+
+  .timer-track { flex: 1; height: 8px; background: #fdeee0; border-radius: 6px; overflow: hidden; }
+
+  .timer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, #ffd23c);
+    border-radius: 6px;
+    width: 100%;
+    transition: width 1s linear, background 0.3s;
+  }
+
+  .timer-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 14px;
+    color: #ff5f6d;
+    min-width: 26px;
+    text-align: center;
+  }
+
+  .progress-track { width: 100%; height: 6px; background: #fdeee0; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    background: linear-gradient(90deg, #ff9a3c, #ba68c8);
     border-radius: 4px;
     transition: width 0.3s ease;
     width: 10%;
@@ -117,18 +189,18 @@
     margin-bottom: 14px; font-weight: 700;
   }
 
-  .diff-easy { background: rgba(74,222,128,0.15); color: #4ade80; }
-  .diff-medium { background: rgba(250,204,21,0.15); color: #facc15; }
-  .diff-hard { background: rgba(248,113,113,0.15); color: #f87171; }
+  .diff-easy { background: #dcfce7; color: #16a34a; }
+  .diff-medium { background: #fef9c3; color: #ca8a04; }
+  .diff-hard { background: #fee2e2; color: #dc2626; }
 
-  #question-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; }
+  #question-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; color: #2d2340; }
 
   .options { display: flex; flex-direction: column; gap: 10px; }
 
   .option-btn {
-    background: #08111f;
-    border: 1px solid #1e2f4a;
-    color: #e2e8f0;
+    background: #fefaf5;
+    border: 2px solid #ffe3c2;
+    color: #2d2340;
     border-radius: 14px;
     padding: 15px 18px;
     font-family: inherit;
@@ -138,19 +210,19 @@
     transition: border-color 0.15s, background 0.15s, transform 0.1s;
   }
 
-  .option-btn:hover:not(:disabled) { border-color: #38bdf8; background: #0d1a2e; }
+  .option-btn:hover:not(:disabled) { border-color: #ff9a3c; background: #fff3e0; }
   .option-btn:active:not(:disabled) { transform: scale(0.98); }
 
-  .option-btn.correct { background: rgba(74,222,128,0.12); border-color: #4ade80; color: #4ade80; }
-  .option-btn.wrong { background: rgba(248,113,113,0.12); border-color: #f87171; color: #f87171; }
+  .option-btn.correct { background: #dcfce7; border-color: #4ade80; color: #16a34a; }
+  .option-btn.wrong { background: #fee2e2; border-color: #f87171; color: #dc2626; }
   .option-btn:disabled { cursor: default; }
 
   #next-btn {
     display: none;
     width: 100%;
     margin-top: 18px;
-    background: #38bdf8;
-    color: #08111f;
+    background: linear-gradient(135deg, #ff9a3c, #ff5f6d);
+    color: #fff;
     border: none;
     border-radius: 14px;
     padding: 15px;
@@ -160,16 +232,14 @@
     cursor: pointer;
   }
 
-  #next-btn:hover { background: #7dd3fc; }
-
   #finish-screen { text-align: center; }
   .finish-icon { font-size: 60px; margin-bottom: 18px; }
-  #finish-screen h2 { font-size: 30px; font-weight: 900; margin-bottom: 8px; }
-  #finish-screen p { color: #64748b; font-size: 15px; margin-bottom: 28px; }
+  #finish-screen h2 { font-size: 30px; font-weight: 900; margin-bottom: 8px; color: #2d2340; }
+  #finish-screen p { color: #7c6f92; font-size: 15px; margin-bottom: 28px; }
 
-  .score-box { background: #101d33; border: 1px solid #1e2f4a; border-radius: 18px; padding: 26px; margin-bottom: 28px; }
-  .score-num { font-family: 'JetBrains Mono', monospace; font-size: 46px; font-weight: 700; color: #38bdf8; }
-  .score-label { color: #64748b; font-size: 13px; margin-top: 4px; }
+  .score-box { background: #ffffff; border: 2px solid #ffe3c2; border-radius: 18px; padding: 26px; margin-bottom: 28px; }
+  .score-num { font-family: 'JetBrains Mono', monospace; font-size: 46px; font-weight: 700; color: #ff9a3c; }
+  .score-label { color: #a297b5; font-size: 13px; margin-top: 4px; }
 
   .finish-actions { display: flex; gap: 10px; }
 
@@ -179,30 +249,73 @@
     cursor: pointer; border: none;
   }
 
-  #retry-btn { background: #38bdf8; color: #08111f; }
-  #retry-btn:hover { background: #7dd3fc; }
-  #home-btn { background: #101d33; color: #e2e8f0; border: 1px solid #1e2f4a; }
-  #home-btn:hover { border-color: #38bdf8; }
+  #retry-btn { background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; }
+  #home-btn { background: #fff; color: #2d2340; border: 2px solid #ffe3c2; }
 
-  #loading-msg { text-align: center; color: #64748b; padding: 40px 0; }
+  #loading-msg { text-align: center; color: #7c6f92; padding: 40px 0; }
+
+  /* ===== نافذة فتح المفتاح ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(45, 35, 64, 0.55);
+    align-items: center; justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal-box {
+    background: #fff;
+    border-radius: 24px;
+    padding: 36px 28px;
+    text-align: center;
+    max-width: 340px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+  }
+
+  .modal-icon { font-size: 56px; margin-bottom: 12px; }
+  .modal-box h3 { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: #2d2340; }
+  .modal-box p { color: #7c6f92; font-size: 14px; margin-bottom: 22px; line-height: 1.6; }
+
+  .modal-btn {
+    background: linear-gradient(135deg, #ff9a3c, #ff5f6d);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 32px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
+
+  <div class="top-bar">
+    <div class="lang-switch">
+      <button class="lang-btn" id="btn-ar" data-lang="ar">AR</button>
+      <button class="lang-btn" id="btn-en" data-lang="en">EN</button>
+    </div>
+    <div class="streak-badge">🔥 <span id="streak-count">0</span></div>
+  </div>
 
   <div class="screen active" id="loading-screen">
     <p id="loading-msg">جاري تحميل الأسئلة...</p>
   </div>
 
   <div class="screen" id="home-screen">
-    <div class="eyebrow">Quiz Challenge</div>
-    <h1>اتحدى نفسك</h1>
-    <p>10 أسئلة، الصعوبة بتزيد مرحلة بعد مرحلة<br>لحد ما توصل لخط النهاية 🏁</p>
-    <button id="play-btn">لعب</button>
+    <div class="eyebrow" data-i18n="eyebrow">Quiz Challenge</div>
+    <h1 data-i18n="title">اتحدى نفسك</h1>
+    <p data-i18n="subtitle">10 أسئلة، الصعوبة بتزيد مرحلة بعد مرحلة<br>لحد ما توصل لخط النهاية 🏁</p>
+    <button id="play-btn" data-i18n="playBtn">لعب</button>
   </div>
 
   <div class="screen" id="category-screen">
-    <h2>اختار فئتك</h2>
-    <p class="sub">كل فئة فيها أسئلة بترتيب الصعوبة</p>
+    <h2 data-i18n="chooseCategory">اختار فئتك</h2>
+    <p class="sub" data-i18n="categorySub">كل فئة فيها أسئلة بترتيب الصعوبة</p>
     <div class="categories" id="categories-container"></div>
   </div>
 
@@ -211,35 +324,104 @@
       <div class="quiz-cat-label"><span id="quiz-cat-icon"></span> <span id="quiz-cat-name"></span></div>
       <div class="quiz-progress-num"><span id="q-current">1</span> / <span id="q-total">10</span></div>
     </div>
+
+    <div class="timer-row">
+      <span class="timer-num" id="timer-num">15</span>
+      <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+    </div>
+
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
 
     <span class="difficulty-badge" id="difficulty-badge">سهل</span>
     <div id="question-text"></div>
     <div class="options" id="options-container"></div>
-    <button id="next-btn">التالي</button>
+    <button id="next-btn" data-i18n="nextBtn">التالي</button>
   </div>
 
   <div class="screen" id="finish-screen">
     <div class="finish-icon">🏁</div>
-    <h2>وصلت لخط النهاية!</h2>
-    <p>شوف نتيجتك</p>
+    <h2 data-i18n="finishTitle">وصلت لخط النهاية!</h2>
+    <p data-i18n="finishSub">شوف نتيجتك</p>
     <div class="score-box">
       <div class="score-num"><span id="final-score">0</span>/<span id="final-total">10</span></div>
-      <div class="score-label">إجابة صحيحة</div>
+      <div class="score-label" data-i18n="correctAnswers">إجابة صحيحة</div>
     </div>
     <div class="finish-actions">
-      <button class="finish-btn" id="retry-btn">إعادة المحاولة</button>
-      <button class="finish-btn" id="home-btn">الرئيسية</button>
+      <button class="finish-btn" id="retry-btn" data-i18n="retryBtn">إعادة المحاولة</button>
+      <button class="finish-btn" id="home-btn" data-i18n="homeBtn">الرئيسية</button>
+    </div>
+  </div>
+
+  <!-- نافذة فتح المفتاح بعد 20 إجابة صح متتالية -->
+  <div class="modal-overlay" id="key-modal">
+    <div class="modal-box">
+      <div class="modal-icon">🔑</div>
+      <h3 data-i18n="keyTitle">فتحت مفتاح جديد!</h3>
+      <p data-i18n="keyDesc">جاوبت 20 سؤال صح ورا بعض. استمر كده!</p>
+      <button class="modal-btn" id="key-modal-close" data-i18n="continueBtn">أكمل</button>
     </div>
   </div>
 
 <script>
-  // بنك الأسئلة هيتحمل من ملف questions.json المنفصل
+  // ===== الترجمة: كل نصوص الواجهة الثابتة بالعربي والإنجليزي =====
+  const translations = {
+    ar: {
+      eyebrow: 'تحدي الأسئلة', title: 'اتحدى نفسك',
+      subtitle: '10 أسئلة، الصعوبة بتزيد مرحلة بعد مرحلة<br>لحد ما توصل لخط النهاية 🏁',
+      playBtn: 'لعب', chooseCategory: 'اختار فئتك', categorySub: 'كل فئة فيها أسئلة بترتيب الصعوبة',
+      nextBtn: 'التالي', finishTitle: 'وصلت لخط النهاية!', finishSub: 'شوف نتيجتك',
+      correctAnswers: 'إجابة صحيحة', retryBtn: 'إعادة المحاولة', homeBtn: 'الرئيسية',
+      keyTitle: 'فتحت مفتاح جديد!', keyDesc: 'جاوبت 20 سؤال صح ورا بعض. استمر كده!', continueBtn: 'أكمل',
+      easy: 'سهل', medium: 'متوسط', hard: 'صعب', questionsAvailable: 'سؤال متاح', loading: 'جاري تحميل الأسئلة...'
+    },
+    en: {
+      eyebrow: 'Quiz Challenge', title: 'Challenge Yourself',
+      subtitle: '10 questions, difficulty increases stage by stage<br>until you reach the finish line 🏁',
+      playBtn: 'Play', chooseCategory: 'Choose your category', categorySub: 'Each category has questions ordered by difficulty',
+      nextBtn: 'Next', finishTitle: 'You reached the finish line!', finishSub: 'Check your score',
+      correctAnswers: 'correct answers', retryBtn: 'Try Again', homeBtn: 'Home',
+      keyTitle: 'New key unlocked!', keyDesc: "You answered 20 questions correctly in a row. Keep going!", continueBtn: 'Continue',
+      easy: 'Easy', medium: 'Medium', hard: 'Hard', questionsAvailable: 'questions available', loading: 'Loading questions...'
+    }
+  };
+
+  let currentLang = localStorage.getItem('quiz_lang') || 'ar';
+
+  function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      const key = el.dataset.i18n;
+      el.innerHTML = translations[currentLang][key];
+    });
+    document.getElementById('html-root').lang = currentLang;
+    document.getElementById('html-root').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById('btn-ar').classList.toggle('active', currentLang === 'ar');
+    document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+  }
+
+  document.getElementById('btn-ar').addEventListener('click', () => setLang('ar'));
+  document.getElementById('btn-en').addEventListener('click', () => setLang('en'));
+
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('quiz_lang', lang);
+    applyTranslations();
+    if (Object.keys(questionBanks).length) renderCategories();
+    if (screens.quiz.classList.contains('active')) renderQuestion();
+  }
+
+  // ===== حالة اللعبة =====
   let questionBanks = {};
   let currentCategory = null;
   let currentQuestionIndex = 0;
   let score = 0;
   let answered = false;
+  let shuffledQuestions = [];
+  let streak = parseInt(localStorage.getItem('quiz_streak') || '0');
+  let timerInterval = null;
+  let timeLeft = 15;
+  const TIME_LIMIT = 15;
+
+  document.getElementById('streak-count').textContent = streak;
 
   const screens = {
     loading: document.getElementById('loading-screen'),
@@ -254,7 +436,7 @@
     screens[name].classList.add('active');
   }
 
-  // ===== الصوت: بنولّده مباشرة من المتصفح من غير ملفات خارجية =====
+  // ===== الصوت =====
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   function playTone(frequency, duration, type) {
@@ -271,23 +453,60 @@
   }
 
   function playCorrectSound() {
-    // نغمتين صاعدتين بسرعة = صوت إيجابي
     playTone(523, 0.12, 'sine');
     setTimeout(() => playTone(784, 0.15, 'sine'), 100);
   }
 
   function playWrongSound() {
-    // نغمة هابطة واحدة = صوت سلبي
     playTone(180, 0.3, 'sawtooth');
   }
 
-  // ===== تحميل الأسئلة من الملف المنفصل =====
+  // ===== الحفظ التلقائي =====
+  const SAVE_KEY = 'quiz_progress';
+
+  function saveProgress() {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      category: currentCategory, index: currentQuestionIndex,
+      score: score, shuffledQuestions: shuffledQuestions
+    }));
+  }
+
+  function loadSavedProgress() {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  }
+
+  function clearProgress() { localStorage.removeItem(SAVE_KEY); }
+
+  function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // ===== تحميل الأسئلة =====
   fetch('questions.json')
     .then(response => response.json())
     .then(data => {
       questionBanks = data;
+      applyTranslations();
       renderCategories();
-      showScreen('home');
+
+      const saved = loadSavedProgress();
+      if (saved && questionBanks[saved.category]) {
+        currentCategory = saved.category;
+        currentQuestionIndex = saved.index;
+        score = saved.score;
+        shuffledQuestions = saved.shuffledQuestions;
+        showScreen('quiz');
+        renderQuestion();
+      } else {
+        showScreen('home');
+      }
     })
     .catch(error => {
       document.getElementById('loading-msg').textContent = 'حصل خطأ في تحميل الأسئلة. تأكد إن ملف questions.json موجود في نفس الفولدر.';
@@ -300,13 +519,14 @@
 
     Object.keys(questionBanks).forEach(function(key) {
       const bank = questionBanks[key];
+      const name = currentLang === 'ar' ? bank.name_ar : bank.name_en;
       const card = document.createElement('div');
       card.className = 'cat-card';
       card.innerHTML = `
         <div class="cat-icon">${bank.icon}</div>
         <div class="cat-info">
-          <div class="cat-name">${bank.name}</div>
-          <div class="cat-desc">${bank.questions.length} سؤال متاح</div>
+          <div class="cat-name">${name}</div>
+          <div class="cat-desc">${bank.questions.length} ${translations[currentLang].questionsAvailable}</div>
         </div>
         <div class="cat-arrow">‹</div>
       `;
@@ -314,8 +534,10 @@
         currentCategory = key;
         currentQuestionIndex = 0;
         score = 0;
+        shuffledQuestions = shuffleArray(questionBanks[key].questions);
         showScreen('quiz');
         renderQuestion();
+        saveProgress();
       });
       container.appendChild(card);
     });
@@ -325,39 +547,81 @@
     showScreen('category');
   });
 
+  // ===== المؤقت: 15 ثانية لكل سؤال =====
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft = TIME_LIMIT;
+    updateTimerDisplay();
+
+    timerInterval = setInterval(function() {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        if (!answered) handleTimeout();
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    document.getElementById('timer-num').textContent = timeLeft;
+    const fill = document.getElementById('timer-fill');
+    fill.style.width = (timeLeft / TIME_LIMIT * 100) + '%';
+    if (timeLeft <= 5) {
+      fill.style.background = 'linear-gradient(90deg, #ff5f6d, #ff9a3c)';
+    } else {
+      fill.style.background = 'linear-gradient(90deg, #4ade80, #ffd23c)';
+    }
+  }
+
+  // لو الوقت خلص من غير إجابة، تتحسب غلط تلقائياً
+  function handleTimeout() {
+    answered = true;
+    const container = document.getElementById('options-container');
+    const buttons = container.querySelectorAll('.option-btn');
+    const question = shuffledQuestions[currentQuestionIndex];
+    buttons.forEach(b => b.disabled = true);
+    buttons[question.correct].classList.add('correct');
+    playWrongSound();
+    streak = 0;
+    localStorage.setItem('quiz_streak', streak);
+    document.getElementById('streak-count').textContent = streak;
+    document.getElementById('next-btn').style.display = 'block';
+    saveProgress();
+  }
+
   function renderQuestion() {
     answered = false;
     const bank = questionBanks[currentCategory];
-    const totalQuestions = bank.questions.length;
-    const question = bank.questions[currentQuestionIndex];
+    const totalQuestions = shuffledQuestions.length;
+    const question = shuffledQuestions[currentQuestionIndex];
 
     document.getElementById('quiz-cat-icon').textContent = bank.icon;
-    document.getElementById('quiz-cat-name').textContent = bank.name;
+    document.getElementById('quiz-cat-name').textContent = currentLang === 'ar' ? bank.name_ar : bank.name_en;
     document.getElementById('q-current').textContent = currentQuestionIndex + 1;
     document.getElementById('q-total').textContent = totalQuestions;
     document.getElementById('progress-fill').style.width = ((currentQuestionIndex + 1) / totalQuestions * 100) + '%';
-    document.getElementById('question-text').textContent = question.q;
+    document.getElementById('question-text').textContent = currentLang === 'ar' ? question.q_ar : question.q_en;
     document.getElementById('next-btn').style.display = 'none';
 
-    // شارة الصعوبة بتتغير حسب نسبة التقدم في الأسئلة (مش رقم ثابت)
-    // عشان يشتغل صح مهما كان عدد الأسئلة (10 أو 1000)
     const progress = (currentQuestionIndex + 1) / totalQuestions;
     const badge = document.getElementById('difficulty-badge');
     if (progress <= 0.4) {
-      badge.textContent = 'سهل';
+      badge.textContent = translations[currentLang].easy;
       badge.className = 'difficulty-badge diff-easy';
     } else if (progress <= 0.7) {
-      badge.textContent = 'متوسط';
+      badge.textContent = translations[currentLang].medium;
       badge.className = 'difficulty-badge diff-medium';
     } else {
-      badge.textContent = 'صعب';
+      badge.textContent = translations[currentLang].hard;
       badge.className = 'difficulty-badge diff-hard';
     }
 
     const container = document.getElementById('options-container');
     container.innerHTML = '';
 
-    question.options.forEach(function(optionText, index) {
+    const options = currentLang === 'ar' ? question.options_ar : question.options_en;
+    options.forEach(function(optionText, index) {
       const btn = document.createElement('button');
       btn.className = 'option-btn';
       btn.textContent = optionText;
@@ -366,11 +630,25 @@
       });
       container.appendChild(btn);
     });
+
+    startTimer();
   }
+
+  // ===== كل 20 إجابة صح متتالية = مفتاح جديد =====
+  function checkStreakReward() {
+    if (streak > 0 && streak % 20 === 0) {
+      document.getElementById('key-modal').classList.add('active');
+    }
+  }
+
+  document.getElementById('key-modal-close').addEventListener('click', function() {
+    document.getElementById('key-modal').classList.remove('active');
+  });
 
   function selectAnswer(selectedIndex, correctIndex, clickedBtn, container) {
     if (answered) return;
     answered = true;
+    clearInterval(timerInterval);
 
     const buttons = container.querySelectorAll('.option-btn');
     buttons.forEach(b => b.disabled = true);
@@ -378,37 +656,50 @@
     if (selectedIndex === correctIndex) {
       clickedBtn.classList.add('correct');
       score++;
+      streak++;
       playCorrectSound();
+      checkStreakReward();
     } else {
       clickedBtn.classList.add('wrong');
       buttons[correctIndex].classList.add('correct');
+      streak = 0;
       playWrongSound();
     }
 
+    localStorage.setItem('quiz_streak', streak);
+    document.getElementById('streak-count').textContent = streak;
+
     document.getElementById('next-btn').style.display = 'block';
+    saveProgress();
   }
 
   document.getElementById('next-btn').addEventListener('click', function() {
     currentQuestionIndex++;
-    const totalQuestions = questionBanks[currentCategory].questions.length;
+    const totalQuestions = shuffledQuestions.length;
 
     if (currentQuestionIndex < totalQuestions) {
       renderQuestion();
+      saveProgress();
     } else {
+      clearInterval(timerInterval);
       document.getElementById('final-score').textContent = score;
       document.getElementById('final-total').textContent = totalQuestions;
       showScreen('finish');
+      clearProgress();
     }
   });
 
   document.getElementById('retry-btn').addEventListener('click', function() {
     currentQuestionIndex = 0;
     score = 0;
+    shuffledQuestions = shuffleArray(questionBanks[currentCategory].questions);
     showScreen('quiz');
     renderQuestion();
+    saveProgress();
   });
 
   document.getElementById('home-btn').addEventListener('click', function() {
+    clearProgress();
     showScreen('home');
   });
 </script>
