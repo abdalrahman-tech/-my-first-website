@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="html-root">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لعبة المسابقات المتقدمة</title>
+  <title>Global Game Hub</title>
   <style>
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     body {
-      background-color: #1e1e2f;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
       color: #ffffff;
       display: flex;
       justify-content: center;
@@ -19,297 +19,487 @@
       margin: 0;
       padding: 15px;
     }
-    .quiz-card {
-      background: #27293d;
+    .main-container {
+      background: rgba(25, 20, 50, 0.88);
+      backdrop-filter: blur(10px);
       padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(225, 78, 202, 0.2);
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .category-title {
-      font-size: 22px;
+    
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
-      color: #e14eca;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .btn-cat {
-      background: #323550;
+    .key-badge {
+      background: linear-gradient(45deg, #ffb300, #ff8f00);
+      color: #000;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lang-select {
+      background: #1f1b40;
       color: #fff;
-      border: 2px solid #e14eca;
-      padding: 15px;
-      border-radius: 10px;
-      font-size: 18px;
+      border: 1px solid rgba(225, 78, 202, 0.4);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-weight: bold;
       cursor: pointer;
-      width: 100%;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 20px;
+    }
+    .app-card {
+      background: linear-gradient(145deg, #1f1b40, #282352);
+      border: 2px solid rgba(225, 78, 202, 0.3);
+      border-radius: 20px;
+      padding: 20px 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .app-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: #ff007f;
+      box-shadow: 0 10px 25px rgba(255, 0, 127, 0.4);
+    }
+    /* تصميم الأيقونات المصورة بدلاً من الإيموجي */
+    .app-icon-img {
+      width: 75px;
+      height: 75px;
+      object-fit: cover;
+      border-radius: 18px;
       margin-bottom: 12px;
-      transition: all 0.2s;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.1);
     }
-    .btn-cat:hover {
-      background: #e14eca;
-    }
-    .high-score-tag {
-      font-size: 13px;
-      background: rgba(255,255,255,0.2);
-      padding: 3px 8px;
-      border-radius: 5px;
-    }
-    .header-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
+    .app-title {
       font-size: 15px;
-      color: #a9a9b9;
+      font-weight: 700;
+      color: #ffffff;
     }
-    .level-badge {
-      background: #ff9f43;
+
+    .category-container {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .cat-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
-      padding: 3px 8px;
-      border-radius: 5px;
+      padding: 6px 12px;
+      border-radius: 12px;
+      cursor: pointer;
       font-size: 13px;
-    }
-    .timer {
-      color: #ff4757;
       font-weight: bold;
     }
-    .question-text {
-      font-size: 20px;
-      margin-bottom: 25px;
-      line-height: 1.5;
+    .cat-btn.active {
+      background: linear-gradient(90deg, #ff007f, #7928ca);
+      border-color: #ff007f;
     }
-    .options-grid {
-      display: grid;
-      gap: 12px;
-    }
-    .btn-option {
-      background: #323550;
+
+    .btn-action {
+      background: linear-gradient(90deg, #ff007f, #7928ca);
       color: #fff;
-      border: 2px solid transparent;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-option:hover { background: #3d4063; }
-    .btn-option.correct { background: #2ed573 !important; }
-    .btn-option.wrong { background: #ff4757 !important; }
-    .result-badge {
-      font-size: 18px;
-      color: #2ed573;
-      margin: 10px 0;
-    }
-    .btn-restart {
-      background: #e14eca;
-      color: white;
       border: none;
-      padding: 12px 25px;
-      font-size: 18px;
-      border-radius: 8px;
+      padding: 10px 18px;
+      border-radius: 14px;
       cursor: pointer;
-      margin-top: 20px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(255, 0, 127, 0.3);
+    }
+    
+    .btn-skip {
+      background: linear-gradient(45deg, #ff8f00, #ffb300);
+      color: #000;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-option {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 14px;
+      border-radius: 14px;
+      width: 100%;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .btn-option:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .story-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+    }
+    .story-box {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 15px;
+      border-radius: 14px;
+    }
+    .stats-bar {
+      font-size: 13px;
+      color: #00dfd8;
+      margin-bottom: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div class="quiz-card">
-    <!-- شاشة اختيار القسم -->
-    <div id="category-box">
-      <h2 class="category-title">اختر قسم المسابقة 🎯</h2>
-      <button class="btn-cat" onclick="selectCategory('football')">
-        <span>⚽ كرة القدم</span>
-        <span class="high-score-tag" id="hs-football">أعلى سكور: 0</span>
-      </button>
-      <button class="btn-cat" onclick="selectCategory('cooking')">
-        <span>🍳 الطبخ والطهي</span>
-        <span class="high-score-tag" id="hs-cooking">أعلى سكور: 0</span>
-      </button>
-      <button class="btn-cat" onclick="selectCategory('general')">
-        <span>🧠 معلومات عامة</span>
-        <span class="high-score-tag" id="hs-general">أعلى سكور: 0</span>
-      </button>
-    </div>
-
-    <!-- شاشة الأسئلة -->
-    <div id="quiz-box" style="display: none;">
-      <div class="header-info">
-        <span id="progress">السؤال 1</span>
-        <span id="level-text" class="level-badge">المستوى 1</span>
-        <span class="timer">الوقت: <span id="time-left">15</span>s</span>
+  <div class="main-container">
+    
+    <!-- 🔝 الشريط العلوي -->
+    <div class="top-bar">
+      <div class="key-badge">
+        🔑 <span id="lang-keys-label">المفاتيح:</span> <span id="key-count">0</span>
       </div>
-      <div class="question-text" id="question">جاري تحميل السؤال...</div>
-      <div class="options-grid" id="options"></div>
+      <select class="lang-select" onchange="changeLanguage(this.value)">
+        <option value="ar">العربية 🇪🇬</option>
+        <option value="en">English 🌐</option>
+      </select>
     </div>
 
-    <!-- شاشة النتيجة -->
-    <div id="result-box" style="display: none;">
-      <h2>🎉 انتهت اللعبة!</h2>
-      <p id="score-text" style="font-size: 22px; margin: 15px 0 5px 0;"></p>
-      <div id="rating-text" class="result-badge"></div>
-      <p id="high-score-msg" style="color: #ff9f43; font-weight: bold;"></p>
-      <button class="btn-restart" onclick="goHome()">الرئيسية 🏠</button>
+    <!-- 🏠 الشاشة الرئيسية (أيقونات الألعاب) -->
+    <div id="home-screen">
+      <h1 id="txt-title" style="margin: 0; font-size: 24px; background: linear-gradient(90deg, #ff007f, #00dfd8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">عالم الألعاب التفاعلية 🎮</h1>
+      <p id="txt-subtitle" style="color: #b3b3cc; font-size: 14px; margin-top: 8px;">اختر اللعبة وابدأ التحدي الآن</p>
+      
+      <div class="apps-grid">
+        <!-- ❓ أيقونة لعبة الأسئلة -->
+        <div class="app-card" onclick="openGame('quiz')">
+          <img class="app-icon-img" src="https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=300" alt="سؤال">
+          <div class="app-title" id="txt-game-quiz">تحدي الأسئلة اللانهائي</div>
+        </div>
+
+        <!-- 🧭 أيقونة لعبة قرارات المصير -->
+        <div class="app-card" onclick="openGame('story')">
+          <img class="app-icon-img" src="https://images.unsplash.com/photo-1527066570332-e89eafe04a44?w=300" alt="بوصلة قرارات">
+          <div class="app-title" id="txt-game-story">قرارات المصير</div>
+        </div>
+      </div>
     </div>
+
+    <!-- 🧠 1. شاشة لعبة الأسئلة -->
+    <div id="quiz-game" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <button class="btn-action" onclick="goHome()" id="btn-back-1">🏠 القائمة</button>
+        <button class="btn-skip" id="btn-skip-q" onclick="useKeyToSkip()">🔑 <span id="txt-skip">تخطي (1 🔑)</span></button>
+      </div>
+
+      <!-- اختيار القسم -->
+      <div class="category-container">
+        <button class="cat-btn active" onclick="selectCategory('all', this)" id="cat-all">الكل 🌐</button>
+        <button class="cat-btn" onclick="selectCategory('football', this)" id="cat-football">كرة القدم ⚽</button>
+        <button class="cat-btn" onclick="selectCategory('cooking', this)" id="cat-cooking">الطبخ 🍳</button>
+        <button class="cat-btn" onclick="selectCategory('general', this)" id="cat-general">عامة 💡</button>
+      </div>
+      
+      <div class="stats-bar">
+        🎯 <span id="txt-score-label">الأسئلة الصحيحة المتتالية:</span> <span id="correct-count">0</span> / 20
+      </div>
+
+      <div id="q-text" class="story-box">جاري تحميل السؤال...</div>
+      <div id="q-options"></div>
+    </div>
+
+    <!-- 🧭 2. شاشة لعبة قرارات المصير -->
+    <div id="story-game" style="display: none;">
+      <button class="btn-action" onclick="goHome()" id="btn-back-2" style="float: right; margin-bottom: 12px;">🏠 القائمة</button>
+      <div style="clear: both;"></div>
+      <img id="story-image" class="story-img" src="" alt="المشهد">
+      <div id="story-description" class="story-box"></div>
+      <div id="story-choices"></div>
+    </div>
+
   </div>
 
   <script>
-    // روابط المؤثرات الصوتية
-    const soundCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
-    const soundWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
-    const soundWin = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-    const soundTimeout = new Audio('https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3');
+    let currentLang = 'ar';
+    let userKeys = 0;
+    let correctAnswersCount = 0;
+    let currentCategory = 'all';
+    let activeQuestionsPool = [];
+    let currentQIndex = 0;
 
-    let allQuestions = [];
-    let selectedQuestions = [];
-    let currentCategory = '';
-    let currentIndex = 0;
-    let score = 0;
-    let timer;
-    let timeLeft = 15;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
 
-    // تحميل الأسئلة وتحديث أرقام أداء الأجهزة (High Scores)
-    fetch('questions.json')
-      .then(res => res.json())
-      .then(data => { 
-        allQuestions = data;
-        updateHighScoreDisplay();
-      })
-      .catch(() => alert('تأكد من وجود ملف questions.json'));
-
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
+      if (type === 'correct') {
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } else if (type === 'key') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      }
     }
 
-    function updateHighScoreDisplay() {
-      ['football', 'cooking', 'general'].forEach(cat => {
-        let hs = localStorage.getItem('hs_' + cat) || 0;
-        let el = document.getElementById('hs-' + cat);
-        if(el) el.innerText = `أعلى سكور: ${hs}`;
-      });
+    const translations = {
+      ar: {
+        keysLabel: "المفاتيح:",
+        title: "عالم الألعاب التفاعلية 🎮",
+        subtitle: "اختر اللعبة وابدأ التحدي الآن",
+        gameQuiz: "تحدي الأسئلة اللانهائي",
+        gameStory: "قرارات المصير",
+        back: "🏠 القائمة",
+        skip: "تخطي (1 🔑)",
+        scoreLabel: "الأسئلة الصحيحة المتتالية:",
+        winKeyMsg: "🎉 رائع جداً! جاوبت 20 سؤال صح وربحت مفتاح جديد! 🔑",
+        wrongMsg: "إجابة خاطئة! ❌ حاول مجدداً",
+        noKeys: "لا تملك مفاتيح! جاوب على 20 سؤال صح لتربح مفتاحاً.",
+        skippedMsg: "تم تخطي السؤال بنجاح باستعمال المفتاح! 🔑",
+        catAll: "الكل 🌐", catFootball: "كرة القدم ⚽", catCooking: "الطبخ 🍳", catGeneral: "عامة 💡"
+      },
+      en: {
+        keysLabel: "Keys:",
+        title: "Interactive Game Hub 🎮",
+        subtitle: "Choose a game and start the challenge",
+        gameQuiz: "Infinite Quiz Challenge",
+        gameStory: "Fate Decisions",
+        back: "🏠 Menu",
+        skip: "Skip (1 🔑)",
+        scoreLabel: "Correct Questions:",
+        winKeyMsg: "🎉 Amazing! You answered 20 questions correctly and earned a key! 🔑",
+        wrongMsg: "Wrong Answer! ❌ Try again",
+        noKeys: "No keys available! Answer 20 questions correctly to earn a key.",
+        skippedMsg: "Question skipped successfully using 1 key! 🔑",
+        catAll: "All 🌐", catFootball: "Football ⚽", catCooking: "Cooking 🍳", catGeneral: "General 💡"
+      }
+    };
+
+    const questionsDatabase = [
+      { category: "football", ar: { q: "ما هي الدولة الفائزة بكأس العالم 2022؟", options: ["فرنسا", "الأرجنتين", "البرازيل", "ألمانيا"], correct: 1 }, en: { q: "Which country won the 2022 World Cup?", options: ["France", "Argentina", "Brazil", "Germany"], correct: 1 } },
+      { category: "football", ar: { q: "كم عدد لاعبي فريق كرة القدم داخل الملعب؟", options: ["10", "11", "12", "9"], correct: 1 }, en: { q: "How many players per football team on field?", options: ["10", "11", "12", "9"], correct: 1 } },
+      { category: "cooking", ar: { q: "ما هو المكون الأساسي في طبق المكرونة الباستا؟", options: ["الأرز", "القمح / الطحين", "الذرة", "الشوفان"], correct: 1 }, en: { q: "What is the primary ingredient in pasta?", options: ["Rice", "Wheat / Flour", "Corn", "Oats"], correct: 1 } },
+      { category: "cooking", ar: { q: "أي نبات يفرز مادة تسبب الدموع عند تقطيعه؟", options: ["الخيار", "البصل", "الثوم", "الطماطم"], correct: 1 }, en: { q: "Which vegetable causes tears when chopped?", options: ["Cucumber", "Onion", "Garlic", "Tomato"], correct: 1 } },
+      { category: "general", ar: { q: "ما هي عاصمة سويسرا؟", options: ["جنيف", "زيورخ", "برن", "بازل"], correct: 2 }, en: { q: "What is the capital of Switzerland?", options: ["Geneva", "Zurich", "Bern", "Basel"], correct: 2 } },
+      { category: "general", ar: { q: "ما هو أسرع كائن حي على الأرض؟", options: ["الفهد", "النسر", "النعامة", "الأسد"], correct: 0 }, en: { q: "What is the fastest land animal?", options: ["Cheetah", "Eagle", "Ostrich", "Lion"], correct: 0 } }
+    ];
+
+    const storyData = {
+      start: {
+        ar: { text: "استيقظت وموعد التمرين بعد ساعة، وصديقك يطلب منك اللعب في الشارع.. ماذا تختار؟", choices: ["🏃‍♂️ الذهاب للتمارين بالنادي", "⚽ اللعب في الشارع"], next: ["club", "street"] },
+        en: { text: "You woke up 1 hour before practice, your friend asks you to play in the street.. What do you choose?", choices: ["🏃‍♂️ Go to club practice", "⚽ Play in street"], next: ["club", "street"] },
+        image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500"
+      },
+      club: {
+        ar: { text: "وصلت النادي ومدرب الفريق الأول يشاهد التمرين لاختيار مواهب! كيف تتصرف؟", choices: ["🔥 اللعب بجدية وجماعية", "😎 الاستعراض الفردي"], next: ["win_pro", "bench"] },
+        en: { text: "You arrived at the club and the head coach is watching to pick talents! How do you play?", choices: ["🔥 Play serious & team effort", "😎 Show off alone"], next: ["win_pro", "bench"] },
+        image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500"
+      },
+      street: {
+        ar: { text: "تعرضت لإصابة في الشارع والمدرب علم بتغيبك عن التمرين!", choices: ["😭 الاعتذار للمدرب", "😡 ترك الفريق"], next: ["start", "start"] },
+        en: { text: "You got injured in the street and the coach found out you skipped practice!", choices: ["😭 Apologize to coach", "😡 Quit team"], next: ["start", "start"] },
+        image: "https://images.unsplash.com/photo-1517649763962-0c623266010b?w=500"
+      },
+      win_pro: {
+        ar: { text: "🎉 مبروك! تم انضمامك للفريق الأول بفضل انضباطك!", choices: ["🔄 العب من جديد"], next: ["start"] },
+        en: { text: "🎉 Congratulations! You made it to the first team!", choices: ["🔄 Play again"], next: ["start"] },
+        image: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500"
+      },
+      bench: {
+        ar: { text: "❌ تم استبعادك بسبب الأنانية في اللعب.", choices: ["🔄 حاول مرة أخرى"], next: ["start"] },
+        en: { text: "❌ You were benched for selfish play.", choices: ["🔄 Try again"], next: ["start"] },
+        image: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=500"
+      }
+    };
+
+    function prepareQuestionsPool() {
+      let filtered = currentCategory === 'all' 
+        ? [...questionsDatabase] 
+        : questionsDatabase.filter(q => q.category === currentCategory);
+      
+      activeQuestionsPool = filtered.sort(() => Math.random() - 0.5);
+      currentQIndex = 0;
     }
 
-    function selectCategory(cat) {
+    function selectCategory(cat, btnElement) {
       currentCategory = cat;
-      let filtered = allQuestions.filter(q => q.category === cat);
-      if (filtered.length === 0) {
-        alert('لا توجد أسئلة في هذا القسم بعد!');
-        return;
-      }
-
-      // ترتيب الأسئلة حسب المستوى من 1 لـ 3
-      filtered.sort((a, b) => (a.level || 1) - (b.level || 1));
-      selectedQuestions = filtered;
-
-      score = 0;
-      currentIndex = 0;
-      document.getElementById('category-box').style.display = 'none';
-      document.getElementById('quiz-box').style.display = 'block';
-      showQuestion();
+      document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+      prepareQuestionsPool();
+      renderCurrentQuestion();
     }
 
-    function showQuestion() {
-      clearInterval(timer);
-      timeLeft = 15;
-      document.getElementById('time-left').innerText = timeLeft;
+    function changeLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('html-root').dir = lang === 'ar' ? 'rtl' : 'ltr';
+      const t = translations[lang];
 
-      let qData = selectedQuestions[currentIndex];
-      document.getElementById('progress').innerText = `السؤال ${currentIndex + 1} من ${selectedQuestions.length}`;
-      document.getElementById('level-text').innerText = `المستوى ${qData.level || 1}`;
-      document.getElementById('question').innerText = qData.q;
+      document.getElementById('lang-keys-label').innerText = t.keysLabel;
+      document.getElementById('txt-title').innerText = t.title;
+      document.getElementById('txt-subtitle').innerText = t.subtitle;
+      document.getElementById('txt-game-quiz').innerText = t.gameQuiz;
+      document.getElementById('txt-game-story').innerText = t.gameStory;
+      document.getElementById('btn-back-1').innerText = t.back;
+      document.getElementById('btn-back-2').innerText = t.back;
+      document.getElementById('txt-skip').innerText = t.skip;
+      document.getElementById('txt-score-label').innerText = t.scoreLabel;
 
-      let optionsContainer = document.getElementById('options');
-      optionsContainer.innerHTML = '';
+      document.getElementById('cat-all').innerText = t.catAll;
+      document.getElementById('cat-football').innerText = t.catFootball;
+      document.getElementById('cat-cooking').innerText = t.catCooking;
+      document.getElementById('cat-general').innerText = t.catGeneral;
 
-      let formattedOptions = qData.o.map((opt, index) => {
-        return { text: opt, isCorrect: index === qData.c };
-      });
-      formattedOptions = shuffle(formattedOptions);
-
-      formattedOptions.forEach(opt => {
-        let btn = document.createElement('button');
-        btn.className = 'btn-option';
-        btn.innerText = opt.text;
-        btn.onclick = () => selectOption(btn, opt.isCorrect);
-        optionsContainer.appendChild(btn);
-      });
-
-      timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById('time-left').innerText = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          soundTimeout.play();
-          nextQuestion();
-        }
-      }, 1000);
+      if(document.getElementById('quiz-game').style.display === 'block') renderCurrentQuestion();
+      if(document.getElementById('story-game').style.display === 'block') loadStoryScene('start');
     }
 
-    function selectOption(selectedBtn, isCorrect) {
-      clearInterval(timer);
-      let buttons = document.querySelectorAll('.btn-option');
-      buttons.forEach(b => b.disabled = true);
-
-      if (isCorrect) {
-        selectedBtn.classList.add('correct');
-        soundCorrect.cloneNode(true).play();
-        score++;
+    function openGame(type) {
+      document.getElementById('home-screen').style.display = 'none';
+      if(type === 'quiz') {
+        document.getElementById('quiz-game').style.display = 'block';
+        prepareQuestionsPool();
+        renderCurrentQuestion();
       } else {
-        selectedBtn.classList.add('wrong');
-        soundWrong.cloneNode(true).play();
+        document.getElementById('story-game').style.display = 'block';
+        loadStoryScene('start');
       }
-
-      setTimeout(() => {
-        nextQuestion();
-      }, 1200);
-    }
-
-    function nextQuestion() {
-      currentIndex++;
-      if (currentIndex < selectedQuestions.length) {
-        showQuestion();
-      } else {
-        showResult();
-      }
-    }
-
-    function showResult() {
-      document.getElementById('quiz-box').style.display = 'none';
-      document.getElementById('result-box').style.display = 'block';
-      
-      let total = selectedQuestions.length;
-      document.getElementById('score-text').innerText = `جبت ${score} من ${total}`;
-
-      // تقييم الأداء
-      let percentage = (score / total) * 100;
-      let ratingMsg = '';
-      if (percentage === 100) ratingMsg = '🌟 أداء أسطوري! ممتاز جداً';
-      else if (percentage >= 70) ratingMsg = '👏 ممتاز! أداء قوي جداً';
-      else if (percentage >= 50) ratingMsg = 'جيد! محتاج تدريب أكتير';
-      else ratingMsg = 'حاول مرة أخرى لتطوير معلوماتك! 💪';
-      
-      document.getElementById('rating-text').innerText = ratingMsg;
-
-      // حفظ أعلى سكور (High Score)
-      let currentHS = localStorage.getItem('hs_' + currentCategory) || 0;
-      let hsMsg = document.getElementById('high-score-msg');
-      if (score > currentHS) {
-        localStorage.setItem('hs_' + currentCategory, score);
-        hsMsg.innerText = '🔥 رقم قياسي جديد على جهازك!';
-      } else {
-        hsMsg.innerText = '';
-      }
-
-      soundWin.play();
-      updateHighScoreDisplay();
     }
 
     function goHome() {
-      document.getElementById('result-box').style.display = 'none';
-      document.getElementById('category-box').style.display = 'block';
+      document.getElementById('quiz-game').style.display = 'none';
+      document.getElementById('story-game').style.display = 'none';
+      document.getElementById('home-screen').style.display = 'block';
+    }
+
+    function renderCurrentQuestion() {
+      const qObj = activeQuestionsPool[currentQIndex][currentLang];
+      document.getElementById('q-text').innerText = qObj.q;
+      const container = document.getElementById('q-options');
+      container.innerHTML = '';
+
+      qObj.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-option';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(idx);
+        container.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedIdx) {
+      const correct = activeQuestionsPool[currentQIndex][currentLang].correct;
+      const t = translations[currentLang];
+
+      if(selectedIdx === correct) {
+        playSound('correct');
+        correctAnswersCount++;
+        document.getElementById('correct-count').innerText = correctAnswersCount;
+
+        if(correctAnswersCount % 20 === 0) {
+          userKeys++;
+          document.getElementById('key-count').innerText = userKeys;
+          playSound('key');
+          alert(t.winKeyMsg);
+        }
+        
+        nextQuestion();
+      } else {
+        playSound('wrong');
+        alert(t.wrongMsg);
+      }
+    }
+
+    function useKeyToSkip() {
+      const t = translations[currentLang];
+      if(userKeys >= 1) {
+        userKeys--;
+        document.getElementById('key-count').innerText = userKeys;
+        playSound('key');
+        alert(t.skippedMsg);
+        nextQuestion();
+      } else {
+        playSound('wrong');
+        alert(t.noKeys);
+      }
+    }
+
+    function nextQuestion() {
+      currentQIndex++;
+      if(currentQIndex >= activeQuestionsPool.length) {
+        prepareQuestionsPool();
+      }
+      renderCurrentQuestion();
+    }
+
+    function loadStoryScene(sceneKey) {
+      const scene = storyData[sceneKey];
+      const langScene = scene[currentLang];
+      
+      document.getElementById('story-image').src = scene.image;
+      document.getElementById('story-description').innerText = langScene.text;
+      
+      const container = document.getElementById('story-choices');
+      container.innerHTML = '';
+
+      langScene.choices.forEach((choiceText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-option';
+        btn.innerText = choiceText;
+        btn.onclick = () => loadStoryScene(scene.next[idx]);
+        container.appendChild(btn);
+      });
     }
   </script>
 </body>
