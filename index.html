@@ -1,506 +1,107 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="html-root">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Global Game Hub</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 15px;
-    }
-    .main-container {
-      background: rgba(25, 20, 50, 0.88);
-      backdrop-filter: blur(10px);
-      padding: 25px;
-      border-radius: 24px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(225, 78, 202, 0.2);
-      width: 100%;
-      max-width: 520px;
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .key-badge {
-      background: linear-gradient(45deg, #ffb300, #ff8f00);
-      color: #000;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 14px;
-      box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .lang-select {
-      background: #1f1b40;
-      color: #fff;
-      border: 1px solid rgba(225, 78, 202, 0.4);
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .apps-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 20px;
-    }
-    .app-card {
-      background: linear-gradient(145deg, #1f1b40, #282352);
-      border: 2px solid rgba(225, 78, 202, 0.3);
-      border-radius: 20px;
-      padding: 20px 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .app-card:hover {
-      transform: translateY(-6px) scale(1.02);
-      border-color: #ff007f;
-      box-shadow: 0 10px 25px rgba(255, 0, 127, 0.4);
-    }
-    /* تصميم الأيقونات المصورة بدلاً من الإيموجي */
-    .app-icon-img {
-      width: 75px;
-      height: 75px;
-      object-fit: cover;
-      border-radius: 18px;
-      margin-bottom: 12px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-    }
-    .app-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .category-container {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-    }
-    .cat-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: bold;
-    }
-    .cat-btn.active {
-      background: linear-gradient(90deg, #ff007f, #7928ca);
-      border-color: #ff007f;
-    }
-
-    .btn-action {
-      background: linear-gradient(90deg, #ff007f, #7928ca);
-      color: #fff;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 14px;
-      cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 4px 12px rgba(255, 0, 127, 0.3);
-    }
-    
-    .btn-skip {
-      background: linear-gradient(45deg, #ff8f00, #ffb300);
-      color: #000;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-option {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 14px;
-      border-radius: 14px;
-      width: 100%;
-      margin-bottom: 10px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      transition: all 0.2s;
-      text-align: center;
-    }
-    .btn-option:hover { background: rgba(255, 255, 255, 0.2); }
-
-    .story-img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 16px;
-      margin-bottom: 15px;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-    }
-    .story-box {
-      font-size: 16px;
-      line-height: 1.6;
-      margin-bottom: 18px;
-      background: rgba(0, 0, 0, 0.25);
-      padding: 15px;
-      border-radius: 14px;
-    }
-    .stats-bar {
-      font-size: 13px;
-      color: #00dfd8;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
+    body { background: #0f0c29; color: #fff; margin: 0; padding: 10px; font-family: sans-serif; }
+    .container { max-width: 500px; margin: auto; background: #1a1a2e; padding: 20px; border-radius: 20px; text-align: center; }
+    .btn { background: #4e44ce; border: none; padding: 15px; margin: 5px; border-radius: 10px; color: white; width: 90%; cursor: pointer; font-size: 16px; }
+    .btn:active { background: #3a32a0; }
+    #msg-box { height: 50px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    .app-card { background: #262645; padding: 20px; border-radius: 15px; margin-bottom: 10px; cursor: pointer; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
 
-  <div class="main-container">
-    
-    <!-- 🔝 الشريط العلوي -->
-    <div class="top-bar">
-      <div class="key-badge">
-        🔑 <span id="lang-keys-label">المفاتيح:</span> <span id="key-count">0</span>
-      </div>
-      <select class="lang-select" onchange="changeLanguage(this.value)">
-        <option value="ar">العربية 🇪🇬</option>
-        <option value="en">English 🌐</option>
-      </select>
-    </div>
-
-    <!-- 🏠 الشاشة الرئيسية (أيقونات الألعاب) -->
-    <div id="home-screen">
-      <h1 id="txt-title" style="margin: 0; font-size: 24px; background: linear-gradient(90deg, #ff007f, #00dfd8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">عالم الألعاب التفاعلية 🎮</h1>
-      <p id="txt-subtitle" style="color: #b3b3cc; font-size: 14px; margin-top: 8px;">اختر اللعبة وابدأ التحدي الآن</p>
-      
-      <div class="apps-grid">
-        <!-- ❓ أيقونة لعبة الأسئلة -->
-        <div class="app-card" onclick="openGame('quiz')">
-          <img class="app-icon-img" src="https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=300" alt="سؤال">
-          <div class="app-title" id="txt-game-quiz">تحدي الأسئلة اللانهائي</div>
-        </div>
-
-        <!-- 🧭 أيقونة لعبة قرارات المصير -->
-        <div class="app-card" onclick="openGame('story')">
-          <img class="app-icon-img" src="https://images.unsplash.com/photo-1527066570332-e89eafe04a44?w=300" alt="بوصلة قرارات">
-          <div class="app-title" id="txt-game-story">قرارات المصير</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 🧠 1. شاشة لعبة الأسئلة -->
-    <div id="quiz-game" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <button class="btn-action" onclick="goHome()" id="btn-back-1">🏠 القائمة</button>
-        <button class="btn-skip" id="btn-skip-q" onclick="useKeyToSkip()">🔑 <span id="txt-skip">تخطي (1 🔑)</span></button>
-      </div>
-
-      <!-- اختيار القسم -->
-      <div class="category-container">
-        <button class="cat-btn active" onclick="selectCategory('all', this)" id="cat-all">الكل 🌐</button>
-        <button class="cat-btn" onclick="selectCategory('football', this)" id="cat-football">كرة القدم ⚽</button>
-        <button class="cat-btn" onclick="selectCategory('cooking', this)" id="cat-cooking">الطبخ 🍳</button>
-        <button class="cat-btn" onclick="selectCategory('general', this)" id="cat-general">عامة 💡</button>
-      </div>
-      
-      <div class="stats-bar">
-        🎯 <span id="txt-score-label">الأسئلة الصحيحة المتتالية:</span> <span id="correct-count">0</span> / 20
-      </div>
-
-      <div id="q-text" class="story-box">جاري تحميل السؤال...</div>
-      <div id="q-options"></div>
-    </div>
-
-    <!-- 🧭 2. شاشة لعبة قرارات المصير -->
-    <div id="story-game" style="display: none;">
-      <button class="btn-action" onclick="goHome()" id="btn-back-2" style="float: right; margin-bottom: 12px;">🏠 القائمة</button>
-      <div style="clear: both;"></div>
-      <img id="story-image" class="story-img" src="" alt="المشهد">
-      <div id="story-description" class="story-box"></div>
-      <div id="story-choices"></div>
-    </div>
-
+<div class="container" id="app">
+  <!-- الشاشة الرئيسية -->
+  <div id="home">
+    <h1>أهلاً بك في عالم الألعاب 🎮</h1>
+    <div class="app-card" onclick="openGame('quiz')">تحدي الأسئلة الذكية</div>
+    <div class="app-card" onclick="openGame('story')">رحلة المغامرة (قصص)</div>
   </div>
 
-  <script>
-    let currentLang = 'ar';
-    let userKeys = 0;
-    let correctAnswersCount = 0;
-    let currentCategory = 'all';
-    let activeQuestionsPool = [];
-    let currentQIndex = 0;
+  <!-- واجهة اللعبة -->
+  <div id="game-ui" class="hidden">
+    <button class="btn" style="background: #333; width: auto;" onclick="goHome()">🏠 رجوع للقائمة</button>
+    <div id="msg-box"></div>
+    <div id="content"></div>
+  </div>
+</div>
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playSound(type) {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
+<script>
+  // 1. بيانات الأسئلة
+  const quizData = [
+    { q: "ما هي عاصمة اليابان؟", o: ["طوكيو", "سيدني", "بكين"], a: 0 },
+    { q: "ما هو أسرع حيوان في العالم؟", o: ["الفهد", "الأسد", "الغزال"], a: 0 },
+    { q: "كم عدد كواكب المجموعة الشمسية؟", o: ["7", "8", "9"], a: 1 }
+  ];
 
-      if (type === 'correct') {
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-      } else if (type === 'wrong') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
-      } else if (type === 'key') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
-        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16);
-        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
-      }
-    }
+  // 2. بيانات القصص (توسع فيها زي ما تحب)
+  const storyData = {
+    start: { t: "أنت بطل أسطوري، تستيقظ في قلعة مهجورة. ماذا تفعل؟", o: [{t: "الخروج للغابة", n: "forest"}, {t: "البحث في القلعة", n: "castle"}] },
+    forest: { t: "الغابة مخيفة، سمعت صوت ذئب! اهرب أم واجه؟", o: [{t: "الهروب", n: "start"}, {t: "المواجهة", n: "win"}] },
+    castle: { t: "وجدت كنزاً قديماً! هل تأخذه؟", o: [{t: "نعم", n: "win"}, {t: "لا", n: "start"}] },
+    win: { t: "🎉 مبروك! لقد فزت بالمغامرة.", o: [{t: "إعادة اللعب", n: "start"}] }
+  };
 
-    const translations = {
-      ar: {
-        keysLabel: "المفاتيح:",
-        title: "عالم الألعاب التفاعلية 🎮",
-        subtitle: "اختر اللعبة وابدأ التحدي الآن",
-        gameQuiz: "تحدي الأسئلة اللانهائي",
-        gameStory: "قرارات المصير",
-        back: "🏠 القائمة",
-        skip: "تخطي (1 🔑)",
-        scoreLabel: "الأسئلة الصحيحة المتتالية:",
-        winKeyMsg: "🎉 رائع جداً! جاوبت 20 سؤال صح وربحت مفتاح جديد! 🔑",
-        wrongMsg: "إجابة خاطئة! ❌ حاول مجدداً",
-        noKeys: "لا تملك مفاتيح! جاوب على 20 سؤال صح لتربح مفتاحاً.",
-        skippedMsg: "تم تخطي السؤال بنجاح باستعمال المفتاح! 🔑",
-        catAll: "الكل 🌐", catFootball: "كرة القدم ⚽", catCooking: "الطبخ 🍳", catGeneral: "عامة 💡"
-      },
-      en: {
-        keysLabel: "Keys:",
-        title: "Interactive Game Hub 🎮",
-        subtitle: "Choose a game and start the challenge",
-        gameQuiz: "Infinite Quiz Challenge",
-        gameStory: "Fate Decisions",
-        back: "🏠 Menu",
-        skip: "Skip (1 🔑)",
-        scoreLabel: "Correct Questions:",
-        winKeyMsg: "🎉 Amazing! You answered 20 questions correctly and earned a key! 🔑",
-        wrongMsg: "Wrong Answer! ❌ Try again",
-        noKeys: "No keys available! Answer 20 questions correctly to earn a key.",
-        skippedMsg: "Question skipped successfully using 1 key! 🔑",
-        catAll: "All 🌐", catFootball: "Football ⚽", catCooking: "Cooking 🍳", catGeneral: "General 💡"
-      }
-    };
+  let currentGame = '';
 
-    const questionsDatabase = [
-      { category: "football", ar: { q: "ما هي الدولة الفائزة بكأس العالم 2022؟", options: ["فرنسا", "الأرجنتين", "البرازيل", "ألمانيا"], correct: 1 }, en: { q: "Which country won the 2022 World Cup?", options: ["France", "Argentina", "Brazil", "Germany"], correct: 1 } },
-      { category: "football", ar: { q: "كم عدد لاعبي فريق كرة القدم داخل الملعب؟", options: ["10", "11", "12", "9"], correct: 1 }, en: { q: "How many players per football team on field?", options: ["10", "11", "12", "9"], correct: 1 } },
-      { category: "cooking", ar: { q: "ما هو المكون الأساسي في طبق المكرونة الباستا؟", options: ["الأرز", "القمح / الطحين", "الذرة", "الشوفان"], correct: 1 }, en: { q: "What is the primary ingredient in pasta?", options: ["Rice", "Wheat / Flour", "Corn", "Oats"], correct: 1 } },
-      { category: "cooking", ar: { q: "أي نبات يفرز مادة تسبب الدموع عند تقطيعه؟", options: ["الخيار", "البصل", "الثوم", "الطماطم"], correct: 1 }, en: { q: "Which vegetable causes tears when chopped?", options: ["Cucumber", "Onion", "Garlic", "Tomato"], correct: 1 } },
-      { category: "general", ar: { q: "ما هي عاصمة سويسرا؟", options: ["جنيف", "زيورخ", "برن", "بازل"], correct: 2 }, en: { q: "What is the capital of Switzerland?", options: ["Geneva", "Zurich", "Bern", "Basel"], correct: 2 } },
-      { category: "general", ar: { q: "ما هو أسرع كائن حي على الأرض؟", options: ["الفهد", "النسر", "النعامة", "الأسد"], correct: 0 }, en: { q: "What is the fastest land animal?", options: ["Cheetah", "Eagle", "Ostrich", "Lion"], correct: 0 } }
-    ];
+  function openGame(type) {
+    currentGame = type;
+    document.getElementById('home').classList.add('hidden');
+    document.getElementById('game-ui').classList.remove('hidden');
+    if(type === 'quiz') nextQuiz();
+    else renderStory('start');
+  }
 
-    const storyData = {
-      start: {
-        ar: { text: "استيقظت وموعد التمرين بعد ساعة، وصديقك يطلب منك اللعب في الشارع.. ماذا تختار؟", choices: ["🏃‍♂️ الذهاب للتمارين بالنادي", "⚽ اللعب في الشارع"], next: ["club", "street"] },
-        en: { text: "You woke up 1 hour before practice, your friend asks you to play in the street.. What do you choose?", choices: ["🏃‍♂️ Go to club practice", "⚽ Play in street"], next: ["club", "street"] },
-        image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500"
-      },
-      club: {
-        ar: { text: "وصلت النادي ومدرب الفريق الأول يشاهد التمرين لاختيار مواهب! كيف تتصرف؟", choices: ["🔥 اللعب بجدية وجماعية", "😎 الاستعراض الفردي"], next: ["win_pro", "bench"] },
-        en: { text: "You arrived at the club and the head coach is watching to pick talents! How do you play?", choices: ["🔥 Play serious & team effort", "😎 Show off alone"], next: ["win_pro", "bench"] },
-        image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500"
-      },
-      street: {
-        ar: { text: "تعرضت لإصابة في الشارع والمدرب علم بتغيبك عن التمرين!", choices: ["😭 الاعتذار للمدرب", "😡 ترك الفريق"], next: ["start", "start"] },
-        en: { text: "You got injured in the street and the coach found out you skipped practice!", choices: ["😭 Apologize to coach", "😡 Quit team"], next: ["start", "start"] },
-        image: "https://images.unsplash.com/photo-1517649763962-0c623266010b?w=500"
-      },
-      win_pro: {
-        ar: { text: "🎉 مبروك! تم انضمامك للفريق الأول بفضل انضباطك!", choices: ["🔄 العب من جديد"], next: ["start"] },
-        en: { text: "🎉 Congratulations! You made it to the first team!", choices: ["🔄 Play again"], next: ["start"] },
-        image: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500"
-      },
-      bench: {
-        ar: { text: "❌ تم استبعادك بسبب الأنانية في اللعب.", choices: ["🔄 حاول مرة أخرى"], next: ["start"] },
-        en: { text: "❌ You were benched for selfish play.", choices: ["🔄 Try again"], next: ["start"] },
-        image: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=500"
-      }
-    };
+  function goHome() {
+    document.getElementById('home').classList.remove('hidden');
+    document.getElementById('game-ui').classList.add('hidden');
+  }
 
-    function prepareQuestionsPool() {
-      let filtered = currentCategory === 'all' 
-        ? [...questionsDatabase] 
-        : questionsDatabase.filter(q => q.category === currentCategory);
-      
-      activeQuestionsPool = filtered.sort(() => Math.random() - 0.5);
-      currentQIndex = 0;
-    }
-
-    function selectCategory(cat, btnElement) {
-      currentCategory = cat;
-      document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-      btnElement.classList.add('active');
-      prepareQuestionsPool();
-      renderCurrentQuestion();
-    }
-
-    function changeLanguage(lang) {
-      currentLang = lang;
-      document.getElementById('html-root').dir = lang === 'ar' ? 'rtl' : 'ltr';
-      const t = translations[lang];
-
-      document.getElementById('lang-keys-label').innerText = t.keysLabel;
-      document.getElementById('txt-title').innerText = t.title;
-      document.getElementById('txt-subtitle').innerText = t.subtitle;
-      document.getElementById('txt-game-quiz').innerText = t.gameQuiz;
-      document.getElementById('txt-game-story').innerText = t.gameStory;
-      document.getElementById('btn-back-1').innerText = t.back;
-      document.getElementById('btn-back-2').innerText = t.back;
-      document.getElementById('txt-skip').innerText = t.skip;
-      document.getElementById('txt-score-label').innerText = t.scoreLabel;
-
-      document.getElementById('cat-all').innerText = t.catAll;
-      document.getElementById('cat-football').innerText = t.catFootball;
-      document.getElementById('cat-cooking').innerText = t.catCooking;
-      document.getElementById('cat-general').innerText = t.catGeneral;
-
-      if(document.getElementById('quiz-game').style.display === 'block') renderCurrentQuestion();
-      if(document.getElementById('story-game').style.display === 'block') loadStoryScene('start');
-    }
-
-    function openGame(type) {
-      document.getElementById('home-screen').style.display = 'none';
-      if(type === 'quiz') {
-        document.getElementById('quiz-game').style.display = 'block';
-        prepareQuestionsPool();
-        renderCurrentQuestion();
-      } else {
-        document.getElementById('story-game').style.display = 'block';
-        loadStoryScene('start');
-      }
-    }
-
-    function goHome() {
-      document.getElementById('quiz-game').style.display = 'none';
-      document.getElementById('story-game').style.display = 'none';
-      document.getElementById('home-screen').style.display = 'block';
-    }
-
-    function renderCurrentQuestion() {
-      const qObj = activeQuestionsPool[currentQIndex][currentLang];
-      document.getElementById('q-text').innerText = qObj.q;
-      const container = document.getElementById('q-options');
-      container.innerHTML = '';
-
-      qObj.options.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-option';
-        btn.innerText = opt;
-        btn.onclick = () => checkAnswer(idx);
-        container.appendChild(btn);
-      });
-    }
-
-    function checkAnswer(selectedIdx) {
-      const correct = activeQuestionsPool[currentQIndex][currentLang].correct;
-      const t = translations[currentLang];
-
-      if(selectedIdx === correct) {
-        playSound('correct');
-        correctAnswersCount++;
-        document.getElementById('correct-count').innerText = correctAnswersCount;
-
-        if(correctAnswersCount % 20 === 0) {
-          userKeys++;
-          document.getElementById('key-count').innerText = userKeys;
-          playSound('key');
-          alert(t.winKeyMsg);
-        }
+  // منطق لعبة الأسئلة
+  function nextQuiz() {
+    const q = quizData[Math.floor(Math.random() * quizData.length)];
+    const cont = document.getElementById('content');
+    cont.innerHTML = `<h3>${q.q}</h3>`;
+    q.o.forEach((opt, idx) => {
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.innerText = opt;
+      b.onclick = () => {
+        const btns = document.querySelectorAll('.btn');
+        btns.forEach(btn => btn.disabled = true);
         
-        nextQuestion();
-      } else {
-        playSound('wrong');
-        alert(t.wrongMsg);
-      }
-    }
+        if(idx === q.a) {
+          document.getElementById('msg-box').innerText = "✅ صحيح!";
+          b.style.background = "#27ae60";
+        } else {
+          document.getElementById('msg-box').innerText = "❌ خطأ!";
+          b.style.background = "#c0392b";
+        }
+        setTimeout(nextQuiz, 1000);
+      };
+      cont.appendChild(b);
+    });
+  }
 
-    function useKeyToSkip() {
-      const t = translations[currentLang];
-      if(userKeys >= 1) {
-        userKeys--;
-        document.getElementById('key-count').innerText = userKeys;
-        playSound('key');
-        alert(t.skippedMsg);
-        nextQuestion();
-      } else {
-        playSound('wrong');
-        alert(t.noKeys);
-      }
-    }
-
-    function nextQuestion() {
-      currentQIndex++;
-      if(currentQIndex >= activeQuestionsPool.length) {
-        prepareQuestionsPool();
-      }
-      renderCurrentQuestion();
-    }
-
-    function loadStoryScene(sceneKey) {
-      const scene = storyData[sceneKey];
-      const langScene = scene[currentLang];
-      
-      document.getElementById('story-image').src = scene.image;
-      document.getElementById('story-description').innerText = langScene.text;
-      
-      const container = document.getElementById('story-choices');
-      container.innerHTML = '';
-
-      langScene.choices.forEach((choiceText, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-option';
-        btn.innerText = choiceText;
-        btn.onclick = () => loadStoryScene(scene.next[idx]);
-        container.appendChild(btn);
-      });
-    }
-  </script>
+  // منطق لعبة القصص
+  function renderStory(id) {
+    const s = storyData[id];
+    const cont = document.getElementById('content');
+    cont.innerHTML = `<h3>${s.t}</h3>`;
+    s.o.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.innerText = opt.t;
+      b.onclick = () => renderStory(opt.n);
+      cont.appendChild(b);
+    });
+  }
+</script>
 </body>
 </html>
