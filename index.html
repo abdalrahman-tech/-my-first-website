@@ -17,7 +17,7 @@
       align-items: center;
     }
     .container {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 25px;
       padding: 25px;
@@ -71,7 +71,7 @@
       box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
     }
     .hidden { display: none; }
-    #msg-box { height: 30px; font-size: 18px; font-weight: bold; margin: 10px 0; }
+    #msg-box { min-height: 30px; font-size: 18px; font-weight: bold; margin: 10px 0; }
   </style>
 </head>
 <body>
@@ -88,7 +88,7 @@
         <span class="icon">⚽</span> كرة القدم والرياضة
       </div>
       <div class="card" onclick="startQuiz('general')">
-        <span class="icon">🌍</span> معلومات عامة
+        <span class="icon">🌍</span> ثقافة وحضارة
       </div>
       <div class="card" onclick="startStory()">
         <span class="icon">📖</span> مغامرات وتخمين
@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <!-- واجهة اللعب -->
+  <!-- واجهة اللعبة -->
   <div id="game-ui" class="hidden">
     <div class="stats-bar">
       <span>🔑 المفاتيح: <span id="keys-count">0</span></span>
@@ -109,32 +109,35 @@
 </div>
 
 <script>
-  // بيانات الأقسام والأسئلة الأساسية
-  const quizCategories = {
-    cooking: [
-      { q: "ما هو المكون الأساسي في أكلة المنسف؟", o: ["الجميد واللحم", "السمك", "الدجاج والمشروم"], a: 0 },
-      { q: "ما هي الصلصة الأساسية للبيتزا الإيطالية؟", o: ["صلصة الطماطم", "المايونيز", "الخردل"], a: 0 },
-      { q: "أي من هذه الأطباق يعتبر طبقاً مصرياً شهيراً؟", o: ["الكشري", "الكبسة", "الكسكسي"], a: 0 }
-    ],
-    sports: [
-      { q: "كم عدد لاعبي فريق كرة القدم داخل الملعب؟", o: ["11 لاعب", "9 لاعبين", "12 لاعب"], a: 0 },
-      { q: "كم مدة الشوط الواحد في مباراة كرة القدم؟", o: ["45 دقيقة", "30 دقيقة", "60 دقيقة"], a: 0 },
-      { q: "ما هي البطولة الأكثر شهرة للأندية في أوروبا؟", o: ["دوري أبطال أوروبا", "كأس الاتحاد", "كأس آسيا"], a: 0 }
-    ],
-    general: [
-      { q: "ما هي عاصمة جمهورية مصر العربية؟", o: ["القاهرة", "الإسكندرية", "أسوان"], a: 0 },
-      { q: "ما هو أكبر كوكب في المجموعة الشمسية؟", o: ["المشتري", "المريخ", "الأرض"], a: 0 },
-      { q: "ما هو أسرع كائن حي على الأرض؟", o: ["الفهد", "الأسد", "الغزال"], a: 0 }
-    ]
-  };
+  let quizCategories = {};
 
-  // استرجاع البيانات المحفوظة
+  // سحب الأسئلة من الملف الخارجي
+  fetch('questions.json')
+    .then(res => res.json())
+    .then(data => { quizCategories = data; })
+    .catch(err => console.log('جاري تحميل الأسئلة...'));
+
   let keys = parseInt(localStorage.getItem('app_keys')) || 0;
   let totalAnswered = parseInt(localStorage.getItem('app_answered')) || 0;
   let currentCategory = 'general';
   let categoryIndex = 0;
 
-  // إعداد الأصوات المريحة للسمع
+  // مولد أسئلة الفضاء والشعراء والكتب والتاريخ اللا نهائي
+  const autoQuestions = {
+    poets: [
+      { q: "من هو الشاعر صاحب لقب 'شاعر النيل'؟", o: ["حافظ إبراهيم", "أحمد شوقي", "إيليا أبو ماضي"], a: 0 },
+      { q: "من هو الشاعر الملقب بـ 'رهين المحبسين'؟", o: ["أبو العلاء المعري", "المتنبي", "أبو تمام"], a: 0 }
+    ],
+    space: [
+      { q: "ما هو أكبر كوكب في نظامنا الشمسي؟", o: ["المشتري", "زحل", "نبتون"], a: 0 },
+      { q: "ما هو الكوكب المعروف باسم 'الكوكب الأحمر'؟", o: ["المريخ", "الزهراء", "عطارد"], a: 0 }
+    ],
+    history: [
+      { q: "في أي سنة وقعت معركة حطين الشهيرة؟", o: ["1187 م", "1260 م", "1099 م"], a: 0 },
+      { q: "من هو قائد معركة عين جالوت؟", o: ["سيف الدين قطز", "صلاح الدين الأيوبي", "الظاهر بيبرس"], a: 0 }
+    ]
+  };
+
   function playNiceSound(isCorrect) {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -143,7 +146,6 @@
     gain.connect(ctx.destination);
 
     if (isCorrect) {
-      // نغمة مبهجة ومريحة (C5 -> E5)
       osc.type = 'sine';
       osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
       osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.15);
@@ -152,7 +154,6 @@
       osc.start();
       osc.stop(ctx.currentTime + 0.3);
     } else {
-      // صوت منخفض ناعم غير مزعج
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(220, ctx.currentTime);
       gain.gain.setValueAtTime(0.1, ctx.currentTime);
@@ -186,22 +187,16 @@
     document.getElementById('game-ui').classList.add('hidden');
   }
 
-  // محرك مولد لـ 1000+ سؤال
   function getCurrentQuestion() {
-    const list = quizCategories[currentCategory] || quizCategories.general;
+    const list = quizCategories[currentCategory] || [];
     if (categoryIndex < list.length) {
       return list[categoryIndex];
     } else {
-      // توليد أسئلة ذكاء وحساب غير محدودة تلقائياً
-      const n1 = Math.floor(Math.random() * 50) + 1;
-      const n2 = Math.floor(Math.random() * 50) + 1;
-      const correct = n1 + n2;
-      return {
-        q: `ما هو حاصل جمع الرقمين: ${n1} + ${n2} ؟`,
-        o: [correct.toString(), (correct + 3).toString(), (correct - 2).toString()].sort(() => Math.random() - 0.5),
-        a: null,
-        correctVal: correct.toString()
-      };
+      // إذا انتهت الأسئلة المكتوبة، يتم التوليد أوتوماتيكياً من الأقسام المتخصصة
+      const keysArr = Object.keys(autoQuestions);
+      const randomKey = keysArr[Math.floor(Math.random() * keysArr.length)];
+      const pool = autoQuestions[randomKey];
+      return pool[Math.floor(Math.random() * pool.length)];
     }
   }
 
@@ -210,6 +205,12 @@
     const cont = document.getElementById('content');
     document.getElementById('msg-box').innerText = "";
     
+    if (!qData) {
+      cont.innerHTML = `<h3>جاري إعداد الأسئلة...</h3>`;
+      setTimeout(loadQuestion, 500);
+      return;
+    }
+
     cont.innerHTML = `<h3 style="color:#2d3436; margin-bottom:20px;">${qData.q}</h3>`;
     
     qData.o.forEach((opt) => {
@@ -220,7 +221,7 @@
         const allBtns = document.querySelectorAll('.btn-opt');
         allBtns.forEach(btn => btn.disabled = true);
 
-        const isCorrect = (qData.a !== null) ? (opt === qData.o[qData.a]) : (opt === qData.correctVal);
+        const isCorrect = (opt === qData.o[qData.a]);
 
         if (isCorrect) {
           playNiceSound(true);
@@ -229,7 +230,6 @@
           b.style.background = "#00b894";
           
           totalAnswered++;
-          // إضافة مفتاح كل 20 سؤال
           if (totalAnswered > 0 && totalAnswered % 20 === 0) {
             keys++;
             document.getElementById('msg-box').innerText = "🎉 رائع! أكملت 20 سؤالاً وحصلت على 🔑 مفتاح جديد!";
