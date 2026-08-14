@@ -462,7 +462,7 @@
   }
 
   // ===== الحفظ التلقائي =====
-  const SAVE_KEY = 'quiz_progress';
+  const SAVE_KEY = 'quiz_progress_v2'; // v2 عشان أي بيانات قديمة من نسخة سابقة تتجاهل تلقائياً
 
   function saveProgress() {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
@@ -497,7 +497,12 @@
       renderCategories();
 
       const saved = loadSavedProgress();
-      if (saved && questionBanks[saved.category]) {
+      const savedLooksValid = saved && questionBanks[saved.category]
+        && Array.isArray(saved.shuffledQuestions)
+        && saved.shuffledQuestions.length > 0
+        && saved.shuffledQuestions[0].q_ar !== undefined;
+
+      if (savedLooksValid) {
         currentCategory = saved.category;
         currentQuestionIndex = saved.index;
         score = saved.score;
