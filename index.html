@@ -1,243 +1,417 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Game Hub 🎮</title>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body {
-      background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
-      color: #333; margin: 0; padding: 15px; min-height: 100vh;
-      display: flex; justify-content: center; align-items: center;
-    }
-    .container {
-      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-      border-radius: 25px; padding: 25px; width: 100%; max-width: 480px;
-      text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    }
-    h1 { color: #2d3436; margin-bottom: 20px; font-size: 24px; }
-    .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-    .card {
-      background: #ffffff; border: 2px solid #e0e0e0; border-radius: 18px;
-      padding: 15px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.2s;
-    }
-    .card:hover { transform: translateY(-3px); border-color: #6c5ce7; background: #f8f9fa; }
-    .card .icon { font-size: 32px; display: block; margin-bottom: 5px; }
-    .btn {
-      background: #6c5ce7; border: none; padding: 14px; margin: 8px 0;
-      border-radius: 14px; color: white; width: 100%; cursor: pointer;
-      font-size: 16px; font-weight: bold; transition: 0.2s;
-    }
-    .btn-opt { background: #00cec9; color: #fff; }
-    .btn-opt:hover { background: #00b894; }
-    .btn-nav { background: #636e72; margin-top: 15px; }
-    .stats-bar {
-      background: #ffeaa7; color: #d63031; padding: 12px; border-radius: 15px;
-      margin-bottom: 15px; font-weight: bold; font-size: 15px;
-      display: flex; justify-content: space-around;
-    }
-    .hidden { display: none; }
-    #msg-box { min-height: 30px; font-size: 18px; font-weight: bold; margin: 10px 0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اتحدى نفسك</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: #0a0e17;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(56,189,248,0.10) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(251,146,60,0.08) 0%, transparent 45%);
+    min-height: 100vh;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .screen { width: 100%; max-width: 480px; display: none; }
+  .screen.active { display: block; }
+
+  #home-screen { text-align: center; }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #38bdf8;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  #home-screen h1 { font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; }
+  #home-screen p { color: #64748b; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
+
+  #play-btn {
+    background: #38bdf8;
+    color: #0a0e17;
+    border: none;
+    border-radius: 16px;
+    padding: 18px 56px;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 19px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+    box-shadow: 0 12px 30px rgba(56,189,248,0.25);
+  }
+
+  #play-btn:hover { background: #7dd3fc; transform: translateY(-2px); }
+  #play-btn:active { transform: scale(0.97); }
+
+  #category-screen h2 { font-size: 26px; font-weight: 900; text-align: center; margin-bottom: 8px; }
+  #category-screen .sub { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 32px; }
+
+  .categories { display: flex; flex-direction: column; gap: 14px; }
+
+  .cat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #101d33;
+    border: 1px solid #1e2f4a;
+    border-radius: 18px;
+    padding: 20px 22px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .cat-card:hover { border-color: #38bdf8; transform: translateX(-4px); }
+
+  .cat-icon {
+    font-size: 30px; width: 52px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    background: #08111f; border-radius: 14px;
+  }
+
+  .cat-info { flex: 1; }
+  .cat-name { font-weight: 700; font-size: 17px; margin-bottom: 2px; }
+  .cat-desc { font-size: 13px; color: #64748b; }
+  .cat-arrow { color: #38bdf8; font-size: 20px; }
+
+  #quiz-screen { background: #101d33; border: 1px solid #1e2f4a; border-radius: 22px; padding: 26px 24px; }
+
+  .quiz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
+  .quiz-cat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: #38bdf8;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .quiz-progress-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #64748b; }
+
+  .progress-track { width: 100%; height: 6px; background: #08111f; border-radius: 4px; overflow: hidden; margin-bottom: 22px; }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 10%;
+  }
+
+  .difficulty-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 1px;
+    padding: 4px 10px; border-radius: 20px;
+    margin-bottom: 14px; font-weight: 700;
+  }
+
+  .diff-easy { background: rgba(74,222,128,0.15); color: #4ade80; }
+  .diff-medium { background: rgba(250,204,21,0.15); color: #facc15; }
+  .diff-hard { background: rgba(248,113,113,0.15); color: #f87171; }
+
+  #question-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    background: #08111f;
+    border: 1px solid #1e2f4a;
+    color: #e2e8f0;
+    border-radius: 14px;
+    padding: 15px 18px;
+    font-family: inherit;
+    font-size: 15px;
+    text-align: right;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+
+  .option-btn:hover:not(:disabled) { border-color: #38bdf8; background: #0d1a2e; }
+  .option-btn:active:not(:disabled) { transform: scale(0.98); }
+
+  .option-btn.correct { background: rgba(74,222,128,0.12); border-color: #4ade80; color: #4ade80; }
+  .option-btn.wrong { background: rgba(248,113,113,0.12); border-color: #f87171; color: #f87171; }
+  .option-btn:disabled { cursor: default; }
+
+  #next-btn {
+    display: none;
+    width: 100%;
+    margin-top: 18px;
+    background: #38bdf8;
+    color: #08111f;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  #next-btn:hover { background: #7dd3fc; }
+
+  #finish-screen { text-align: center; }
+  .finish-icon { font-size: 60px; margin-bottom: 18px; }
+  #finish-screen h2 { font-size: 30px; font-weight: 900; margin-bottom: 8px; }
+  #finish-screen p { color: #64748b; font-size: 15px; margin-bottom: 28px; }
+
+  .score-box { background: #101d33; border: 1px solid #1e2f4a; border-radius: 18px; padding: 26px; margin-bottom: 28px; }
+  .score-num { font-family: 'JetBrains Mono', monospace; font-size: 46px; font-weight: 700; color: #38bdf8; }
+  .score-label { color: #64748b; font-size: 13px; margin-top: 4px; }
+
+  .finish-actions { display: flex; gap: 10px; }
+
+  .finish-btn {
+    flex: 1; border-radius: 14px; padding: 14px;
+    font-family: inherit; font-weight: 700; font-size: 14px;
+    cursor: pointer; border: none;
+  }
+
+  #retry-btn { background: #38bdf8; color: #08111f; }
+  #retry-btn:hover { background: #7dd3fc; }
+  #home-btn { background: #101d33; color: #e2e8f0; border: 1px solid #1e2f4a; }
+  #home-btn:hover { border-color: #38bdf8; }
+
+  #loading-msg { text-align: center; color: #64748b; padding: 40px 0; }
+</style>
 </head>
 <body>
 
-<div class="container">
-  <!-- الشاشة الرئيسية -->
-  <div id="home">
-    <h1>🎮 عالم الألعاب والمسابقات</h1>
-    <div class="category-grid">
-      <div class="card" onclick="startQuiz('cooking')">
-        <span class="icon">🍳</span> الطبخ والأكلات
-      </div>
-      <div class="card" onclick="startQuiz('sports')">
-        <span class="icon">⚽</span> كرة القدم والرياضة
-      </div>
-      <div class="card" onclick="startQuiz('general')">
-        <span class="icon">🌍</span> ثقافة ومعلومات عامة
-      </div>
-      <div class="card" onclick="startStory()">
-        <span class="icon">📖</span> مغامرات وتخمين
-      </div>
-    </div>
+  <div class="screen active" id="loading-screen">
+    <p id="loading-msg">جاري تحميل الأسئلة...</p>
   </div>
 
-  <!-- واجهة اللعبة -->
-  <div id="game-ui" class="hidden">
-    <div class="stats-bar">
-      <span>🔑 المفاتيح: <span id="keys-count">0</span></span>
-      <span>📊 التقدم: <span id="q-progress">0</span>/20</span>
-    </div>
-    <div id="msg-box"></div>
-    <div id="content"></div>
-    <button class="btn btn-nav" onclick="goHome()">🏠 القائمة الرئيسية</button>
+  <div class="screen" id="home-screen">
+    <div class="eyebrow">Quiz Challenge</div>
+    <h1>اتحدى نفسك</h1>
+    <p>10 أسئلة، الصعوبة بتزيد مرحلة بعد مرحلة<br>لحد ما توصل لخط النهاية 🏁</p>
+    <button id="play-btn">لعب</button>
   </div>
-</div>
+
+  <div class="screen" id="category-screen">
+    <h2>اختار فئتك</h2>
+    <p class="sub">كل فئة فيها أسئلة بترتيب الصعوبة</p>
+    <div class="categories" id="categories-container"></div>
+  </div>
+
+  <div class="screen" id="quiz-screen">
+    <div class="quiz-top">
+      <div class="quiz-cat-label"><span id="quiz-cat-icon"></span> <span id="quiz-cat-name"></span></div>
+      <div class="quiz-progress-num"><span id="q-current">1</span> / <span id="q-total">10</span></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <span class="difficulty-badge" id="difficulty-badge">سهل</span>
+    <div id="question-text"></div>
+    <div class="options" id="options-container"></div>
+    <button id="next-btn">التالي</button>
+  </div>
+
+  <div class="screen" id="finish-screen">
+    <div class="finish-icon">🏁</div>
+    <h2>وصلت لخط النهاية!</h2>
+    <p>شوف نتيجتك</p>
+    <div class="score-box">
+      <div class="score-num"><span id="final-score">0</span>/<span id="final-total">10</span></div>
+      <div class="score-label">إجابة صحيحة</div>
+    </div>
+    <div class="finish-actions">
+      <button class="finish-btn" id="retry-btn">إعادة المحاولة</button>
+      <button class="finish-btn" id="home-btn">الرئيسية</button>
+    </div>
+  </div>
 
 <script>
-  let quizCategories = {};
+  // بنك الأسئلة هيتحمل من ملف questions.json المنفصل
+  let questionBanks = {};
+  let currentCategory = null;
+  let currentQuestionIndex = 0;
+  let score = 0;
+  let answered = false;
 
+  const screens = {
+    loading: document.getElementById('loading-screen'),
+    home: document.getElementById('home-screen'),
+    category: document.getElementById('category-screen'),
+    quiz: document.getElementById('quiz-screen'),
+    finish: document.getElementById('finish-screen')
+  };
+
+  function showScreen(name) {
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+  }
+
+  // ===== الصوت: بنولّده مباشرة من المتصفح من غير ملفات خارجية =====
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playTone(frequency, duration, type) {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.type = type;
+    oscillator.frequency.value = frequency;
+    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + duration);
+  }
+
+  function playCorrectSound() {
+    // نغمتين صاعدتين بسرعة = صوت إيجابي
+    playTone(523, 0.12, 'sine');
+    setTimeout(() => playTone(784, 0.15, 'sine'), 100);
+  }
+
+  function playWrongSound() {
+    // نغمة هابطة واحدة = صوت سلبي
+    playTone(180, 0.3, 'sawtooth');
+  }
+
+  // ===== تحميل الأسئلة من الملف المنفصل =====
   fetch('questions.json')
-    .then(res => res.json())
-    .then(data => { quizCategories = data; })
-    .catch(err => console.log('جاري إعداد الأسئلة...'));
+    .then(response => response.json())
+    .then(data => {
+      questionBanks = data;
+      renderCategories();
+      showScreen('home');
+    })
+    .catch(error => {
+      document.getElementById('loading-msg').textContent = 'حصل خطأ في تحميل الأسئلة. تأكد إن ملف questions.json موجود في نفس الفولدر.';
+      console.error(error);
+    });
 
-  let keys = parseInt(localStorage.getItem('app_keys')) || 0;
-  let totalAnswered = parseInt(localStorage.getItem('app_answered')) || 0;
-  let currentCategory = 'general';
-  let categoryIndex = 0;
+  function renderCategories() {
+    const container = document.getElementById('categories-container');
+    container.innerHTML = '';
 
-  // خوارزمية خلط الخيارات عشوائياً (Fisher-Yates)
-  function shuffleArray(array) {
-    let arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  // مولد أسئلة إضافي لا نهائي يغطي الفضاء والأدب والحساب
-  function generateDynamicQuestion(cat) {
-    const num1 = Math.floor(Math.random() * 90) + 10;
-    const num2 = Math.floor(Math.random() * 90) + 10;
-    const correctSum = num1 + num2;
-    
-    return {
-      q: `سؤال ذكاء سريع: ما هو حاصل جمع ${num1} + ${num2} ؟`,
-      o: [correctSum.toString(), (correctSum + 5).toString(), (correctSum - 3).toString()],
-      a: 0
-    };
-  }
-
-  function playNiceSound(isCorrect) {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    if (isCorrect) {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
-      osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.3);
-    } else {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(220, ctx.currentTime);
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.2);
-    }
-  }
-
-  function updateHeader() {
-    document.getElementById('keys-count').innerText = keys;
-    document.getElementById('q-progress').innerText = totalAnswered % 20;
-  }
-
-  function saveProgress() {
-    localStorage.setItem('app_keys', keys);
-    localStorage.setItem('app_answered', totalAnswered);
-  }
-
-  function startQuiz(cat) {
-    currentCategory = cat;
-    categoryIndex = 0;
-    document.getElementById('home').classList.add('hidden');
-    document.getElementById('game-ui').classList.remove('hidden');
-    updateHeader();
-    loadQuestion();
-  }
-
-  function goHome() {
-    document.getElementById('home').classList.remove('hidden');
-    document.getElementById('game-ui').classList.add('hidden');
-  }
-
-  function getCurrentQuestion() {
-    const list = quizCategories[currentCategory] || [];
-    if (categoryIndex < list.length) {
-      return list[categoryIndex];
-    } else {
-      return generateDynamicQuestion(currentCategory);
-    }
-  }
-
-  function loadQuestion() {
-    const qData = getCurrentQuestion();
-    const cont = document.getElementById('content');
-    document.getElementById('msg-box').innerText = "";
-    
-    if (!qData) {
-      cont.innerHTML = `<h3>جاري تجهيز السؤال...</h3>`;
-      setTimeout(loadQuestion, 500);
-      return;
-    }
-
-    // تجهيز خيارات متوازنة وعشوائية
-    let rawOptions = qData.o.map((optText, idx) => ({
-      text: optText,
-      isCorrect: (idx === qData.a)
-    }));
-
-    let shuffledOptions = shuffleArray(rawOptions);
-
-    cont.innerHTML = `<h3 style="color:#2d3436; margin-bottom:20px;">${qData.q}</h3>`;
-    
-    shuffledOptions.forEach((opt) => {
-      const b = document.createElement('button');
-      b.className = 'btn btn-opt';
-      b.innerText = opt.text;
-      b.onclick = () => {
-        const allBtns = document.querySelectorAll('.btn-opt');
-        allBtns.forEach(btn => btn.disabled = true);
-
-        if (opt.isCorrect) {
-          playNiceSound(true);
-          document.getElementById('msg-box').innerText = "✨ إجابة صحيحة وممتازة!";
-          document.getElementById('msg-box').style.color = "#00b894";
-          b.style.background = "#00b894";
-          
-          totalAnswered++;
-          if (totalAnswered > 0 && totalAnswered % 20 === 0) {
-            keys++;
-            document.getElementById('msg-box').innerText = "🎉 رائع! أكملت 20 سؤالاً وحصلت على 🔑 مفتاح جديد!";
-          }
-        } else {
-          playNiceSound(false);
-          document.getElementById('msg-box').innerText = "❌ إجابة خاطئة، حاول في السؤال القادم!";
-          document.getElementById('msg-box').style.color = "#d63031";
-          b.style.background = "#d63031";
-        }
-
-        categoryIndex++;
-        saveProgress();
-        updateHeader();
-        setTimeout(loadQuestion, 1600);
-      };
-      cont.appendChild(b);
+    Object.keys(questionBanks).forEach(function(key) {
+      const bank = questionBanks[key];
+      const card = document.createElement('div');
+      card.className = 'cat-card';
+      card.innerHTML = `
+        <div class="cat-icon">${bank.icon}</div>
+        <div class="cat-info">
+          <div class="cat-name">${bank.name}</div>
+          <div class="cat-desc">${bank.questions.length} سؤال متاح</div>
+        </div>
+        <div class="cat-arrow">‹</div>
+      `;
+      card.addEventListener('click', function() {
+        currentCategory = key;
+        currentQuestionIndex = 0;
+        score = 0;
+        showScreen('quiz');
+        renderQuestion();
+      });
+      container.appendChild(card);
     });
   }
 
-  function startStory() {
-    document.getElementById('home').classList.add('hidden');
-    document.getElementById('game-ui').classList.remove('hidden');
-    document.getElementById('msg-box').innerText = "";
-    
-    const cont = document.getElementById('content');
-    cont.innerHTML = `
-      <h3>📖 رحلة البحث عن الكنز المفقود</h3>
-      <p style="color:#636e72;">أنت الآن أمام قصر قديم، لديك خياران للدخول:</p>
-      <button class="btn btn-opt" onclick="playNiceSound(true); alert('دخلت من الباب الأمامي ووجدت أول خريطة!')">🚪 الباب الأمامي</button>
-      <button class="btn btn-opt" onclick="playNiceSound(false); alert('الحديقة الخلفية مليئة بالمصائد، عد للمقدمة!')">🌳 الحديقة الخلفية</button>
-    `;
+  document.getElementById('play-btn').addEventListener('click', function() {
+    showScreen('category');
+  });
+
+  function renderQuestion() {
+    answered = false;
+    const bank = questionBanks[currentCategory];
+    const totalQuestions = bank.questions.length;
+    const question = bank.questions[currentQuestionIndex];
+
+    document.getElementById('quiz-cat-icon').textContent = bank.icon;
+    document.getElementById('quiz-cat-name').textContent = bank.name;
+    document.getElementById('q-current').textContent = currentQuestionIndex + 1;
+    document.getElementById('q-total').textContent = totalQuestions;
+    document.getElementById('progress-fill').style.width = ((currentQuestionIndex + 1) / totalQuestions * 100) + '%';
+    document.getElementById('question-text').textContent = question.q;
+    document.getElementById('next-btn').style.display = 'none';
+
+    // شارة الصعوبة بتتغير حسب نسبة التقدم في الأسئلة (مش رقم ثابت)
+    // عشان يشتغل صح مهما كان عدد الأسئلة (10 أو 1000)
+    const progress = (currentQuestionIndex + 1) / totalQuestions;
+    const badge = document.getElementById('difficulty-badge');
+    if (progress <= 0.4) {
+      badge.textContent = 'سهل';
+      badge.className = 'difficulty-badge diff-easy';
+    } else if (progress <= 0.7) {
+      badge.textContent = 'متوسط';
+      badge.className = 'difficulty-badge diff-medium';
+    } else {
+      badge.textContent = 'صعب';
+      badge.className = 'difficulty-badge diff-hard';
+    }
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+
+    question.options.forEach(function(optionText, index) {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = optionText;
+      btn.addEventListener('click', function() {
+        selectAnswer(index, question.correct, btn, container);
+      });
+      container.appendChild(btn);
+    });
   }
+
+  function selectAnswer(selectedIndex, correctIndex, clickedBtn, container) {
+    if (answered) return;
+    answered = true;
+
+    const buttons = container.querySelectorAll('.option-btn');
+    buttons.forEach(b => b.disabled = true);
+
+    if (selectedIndex === correctIndex) {
+      clickedBtn.classList.add('correct');
+      score++;
+      playCorrectSound();
+    } else {
+      clickedBtn.classList.add('wrong');
+      buttons[correctIndex].classList.add('correct');
+      playWrongSound();
+    }
+
+    document.getElementById('next-btn').style.display = 'block';
+  }
+
+  document.getElementById('next-btn').addEventListener('click', function() {
+    currentQuestionIndex++;
+    const totalQuestions = questionBanks[currentCategory].questions.length;
+
+    if (currentQuestionIndex < totalQuestions) {
+      renderQuestion();
+    } else {
+      document.getElementById('final-score').textContent = score;
+      document.getElementById('final-total').textContent = totalQuestions;
+      showScreen('finish');
+    }
+  });
+
+  document.getElementById('retry-btn').addEventListener('click', function() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showScreen('quiz');
+    renderQuestion();
+  });
+
+  document.getElementById('home-btn').addEventListener('click', function() {
+    showScreen('home');
+  });
 </script>
+
 </body>
 </html>
