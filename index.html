@@ -3,14 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Game Hub</title>
+  <title>Global Game Hub 🎮</title>
   <style>
-    body { background: #0f0c29; color: #fff; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
-    .container { max-width: 500px; margin: auto; background: #1a1a2e; padding: 20px; border-radius: 20px; text-align: center; }
-    .btn { background: #4e44ce; border: none; padding: 15px; margin: 5px; border-radius: 10px; color: white; width: 90%; cursor: pointer; font-size: 16px; }
-    .key-display { font-size: 20px; color: #ffd700; margin-bottom: 10px; font-weight: bold; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      margin: 0;
+      padding: 15px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      padding: 25px;
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    h1 { font-size: 26px; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .card-grid { display: flex; flex-direction: column; gap: 15px; }
+    .app-card {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 18px;
+      padding: 20px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .app-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.3); }
+    .btn {
+      background: #ff7675;
+      border: none;
+      padding: 14px;
+      margin: 8px 0;
+      border-radius: 12px;
+      color: white;
+      width: 100%;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: background 0.2s;
+    }
+    .btn-opt { background: #6c5ce7; }
+    .btn-opt:hover { background: #5a4bcf; }
+    .btn-nav { background: #2d3436; margin-top: 15px; }
+    .stats-bar {
+      font-size: 20px;
+      background: rgba(0,0,0,0.2);
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: #ffeaa7;
+    }
     .hidden { display: none; }
-    #msg-box { height: 40px; margin: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    #msg-box { height: 30px; font-size: 18px; font-weight: bold; margin: 10px 0; }
   </style>
 </head>
 <body>
@@ -19,34 +80,69 @@
   <!-- الشاشة الرئيسية -->
   <div id="home">
     <h1>عالم الألعاب 🎮</h1>
-    <button class="btn" onclick="openQuiz()">تحدي الأسئلة الذكية</button>
+    <div class="card-grid">
+      <div class="app-card" onclick="openGame('quiz')">
+        <span>🧠</span> تحدي الأسئلة الذكية
+      </div>
+      <div class="app-card" onclick="openGame('story')">
+        <span>📖</span> رحلة المغامرة (قصص)
+      </div>
+    </div>
   </div>
 
   <!-- واجهة اللعبة -->
   <div id="game-ui" class="hidden">
-    <div class="key-display">🔑 المفاتيح: <span id="key-count">0</span></div>
+    <div class="stats-bar">🔑 المفاتيح: <span id="key-count">0</span> | السؤال: <span id="q-index">1</span></div>
     <div id="msg-box"></div>
     <div id="content"></div>
-    <button class="btn" style="background:#444;" onclick="goHome()">🏠 القائمة الرئيسية</button>
+    <button class="btn btn-nav" onclick="goHome()">🏠 القائمة الرئيسية</button>
   </div>
 </div>
 
 <script>
-  // أسئلة غير محدودة - يمكنك إضافة أي عدد هنا
-  const quizData = [
+  // قائمة الأسئلة الأساسية
+  const baseQuiz = [
     { q: "ما هي عاصمة مصر؟", o: ["القاهرة", "الرياض", "دبي"], a: 0 },
-    { q: "ما هو أسرع حيوان؟", o: ["الفهد", "الأسد", "الحصان"], a: 0 },
+    { q: "ما هو أسرع حيوان بري؟", o: ["الفهد", "الأسد", "الغزال"], a: 0 },
     { q: "كم عدد كواكب المجموعة الشمسية؟", o: ["7", "8", "9"], a: 1 },
-    { q: "من مخترع المصباح؟", o: ["أديسون", "نيوتن", "أينشتاين"], a: 0 },
     { q: "ما هو أطول نهر في العالم؟", o: ["النيل", "الأمازون", "الميسيسيبي"], a: 0 }
   ];
 
-  let keys = 0;
+  // بيانات قصص التخمين والمغامرة
+  const storyData = {
+    start: { t: "استيقظت في جزيرة مهجورة وأمامك طريقان، ماذا تختار؟", o: [{t: "طريق الشاطئ", n: "beach"}, {t: "طريق الغابة", n: "jungle"}] },
+    beach: { t: "وجدت زجاجة فيها خريطة كنز! هل تتبعها؟", o: [{t: "نعم، ابدأ البحث", n: "win"}, {t: "لا، ابقَ على الشاطئ", n: "start"}] },
+    jungle: { t: "سمعت صوت حركة خلف الأشجار! ماذا تفعل؟", o: [{t: "الاختباء", n: "start"}, {t: "استكشاف الصوت", n: "win"}] },
+    win: { t: "🎉 مبروك! عثرت على الكنز ونجحت في المغامرة!", o: [{t: "إعادة المغامرة", n: "start"}] }
+  };
 
-  function openQuiz() {
+  // استرجاع التقدم أو البدء من جديد
+  let keys = parseInt(localStorage.getItem('user_keys')) || 0;
+  let qIndex = parseInt(localStorage.getItem('user_q_index')) || 1;
+
+  function saveProgress() {
+    localStorage.setItem('user_keys', keys);
+    localStorage.setItem('user_q_index', qIndex);
+  }
+
+  function updateHeader() {
+    document.getElementById('key-count').innerText = keys;
+    document.getElementById('q-index').innerText = qIndex;
+  }
+
+  function speakSound(text) {
+    window.speechSynthesis.cancel();
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'ar-EG';
+    window.speechSynthesis.speak(msg);
+  }
+
+  function openGame(type) {
     document.getElementById('home').classList.add('hidden');
     document.getElementById('game-ui').classList.remove('hidden');
-    nextQuiz();
+    updateHeader();
+    if(type === 'quiz') loadQuiz();
+    else renderStory('start');
   }
 
   function goHome() {
@@ -54,44 +150,73 @@
     document.getElementById('game-ui').classList.add('hidden');
   }
 
-  function updateKeys(amount) {
-    keys = Math.max(0, keys + amount);
-    document.getElementById('key-count').innerText = keys;
+  // مولد أسئلة غير محدود
+  function getQuestion(index) {
+    if (index <= baseQuiz.length) {
+      return baseQuiz[index - 1];
+    } else {
+      // توليد أسئلة حسابية بشكل لا نهائي
+      const num1 = Math.floor(Math.random() * 20) + 1;
+      const num2 = Math.floor(Math.random() * 20) + 1;
+      const correct = num1 + num2;
+      return {
+        q: `ما هو حاصل جمع ${num1} + ${num2} ؟`,
+        o: [correct.toString(), (correct + 2).toString(), (correct - 1).toString()].sort(() => Math.random() - 0.5),
+        a: null // سيتم حساب الإجابة بناءً على النص
+      };
+    }
   }
 
-  function speak(text) {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'ar-EG';
-    window.speechSynthesis.speak(msg);
-  }
-
-  function nextQuiz() {
-    const q = quizData[Math.floor(Math.random() * quizData.length)];
+  function loadQuiz() {
+    const qData = getQuestion(qIndex);
     const cont = document.getElementById('content');
+    document.getElementById('msg-box').innerText = "";
     
-    cont.innerHTML = `<h3>${q.q}</h3>
-                      <button class="btn" style="background:#555; width:auto;" onclick="speak('${q.q}')">🔊 اسمع السؤال</button>`;
+    cont.innerHTML = `<h3 style="margin-bottom:20px;">${qData.q}</h3>`;
     
-    q.o.forEach((opt, idx) => {
+    qData.o.forEach((opt) => {
       const b = document.createElement('button');
-      b.className = 'btn';
+      b.className = 'btn btn-opt';
       b.innerText = opt;
       b.onclick = () => {
-        // تعطيل الأزرار بعد الضغط
-        const allBtns = document.querySelectorAll('.btn');
+        const allBtns = document.querySelectorAll('.btn-opt');
         allBtns.forEach(btn => btn.disabled = true);
 
-        if(idx === q.a) {
+        const isCorrect = (qData.a !== null) ? (opt === qData.o[qData.a]) : (parseInt(opt) === eval(qData.q.match(/\d+/g).join('+')));
+
+        if(isCorrect) {
           document.getElementById('msg-box').innerText = "✅ إجابة صحيحة!";
-          document.getElementById('msg-box').style.color = "#27ae60";
-          updateKeys(1); // زيادة مفتاح
+          document.getElementById('msg-box').style.color = "#55efc4";
+          b.style.background = "#00b894";
+          keys++;
+          speakSound("إجابة صحيحة");
         } else {
           document.getElementById('msg-box').innerText = "❌ إجابة خاطئة!";
-          document.getElementById('msg-box').style.color = "#c0392b";
-          updateKeys(-1); // نقصان مفتاح
+          document.getElementById('msg-box').style.color = "#ff7675";
+          b.style.background = "#d63031";
+          if(keys > 0) keys--;
+          speakSound("إجابة خاطئة");
         }
-        setTimeout(nextQuiz, 1500); // الانتقال للسؤال التالي تلقائياً
+        
+        qIndex++;
+        saveProgress();
+        updateHeader();
+        setTimeout(loadQuiz, 1500);
       };
+      cont.appendChild(b);
+    });
+  }
+
+  function renderStory(id) {
+    const s = storyData[id];
+    const cont = document.getElementById('content');
+    document.getElementById('msg-box').innerText = "";
+    cont.innerHTML = `<h3>${s.t}</h3>`;
+    s.o.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'btn btn-opt';
+      b.innerText = opt.t;
+      b.onclick = () => renderStory(opt.n);
       cont.appendChild(b);
     });
   }
