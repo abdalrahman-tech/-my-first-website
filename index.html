@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقعي الإلكتروني الأول | عبد الرحمن-تك</title>
+    <title>تحدي المعلومات العامة</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
         body { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 30px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        h1 { margin-bottom: 10px; color: #38bdf8; }
+        h1 { margin-bottom: 15px; color: #38bdf8; }
         p { margin-bottom: 20px; color: #cbd5e1; }
-        .btn { background: #ff7b00; color: white; border: none; padding: 14px; margin: 8px 0; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; transition: 0.3s; }
+        .btn { background: #ff7b00; color: white; border: none; padding: 14px; margin-top: 10px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; transition: 0.3s; }
         .btn:hover { background: #e66f00; }
-        .option-btn { background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255, 255, 255, 0.3); padding: 12px; margin: 6px 0; border-radius: 10px; width: 100%; cursor: pointer; }
+        .option-btn { background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255, 255, 255, 0.3); padding: 12px; margin: 8px 0; border-radius: 10px; width: 100%; cursor: pointer; font-size: 1rem; text-align: center; transition: 0.2s; }
+        .option-btn:hover { background: rgba(255, 255, 255, 0.25); }
         .hidden { display: none; }
-        .score { font-size: 1.2rem; margin-top: 15px; color: #4ade80; }
+        .score { font-size: 1.2rem; margin-top: 15px; color: #4ade80; font-weight: bold; }
+        .feedback { font-weight: bold; margin-top: 15px; font-size: 1.1rem; height: 30px; transition: 0.3s; }
+        .correct { color: #4ade80; }
+        .wrong { color: #f87171; }
     </style>
 </head>
 <body>
@@ -22,8 +26,8 @@
     <div class="card">
         <!-- الشاشة الرئيسية -->
         <div id="home">
-            <h1>عبد الرحمن-تك 🚀</h1>
-            <p>مرحباً بك في موقعي الأول! اضغط ابدأ لتجربة التحدي.</p>
+            <h1>تحدي المعلومات 🧠</h1>
+            <p>اختبر معلوماتك العذبة وحاول تحقيق أعلى نتيجة!</p>
             <button class="btn" onclick="startQuiz()">ابدأ التحدي 🎮</button>
         </div>
 
@@ -31,34 +35,48 @@
         <div id="quiz" class="hidden">
             <h3 id="question-text" style="margin-bottom: 15px;"></h3>
             <div id="options-container"></div>
+            <div id="feedback" class="feedback"></div>
             <div class="score" id="score-display">النقاط: 0</div>
         </div>
 
         <!-- شاشة النهاية -->
         <div id="result" class="hidden">
             <h1>🏆 انتهى التحدي!</h1>
-            <p id="final-score"></p>
-            <button class="btn" onclick="location.reload()">العب تاني 🔄</button>
+            <p id="final-score" style="margin-top:15px; font-size:1.2rem;"></p>
+            <button class="btn" onclick="location.reload()">العب مجدداً 🔄</button>
         </div>
     </div>
 
     <script>
-        const questions = [
-            { q: "ما هي اللغة المستخدمة لتصميم واجهات المواقع؟", o: ["Python", "HTML & CSS", "C++", "Java"], c: 1 },
-            { q: "ما هو أسرع حيوان بري في العالم؟", o: ["الأسد", "الفهد", "الغزال", "الحصان"], c: 1 },
-            { q: "ما هو أكبر كوكب في المجموعة الشمسية؟", o: ["الأرض", "المشتري", "المريخ", "زحل"], c: 1 }
-        ];
-
+        let questions = [];
         let currentQ = 0;
         let score = 0;
 
-        function startQuiz() {
-            document.getElementById('home').classList.add('hidden');
-            document.getElementById('quiz').classList.remove('hidden');
-            loadQ();
+        // دالة لخلط الأسئلة عشوائياً
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        async function startQuiz() {
+            try {
+                const response = await fetch('questions.json');
+                questions = await response.json();
+                
+                shuffleArray(questions);
+
+                document.getElementById('home').classList.add('hidden');
+                document.getElementById('quiz').classList.remove('hidden');
+                loadQ();
+            } catch (error) {
+                document.getElementById('home').innerHTML = "<h3>حدث خطأ! تأكد من إنشاء ملف questions.json</h3>";
+            }
         }
 
         function loadQ() {
+            document.getElementById('feedback').innerText = ''; 
             const q = questions[currentQ];
             document.getElementById('question-text').innerText = q.q;
             const container = document.getElementById('options-container');
@@ -74,25 +92,36 @@
         }
 
         function checkAnswer(i) {
+            const feedbackEl = document.getElementById('feedback');
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            // تعطيل الأزرار عشان ما يضغطش أكتر من مرة
+            buttons.forEach(btn => btn.disabled = true);
+
             if (i === questions[currentQ].c) {
                 score += 10;
-                alert("إجابة صحيحة! 🎉 +10 نقاط");
+                feedbackEl.innerText = "إجابة صحيحة! 🎉 +10";
+                feedbackEl.className = "feedback correct";
             } else {
-                alert("إجابة خاطئة! ❌");
+                score -= 5;
+                feedbackEl.innerText = "إجابة خاطئة! ❌ -5";
+                feedbackEl.className = "feedback wrong";
             }
 
             document.getElementById('score-display').innerText = "النقاط: " + score;
-            currentQ++;
 
-            if (currentQ < questions.length) {
-                loadQ();
-            } else {
-                document.getElementById('quiz').classList.add('hidden');
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('final-score').innerText = "مجموع نقاطك النهائي: " + score + " من " + (questions.length * 10);
-            }
+            // الانتقال للسؤال التالي بعد ثانية بدون أي رسائل Popup بيضاء
+            setTimeout(() => {
+                currentQ++;
+                if (currentQ < questions.length) {
+                    loadQ();
+                } else {
+                    document.getElementById('quiz').classList.add('hidden');
+                    document.getElementById('result').classList.remove('hidden');
+                    document.getElementById('final-score').innerText = "مجموع نقاطك النهائي: " + score;
+                }
+            }, 1000);
         }
     </script>
 </body>
 </html>
-
