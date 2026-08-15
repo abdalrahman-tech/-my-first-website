@@ -27,7 +27,7 @@
       justify-content: space-between;
       align-items: center;
       background: rgba(0, 0, 0, 0.4);
-      padding: 12px 20px;
+      padding: 12px 16px;
       border-radius: 20px;
       border: 2px solid rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
@@ -37,14 +37,14 @@
 
     .stat-badge {
       background: linear-gradient(180deg, #ff9d00 0%, #ff6c00 100%);
-      padding: 6px 16px;
+      padding: 6px 12px;
       border-radius: 50px;
       font-weight: 900;
-      font-size: 1rem;
+      font-size: 0.9rem;
       box-shadow: 0 4px 0 #b34b00, inset 0 2px 0 rgba(255,255,255,0.4);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
 
@@ -68,7 +68,6 @@
       text-shadow: 0 0 10px rgba(0,242,254,0.5);
     }
 
-    /* Vertical Category List (تحت بعضها) */
     .categories-list {
       display: flex;
       flex-direction: column;
@@ -98,14 +97,12 @@
       box-shadow: none !important;
     }
 
-    /* Distinct Gamer Colors */
     .btn-sports  { background: linear-gradient(180deg, #ff416c 0%, #ff4b2b 100%); box-shadow: 0 6px 0 #b31217; }
     .btn-movies  { background: linear-gradient(180deg, #8a2387 0%, #e94057 100%); box-shadow: 0 6px 0 #591054; }
     .btn-general { background: linear-gradient(180deg, #f7b731 0%, #fa8231 100%); box-shadow: 0 6px 0 #ab4f19; }
     .btn-cooking { background: linear-gradient(180deg, #26de81 0%, #2bcbba 100%); box-shadow: 0 6px 0 #158a50; }
     .btn-science { background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); box-shadow: 0 6px 0 #0044a3; }
 
-    /* Map Layout */
     .map-container {
       display: flex;
       flex-direction: column-reverse;
@@ -136,7 +133,6 @@
 
     @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-    /* Quiz Game Area */
     .question-card {
       background: rgba(255, 255, 255, 0.08);
       border: 2px solid rgba(255, 255, 255, 0.15);
@@ -188,7 +184,6 @@
     }
     .back-btn { background: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
 
-    /* Custom Gamer Popup */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
     .modal-content { background: #22254a; border: 3px solid #ff9d00; color: #fff; padding: 25px; border-radius: 22px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
     .modal-btn { margin-top: 15px; background: #2ecc71; color: white; border: none; padding: 10px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #27ae60; }
@@ -198,11 +193,12 @@
 
   <div class="top-bar">
     <div class="stat-badge">🔑 المفاتيح: <span id="keys-count">0</span></div>
+    <div class="stat-badge" style="background: linear-gradient(180deg, #ff4b2b 0%, #ff416c 100%); box-shadow: 0 4px 0 #b31217;">❌ الأخطاء: <span id="wrong-count">0/5</span></div>
     <div class="stat-badge" style="background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); box-shadow: 0 4px 0 #0044a3;">🎯 <span id="current-cat-name">الرئيسية</span></div>
   </div>
 
   <div class="container">
-    <!-- View 1: Categories (تحت بعضها وبشكل العاب) -->
+    <!-- View 1: Categories -->
     <div id="category-view">
       <div class="game-title">اختر القسم للبدء 🎮</div>
       <div class="categories-list">
@@ -247,28 +243,32 @@
   </div>
 
   <script>
-    // Real Questions Database (أسئلة حقيقية ومتنوعة)
     const questionBank = {
       sports: [
         { q: "كم عدد لاعبين فريق كرة القدم داخل الملعب؟", options: ["11 لاعب", "9 لاعبين", "10 لاعبين", "12 لاعب"], correct: "11 لاعب" },
         { q: "ما هي الدولة الفائزة بكأس العالم 2022؟", options: ["الأرجنتين", "فرنسا", "البرازيل", "إسبانيا"], correct: "الأرجنتين" },
-        { q: "كم مدة شوط مباراة كرة القدم الأصلي؟", options: ["45 دقيقة", "30 دقيقة", "60 دقيقة", "40 دقيقة"], correct: "45 دقيقة" }
+        { q: "كم مدة شوط مباراة كرة القدم الأصلي؟", options: ["45 دقيقة", "30 دقيقة", "60 دقيقة", "40 دقيقة"], correct: "45 دقيقة" },
+        { q: "ما هي الدولة الأكثر تفويزاً بكأس العالم؟", options: ["البرازيل", "ألمانيا", "إيطاليا", "الأرجنتين"], correct: "البرازيل" }
       ],
       movies: [
         { q: "ما هو اسم شخصية باتمان الحقيقية؟", options: ["بروس واين", "توني ستارك", "بيتر باركر", "كلارك كينت"], correct: "بروس واين" },
-        { q: "ما هي لغة فيلم 'Titanic' الأصلية؟", options: ["الإنكليزية", "الفرنسية", "الإيطالية", "الإسبانية"], correct: "الإنكليزية" }
+        { q: "ما هي لغة فيلم 'Titanic' الأصلية؟", options: ["الإنكليزية", "الفرنسية", "الإيطالية", "الإسبانية"], correct: "الإنكليزية" },
+        { q: "من هو بطل فيلم Spider-Man الأصلي عام 2002؟", options: ["توبي ماغواير", "توم هولاند", "أندرو غارفيلد", "كريستيان بيل"], correct: "توبي ماغواير" }
       ],
       general: [
         { q: "ما هي عاصمة جمهورية مصر العربية؟", options: ["القاهرة", "الأسكندرية", "الجيزة", "أسوان"], correct: "القاهرة" },
-        { q: "كم عدد قارات العالم؟", options: ["7 قارات", "5 قارات", "6 قارات", "8 قارات"], correct: "7 قارات" }
+        { q: "كم عدد قارات العالم؟", options: ["7 قارات", "5 قارات", "6 قارات", "8 قارات"], correct: "7 قارات" },
+        { q: "ما هو أطول نهر في العالم؟", options: ["نهر النيل", "نهر الأمازون", "نهر الميسيسيبي", "نهر اليانغتسي"], correct: "نهر النيل" }
       ],
       cooking: [
         { q: "ما هو المكون الرئيسي في طبق الكشري؟", options: ["الأرز والمكرونة", "اللحمة", "الدجاج", "السمك"], correct: "الأرز والمكرونة" },
-        { q: "ما المادة التي تجعل العجين يرتفع؟", options: ["الخميرة", "النشا", "الملح", "السكر"], correct: "الخميرة" }
+        { q: "ما المادة التي تجعل العجين يرتفع؟", options: ["الخميرة", "النشا", "الملح", "السكر"], correct: "الخميرة" },
+        { q: "ما هي الفاكهة الأساسية لعمل المربى التقليدية؟", options: ["الفراولة", "الموز", "الخيار", "البطيخ"], correct: "الفراولة" }
       ],
       science: [
         { q: "ما هو الرمز الكيميائي للماء؟", options: ["H2O", "CO2", "O2", "NaCl"], correct: "H2O" },
-        { q: "ما هو أقرب كوكب إلى الشمس؟", options: ["عطارد", "الزهرة", "الأرض", "المريخ"], correct: "عطارد" }
+        { q: "ما هو أقرب كوكب إلى الشمس؟", options: ["عطارد", "الزهرة", "الأرض", "المريخ"], correct: "عطارد" },
+        { q: "ما هو أثقل عنصر طبيعي على الأرض؟", options: ["اليورانيوم", "الذهب", "الحديد", "الرصاص"], correct: "اليورانيوم" }
       ]
     };
 
@@ -280,26 +280,49 @@
     let currentCategory = '';
     let currentLevel = 1;
     let currentQuestionIndex = 0;
+    let wrongAnswersCount = 0;
     let currentQuestions = [];
 
-    // Audio FX System
-    function playAudio(isCorrect) {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+    // Global Web Audio System
+    let audioCtx = null;
 
-      if(isCorrect) {
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-      } else {
-        osc.frequency.setValueAtTime(200, ctx.currentTime);
-        osc.frequency.setValueAtTime(120, ctx.currentTime + 0.1);
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      osc.start();
-      gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3);
-      osc.stop(ctx.currentTime + 0.3);
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playAudio(type) {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(110, audioCtx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.4);
+        }
+      } catch (e) {
+        console.log("Audio play error:", e);
+      }
     }
 
     function showView(viewId) {
@@ -312,11 +335,13 @@
 
     function updateHeader() {
       document.getElementById('keys-count').innerText = keys;
+      document.getElementById('wrong-count').innerText = `${wrongAnswersCount}/5`;
       const names = { sports:'رياضة', movies:'أفلام', general:'عامة', cooking:'طبخ', science:'علوم' };
       document.getElementById('current-cat-name').innerText = names[currentCategory] || 'الرئيسية';
     }
 
     function selectCategory(cat) {
+      initAudio();
       currentCategory = cat;
       renderMap();
       showView('map-view');
@@ -347,21 +372,25 @@
       }
     }
 
-    function startQuiz(level) {
-      currentLevel = level;
-      currentQuestionIndex = 0;
-      
-      // Get base questions and create 30 dynamic questions for level
+    function generateQuestionsForLevel() {
       const base = questionBank[currentCategory] || questionBank.general;
       currentQuestions = [];
       for(let i = 0; i < 30; i++) {
-        let template = base[i % base.length];
+        let template = base[Math.floor(Math.random() * base.length)];
         currentQuestions.push({
-          q: `[سؤال ${i+1}] ${template.q}`,
-          options: template.options,
+          q: template.q,
+          options: [...template.options],
           correct: template.correct
         });
       }
+    }
+
+    function startQuiz(level) {
+      initAudio();
+      currentLevel = level;
+      currentQuestionIndex = 0;
+      wrongAnswersCount = 0;
+      generateQuestionsForLevel();
 
       showView('quiz-view');
       loadQuestion();
@@ -375,6 +404,7 @@
 
       document.getElementById('level-indicator').innerText = `المستوى ${currentLevel}`;
       document.getElementById('progress-indicator').innerText = `السؤال ${currentQuestionIndex + 1} / 30`;
+      updateHeader();
 
       const qData = currentQuestions[currentQuestionIndex];
       document.getElementById('question-text').innerText = qData.q;
@@ -382,46 +412,68 @@
       const container = document.getElementById('options-container');
       container.innerHTML = '';
 
-      // Shuffle Answers
       let shuffled = [...qData.options].sort(() => Math.random() - 0.5);
 
       shuffled.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'answer-btn';
         btn.innerText = opt;
-        btn.onclick = (e) => checkAnswer(btn, opt, qData.correct);
+        btn.onclick = () => checkAnswer(btn, opt, qData.correct);
         container.appendChild(btn);
       });
     }
 
+    function getNewQuestionData() {
+      const base = questionBank[currentCategory] || questionBank.general;
+      let template = base[Math.floor(Math.random() * base.length)];
+      return {
+        q: template.q,
+        options: [...template.options],
+        correct: template.correct
+      };
+    }
+
     function checkAnswer(btn, selected, correct) {
+      initAudio();
       const btns = document.querySelectorAll('.answer-btn');
       btns.forEach(b => b.disabled = true);
 
       if (selected === correct) {
         btn.classList.add('correct');
-        playAudio(true);
+        playAudio('correct');
         setTimeout(() => {
           currentQuestionIndex++;
           loadQuestion();
-        }, 600);
+        }, 500);
       } else {
         btn.classList.add('wrong');
-        playAudio(false);
+        playAudio('wrong');
+        wrongAnswersCount++;
+        updateHeader();
+
         setTimeout(() => {
-          showModal("إجابة خاطئة! ❌", "حاول مرة أخرى بتركيز أكبر.");
-          btns.forEach(b => b.disabled = false);
-          btn.classList.remove('wrong');
-        }, 600);
+          if (wrongAnswersCount >= 5) {
+            showModal("خسرت في هذا المستوى! ⚠️", "تجاوزت 5 أخطاء. ستتم إعادة المستوى من السؤال الأول!");
+            currentQuestionIndex = 0;
+            wrongAnswersCount = 0;
+            generateQuestionsForLevel();
+            loadQuestion();
+          } else {
+            showModal("إجابة خاطئة! ❌", "تم تغيير السؤال بسؤال جديد، ركز جيداً!");
+            // استبدال السؤال الحالي بسؤال جديد تماماً
+            currentQuestions[currentQuestionIndex] = getNewQuestionData();
+            loadQuestion();
+          }
+        }, 500);
       }
     }
 
     function useKeyToSkip() {
+      initAudio();
       if (keys > 0) {
         keys--;
         localStorage.setItem('user_keys', keys);
-        updateHeader();
-        playAudio(true);
+        playAudio('correct');
         currentQuestionIndex++;
         loadQuestion();
       } else {
