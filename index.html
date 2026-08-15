@@ -104,20 +104,36 @@
 
   /* ===== خريطة المستويات ===== */
   .level-map {
-    display: flex; flex-direction: column-reverse; align-items: center; gap: 6px;
+    display: flex; flex-direction: column-reverse; align-items: center; gap: 0;
     background: #fff; border: 2px solid #ffe3c2; border-radius: 24px;
     padding: 30px 20px; position: relative;
   }
 
-  .level-row { display: flex; justify-content: center; width: 100%; }
-  .level-row.offset-right { justify-content: flex-end; padding-right: 15%; }
-  .level-row.offset-left { justify-content: flex-start; padding-left: 15%; }
+  .level-row { display: flex; justify-content: center; width: 100%; position: relative; padding: 14px 0; }
+  .level-row.offset-right { justify-content: flex-end; padding-right: 18%; }
+  .level-row.offset-left { justify-content: flex-start; padding-left: 18%; }
+
+  /* الخط اللي بيوصل بين المستويات، شكله زي طريق ملفوف */
+  .level-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    right: 50%;
+    width: 4px;
+    height: 42px;
+    background: repeating-linear-gradient(to bottom, #ffd28a 0, #ffd28a 6px, transparent 6px, transparent 12px);
+    border-radius: 4px;
+    z-index: 0;
+  }
+
+  .level-row.offset-right::after { right: 18%; transform: translateX(50%); }
+  .level-row.offset-left::after { right: auto; left: 18%; transform: translateX(-50%); }
 
   .level-circle {
     width: 64px; height: 64px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; flex-direction: column;
     font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 18px;
-    cursor: pointer; border: 4px solid #fff; position: relative;
+    cursor: pointer; border: 4px solid #fff; position: relative; z-index: 1;
     box-shadow: 0 6px 14px rgba(0,0,0,0.1);
     transition: transform 0.15s;
   }
@@ -358,9 +374,10 @@
 
   // ===== حالة اللعبة =====
   let questionBanks = {};
-  const LEVEL_SIZE = 10; // أقصى عدد أسئلة متاح لكل مستوى، حسب حجم بنك الأسئلة الحالي
+  const NUM_LEVELS = 10; // هدف ثابت: دايماً 10 مستويات لكل فئة، مهما زاد عدد الأسئلة بعدين
 
   let currentCategory = null;
+  let isApiMode = false; // true لو الفئة دي جايه من الـ API (أسئلة غير محدودة)
   let currentLevel = 0; // index المستوى الحالي (0-based)
   let currentQuestionIndex = 0;
   let score = 0;
@@ -438,6 +455,49 @@
     return arr;
   }
 
+  // ===== فئات إضافية بتيجي من سيرفر خارجي (Open Trivia Database) - أسئلة غير محدودة، إنجليزي بس =====
+  const apiCategories = {
+    sports:  { id: 21, name_ar: 'رياضة (غير محدود)', name_en: 'Sports (Unlimited)', icon: '🏆' },
+    science: { id: 17, name_ar: 'علوم (غير محدود)', name_en: 'Science (Unlimited)', icon: '🔬' },
+    history: { id: 23, name_ar: 'تاريخ (غير محدود)', name_en: 'History (Unlimited)', icon: '🏛️' },
+    movies:  { id: 11, name_ar: 'أفلام (غير محدود)', name_en: 'Movies (Unlimited)', icon: '🎬' }
+  };
+
+  // بيفك ترميز HTML اللي بيرجعه الـ API (زي &quot; و&#039;)
+  function decodeHtml(text) {
+    const el = document.createElement('textarea');
+    el.innerHTML = text;
+    return el.value;
+  }
+
+  // بيجيب دفعة أسئلة جديدة من الـ API بمستويات صعوبة متدرجة (زي المنطق المحلي بالظبط)
+  async function fetchApiQuestions(categoryId) {
+    const difficulties = ['easy', 'easy', 'easy', 'easy', 'medium', 'medium', 'medium', 'hard', 'hard', 'hard'];
+    const allQuestions = [];
+
+    // نجيب كل مستوى صعوبة على حدة عشان نضمن الترتيب من سهل لصعب
+    for (const level of ['easy', 'medium', 'hard']) {
+      const count = difficulties.filter(d => d === level).length;
+      const url = `https://opentdb.com/api.php?amount=${count}&category=${categoryId}&difficulty=${level}&type=multiple`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      data.results.forEach(function(item) {
+        const options = shuffleArray([...item.incorrect_answers, item.correct_answer]).map(decodeHtml);
+        const correctIndex = options.indexOf(decodeHtml(item.correct_answer));
+        allQuestions.push({
+          q_ar: decodeHtml(item.question), // مفيش ترجمة عربي حقيقية، فبيتعرض نفس النص الإنجليزي
+          q_en: decodeHtml(item.question),
+          options_ar: options,
+          options_en: options,
+          correct: correctIndex
+        });
+      });
+    }
+
+    return allQuestions;
+  }
+
   // ===== تحميل الأسئلة =====
   fetch('questions.json')
     .then(response => response.json())
@@ -456,24 +516,58 @@
     const container = document.getElementById('categories-container');
     container.innerHTML = '';
 
+    // الفئات المحلية (عربي/إنجليزي، عدد محدود، بنظام مستويات)
     Object.keys(questionBanks).forEach(function(key) {
       const bank = questionBanks[key];
       const name = currentLang === 'ar' ? bank.name_ar : bank.name_en;
-      const numLevels = Math.ceil(bank.questions.length / LEVEL_SIZE);
       const card = document.createElement('div');
       card.className = 'cat-card';
       card.innerHTML = `
         <div class="cat-icon">${bank.icon}</div>
         <div class="cat-info">
           <div class="cat-name">${name}</div>
-          <div class="cat-desc">${numLevels} ${currentLang === 'ar' ? 'مستوى' : 'levels'}</div>
+          <div class="cat-desc">${NUM_LEVELS} ${currentLang === 'ar' ? 'مستوى' : 'levels'}</div>
         </div>
         <div class="cat-arrow">‹</div>
       `;
       card.addEventListener('click', function() {
         currentCategory = key;
+        isApiMode = false;
         showScreen('levels');
         renderLevelMap();
+      });
+      container.appendChild(card);
+    });
+
+    // الفئات اللي جايه من الـ API (إنجليزي بس، أسئلة غير محدودة)
+    Object.keys(apiCategories).forEach(function(key) {
+      const cat = apiCategories[key];
+      const name = currentLang === 'ar' ? cat.name_ar : cat.name_en;
+      const card = document.createElement('div');
+      card.className = 'cat-card';
+      card.innerHTML = `
+        <div class="cat-icon">${cat.icon}</div>
+        <div class="cat-info">
+          <div class="cat-name">${name}</div>
+          <div class="cat-desc">${currentLang === 'ar' ? 'أسئلة إنجليزي، غير محدودة' : 'English, unlimited questions'}</div>
+        </div>
+        <div class="cat-arrow">‹</div>
+      `;
+      card.addEventListener('click', async function() {
+        isApiMode = true;
+        currentCategory = key;
+        card.style.opacity = '0.5';
+        try {
+          levelQuestions = await fetchApiQuestions(cat.id);
+          currentQuestionIndex = 0;
+          score = 0;
+          currentLevel = 0;
+          showScreen('quiz');
+          renderQuestion();
+        } catch (err) {
+          alert(currentLang === 'ar' ? 'حصل خطأ في تحميل الأسئلة، تأكد من الاتصال بالنت' : 'Failed to load questions, check your internet connection');
+        }
+        card.style.opacity = '1';
       });
       container.appendChild(card);
     });
@@ -481,12 +575,19 @@
 
   document.getElementById('play-btn').addEventListener('click', function() { showScreen('category'); });
   document.getElementById('levels-back').addEventListener('click', function() { showScreen('category'); });
-  document.getElementById('levels-back-btn').addEventListener('click', function() { showScreen('levels'); renderLevelMap(); });
+  document.getElementById('levels-back-btn').addEventListener('click', function() {
+    if (isApiMode) {
+      showScreen('category');
+    } else {
+      showScreen('levels');
+      renderLevelMap();
+    }
+  });
 
   // ===== خريطة المستويات =====
   function renderLevelMap() {
     const bank = questionBanks[currentCategory];
-    const numLevels = Math.ceil(bank.questions.length / LEVEL_SIZE);
+    const numLevels = NUM_LEVELS;
     const unlockedUpTo = getUnlockedLevel(currentCategory); // آخر مستوى مفتوح (0-based)
 
     document.getElementById('levels-title').textContent = currentLang === 'ar' ? bank.name_ar : bank.name_en;
@@ -521,8 +622,9 @@
     score = 0;
 
     const bank = questionBanks[currentCategory];
-    const start = levelIndex * LEVEL_SIZE;
-    const end = Math.min(start + LEVEL_SIZE, bank.questions.length);
+    const questionsPerLevel = Math.ceil(bank.questions.length / NUM_LEVELS);
+    const start = levelIndex * questionsPerLevel;
+    const end = Math.min(start + questionsPerLevel, bank.questions.length);
     levelQuestions = bank.questions.slice(start, end); // بترتيبها الأصلي عشان الصعوبة تتصاعد صح جوه المستوى
 
     showScreen('quiz');
@@ -569,13 +671,20 @@
 
   function renderQuestion() {
     answered = false;
-    const bank = questionBanks[currentCategory];
     const totalQuestions = levelQuestions.length;
     const question = levelQuestions[currentQuestionIndex];
 
-    document.getElementById('quiz-cat-icon').textContent = bank.icon;
-    document.getElementById('quiz-level-label').textContent =
-      (currentLang === 'ar' ? 'مستوى ' : 'Level ') + (currentLevel + 1);
+    if (isApiMode) {
+      const cat = apiCategories[currentCategory];
+      document.getElementById('quiz-cat-icon').textContent = cat.icon;
+      document.getElementById('quiz-level-label').textContent = currentLang === 'ar' ? cat.name_ar : cat.name_en;
+    } else {
+      const bank = questionBanks[currentCategory];
+      document.getElementById('quiz-cat-icon').textContent = bank.icon;
+      document.getElementById('quiz-level-label').textContent =
+        (currentLang === 'ar' ? 'مستوى ' : 'Level ') + (currentLevel + 1);
+    }
+
     document.getElementById('q-current').textContent = currentQuestionIndex + 1;
     document.getElementById('q-total').textContent = totalQuestions;
     document.getElementById('progress-fill').style.width = ((currentQuestionIndex + 1) / totalQuestions * 100) + '%';
@@ -646,17 +755,39 @@
       renderQuestion();
     } else {
       clearInterval(timerInterval);
-      unlockNextLevel(currentCategory, currentLevel);
-      playLevelUpSound();
       document.getElementById('final-score').textContent = score;
       document.getElementById('final-total').textContent = levelQuestions.length;
-      document.getElementById('finish-title').textContent = translations[currentLang].levelComplete;
+
+      if (isApiMode) {
+        document.getElementById('finish-title').textContent = currentLang === 'ar' ? 'خلصت الجولة!' : 'Round complete!';
+        document.getElementById('levels-back-btn').textContent = currentLang === 'ar' ? 'الفئات' : 'Categories';
+      } else {
+        unlockNextLevel(currentCategory, currentLevel);
+        document.getElementById('finish-title').textContent = translations[currentLang].levelComplete;
+        document.getElementById('levels-back-btn').textContent = translations[currentLang].backToLevels;
+      }
+      playLevelUpSound();
       showScreen('finish');
     }
   });
 
-  document.getElementById('retry-btn').addEventListener('click', function() {
-    startLevel(currentLevel);
+  document.getElementById('retry-btn').addEventListener('click', async function() {
+    if (isApiMode) {
+      // في وضع الـ API، "إعادة المحاولة" بتجيب دفعة أسئلة جديدة تماماً
+      document.getElementById('retry-btn').disabled = true;
+      try {
+        levelQuestions = await fetchApiQuestions(apiCategories[currentCategory].id);
+        currentQuestionIndex = 0;
+        score = 0;
+        showScreen('quiz');
+        renderQuestion();
+      } catch (err) {
+        alert(currentLang === 'ar' ? 'حصل خطأ في تحميل الأسئلة' : 'Failed to load questions');
+      }
+      document.getElementById('retry-btn').disabled = false;
+    } else {
+      startLevel(currentLevel);
+    }
   });
 </script>
 
