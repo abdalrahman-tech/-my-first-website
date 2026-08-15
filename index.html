@@ -3,158 +3,284 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اتحدى نفسك</title>
+  <title>تحدي المعرفة - خريطة المستويات</title>
   <style>
-    body { font-family: system-ui, sans-serif; background: #fff8f0; color: #333; margin: 0; padding: 20px; text-align: center; }
-    .header-stats { display: flex; justify-content: space-around; max-width: 400px; margin: 0 auto 20px; background: #fff; padding: 12px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    .stat-item { font-size: 18px; font-weight: bold; }
-    .card-grid { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto; }
-    .cat-card { background: #fff; border: 2px solid #ffe0c8; padding: 18px; border-radius: 16px; cursor: pointer; transition: 0.2s; text-align: right; display: flex; justify-content: space-between; align-items: center; }
-    .cat-card:hover { border-color: #ff9800; }
-    .quiz-box { background: #fff; max-width: 400px; margin: 0 auto; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
-    .option-btn { display: block; width: 100%; padding: 12px; margin: 8px 0; background: #f0f0f0; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; }
-    .option-btn:hover { background: #e0e0e0; }
-    .btn-skip { background: #ff9800; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: linear-gradient(180deg, #1A2980 0%, #26D0CE 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: #fff; padding: 15px; }
+
+    /* Header Bar */
+    .top-bar { width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.3); padding: 10px 20px; border-radius: 15px; backdrop-filter: blur(5px); margin-bottom: 20px; }
+    .stat-box { font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+
+    .container { width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); text-align: center; }
+
+    /* Category Selection */
+    .categories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+    .category-btn { background: #FF9800; border: none; padding: 15px; border-radius: 12px; color: #fff; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 #E65100; }
+    .category-btn:active { transform: translateY(4px); box-shadow: none; }
+
+    /* Level Map View */
+    .map-container { display: flex; flex-direction: column-reverse; align-items: center; gap: 12px; margin: 20px 0; max-height: 400px; overflow-y: auto; padding: 10px; }
+    .map-row { display: flex; width: 100%; justify-content: center; }
+    .level-node { width: 55px; height: 55px; border-radius: 50%; border: 3px solid #fff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.2rem; cursor: pointer; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; }
+    .level-node.completed { background: #4CAF50; color: #fff; }
+    .level-node.current { background: #FFD700; color: #000; animation: pulse 1.5s infinite; }
+    .level-node.locked { background: #607D8B; color: #9E9E9E; cursor: not-allowed; border-color: #78909C; }
+
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+    /* Quiz Area */
+    .quiz-area { display: none; }
+    .question-box { background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 1.2rem; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+    .options-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .option-btn { background: #ffffff; color: #333; border: none; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .option-btn:hover { background: #f0f0f0; }
+
+    /* Action Buttons */
+    .action-btn { margin-top: 15px; background: #9C27B0; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #7B1FA2; }
+    .back-btn { background: #f44336; box-shadow: 0 4px 0 #d32f2f; }
+
+    /* Modal Popup */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 100; }
+    .modal-content { background: #fff; color: #333; padding: 25px; border-radius: 15px; text-align: center; max-width: 320px; width: 90%; }
+    .modal-btn { margin-top: 15px; background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- شريط الإحصائيات والمفاتيح -->
-  <div class="header-stats">
-    <div class="stat-item">🔑 المفاتيح: <span id="keys">0</span></div>
-    <div class="stat-item">⭐ المستوى: <span id="current-lvl">1</span> / 15</div>
+  <div class="top-bar">
+    <div class="stat-box">🔑 المفاتيح: <span id="keys-count">0</span></div>
+    <div class="stat-box">⭐ القسم: <span id="current-cat-name">اختر قسم</span></div>
   </div>
 
-  <h2 id="main-title">اختر القسم للمنافسة</h2>
+  <div class="container">
+    <!-- View 1: Categories -->
+    <div id="category-view">
+      <h2>اختر القسم للبدء 🎯</h2>
+      <div class="categories-grid">
+        <button class="category-btn" onclick="selectCategory('sports')">⚽ رياضة</button>
+        <button class="category-btn" onclick="selectCategory('movies')">🎬 أفلام</button>
+        <button class="category-btn" onclick="selectCategory('general')">💡 معلومات عامة</button>
+        <button class="category-btn" onclick="selectCategory('cooking')">🍳 طبخ</button>
+        <button class="category-btn" style="grid-column: span 2;" onclick="selectCategory('science')">🔬 علوم</button>
+      </div>
+    </div>
 
-  <!-- قائمة الفئات المحلية فقط -->
-  <div id="categories-list" class="card-grid"></div>
+    <!-- View 2: Level Map -->
+    <div id="map-view" style="display: none;">
+      <h2>خريطة المستويات 🗺️</h2>
+      <div class="map-container" id="levels-map"></div>
+      <button class="action-btn back-btn" onclick="showView('category-view')">تغيير القسم</button>
+    </div>
 
-  <!-- واجهة عرض الأسئلة -->
-  <div id="quiz-container" class="quiz-box">
-    <h3 id="question-text">نص السؤال هنا</h3>
-    <div id="options-container"></div>
-    <button class="btn-skip" onclick="useKeySkip()">تخطي السؤال بمفتاح 🔑</button>
+    <!-- View 3: Quiz Screen -->
+    <div id="quiz-view" class="quiz-area">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span id="level-indicator">المستوى 1</span>
+        <span id="progress-indicator">السؤال 1 / 30</span>
+      </div>
+      <div class="question-box" id="question-text">جاري تحميل السؤال...</div>
+      <div class="options-grid" id="options-container"></div>
+      <button class="action-btn" onclick="useKeyToSkip()">استخدام مفتاح للتخطي 🔑</button>
+      <br>
+      <button class="action-btn back-btn" onclick="showView('map-view')">انسحاب للخريطة</button>
+    </div>
+  </div>
+
+  <!-- Custom Notification Modal -->
+  <div class="modal" id="custom-modal">
+    <div class="modal-content">
+      <h3 id="modal-title">تهانينا!</h3>
+      <p id="modal-msg" style="margin-top: 10px;">انتقلت للمستوى التالي</p>
+      <button class="modal-btn" onclick="closeModal()">حسناً</button>
+    </div>
   </div>
 
   <script>
-    let gameData = {};
-    let userKeys = parseInt(localStorage.getItem('quiz_keys') || '0');
-    let currentCategory = null;
+    // System Data & State Management
+    let keys = parseInt(localStorage.getItem('user_keys')) || 0;
+    let progress = JSON.parse(localStorage.getItem('user_progress')) || {
+      sports: 1, movies: 1, general: 1, cooking: 1, science: 1
+    };
+
+    let currentCategory = '';
     let currentLevel = 1;
-    let currentQIndex = 0;
+    let currentQuestionIndex = 0;
+    let questionsList = [];
 
-    document.getElementById('keys').innerText = userKeys;
+    // Sound System (Built-in Web Audio API)
+    function playAudio(isCorrect) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-    // جلب ملف questions.json المحلي حصراً
-    fetch('./questions.json')
-      .then(res => res.json())
-      .then(data => {
-        gameData = data;
-        renderCategories();
-      })
-      .catch(err => {
-        alert('تأكد من وجود ملف questions.json في نفس المجلد!');
-      });
-
-    function renderCategories() {
-      const list = document.getElementById('categories-list');
-      list.innerHTML = '';
-      
-      Object.keys(gameData).forEach(catKey => {
-        const cat = gameData[catKey];
-        const card = document.createElement('div');
-        card.className = 'cat-card';
-        card.innerHTML = `
-          <div>
-            <h3 style="margin:0">${cat.name_ar}</h3>
-            <small style="color:#777">15 مستوى (30 سؤال لكل مستوى)</small>
-          </div>
-          <span style="font-size:30px">${cat.icon}</span>
-        `;
-        card.onclick = () => startQuiz(catKey);
-        list.appendChild(card);
-      });
+      if(isCorrect) {
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+      } else {
+        osc.frequency.setValueAtTime(220, ctx.currentTime);
+        osc.frequency.setValueAtTime(130.81, ctx.currentTime + 0.1);
+      }
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3);
+      osc.stop(ctx.currentTime + 0.3);
     }
 
-    function startQuiz(catKey) {
-      currentCategory = catKey;
-      currentLevel = 1;
-      currentQIndex = 0;
-      document.getElementById('categories-list').style.display = 'none';
-      document.getElementById('main-title').style.display = 'none';
-      document.getElementById('quiz-container').style.display = 'block';
+    // UI View Switching
+    function showView(viewId) {
+      document.getElementById('category-view').style.display = 'none';
+      document.getElementById('map-view').style.display = 'none';
+      document.getElementById('quiz-view').style.display = 'none';
+      document.getElementById(viewId).style.display = 'block';
+      updateHeader();
+    }
+
+    function updateHeader() {
+      document.getElementById('keys-count').innerText = keys;
+      const names = { sports:'رياضة', movies:'أفلام', general:'عامة', cooking:'طبخ', science:'علوم' };
+      document.getElementById('current-cat-name').innerText = names[currentCategory] || 'اختر قسم';
+    }
+
+    // Select Category and Render Map
+    function selectCategory(cat) {
+      currentCategory = cat;
+      renderMap();
+      showView('map-view');
+    }
+
+    function renderMap() {
+      const mapContainer = document.getElementById('levels-map');
+      mapContainer.innerHTML = '';
+      const unlockedLevel = progress[currentCategory] || 1;
+
+      for (let i = 1; i <= 15; i++) {
+        const row = document.createElement('div');
+        row.className = 'map-row';
+        
+        const node = document.createElement('div');
+        node.className = 'level-node';
+        
+        if (i < unlockedLevel) {
+          node.classList.add('completed');
+          node.innerText = i;
+          node.onclick = () => startQuiz(i);
+        } else if (i === unlockedLevel) {
+          node.classList.add('current');
+          node.innerText = i;
+          node.onclick = () => startQuiz(i);
+        } else {
+          node.classList.add('locked');
+          node.innerText = '🔒';
+        }
+
+        row.appendChild(node);
+        mapContainer.appendChild(row);
+      }
+    }
+
+    // Quiz Questions Generator (Dynamic Question Pool per Level)
+    function generateQuestionsForLevel(category, level) {
+      let list = [];
+      for (let i = 1; i <= 30; i++) {
+        list.push({
+          q: `سؤال ${i} (مستوى ${level} - ${category}): ما هو الخيار الصحيح لهذه الإجابة؟`,
+          options: ["الإجابة الصحيحة", "خيار خاطئ 1", "خيار خاطئ 2", "خيار خاطئ 3"],
+          correct: "الإجابة الصحيحة"
+        });
+      }
+      return list;
+    }
+
+    function startQuiz(level) {
+      currentLevel = level;
+      currentQuestionIndex = 0;
+      questionsList = generateQuestionsForLevel(currentCategory, currentLevel);
+      showView('quiz-view');
       loadQuestion();
     }
 
     function loadQuestion() {
-      const levelKey = `level_${currentLevel}`;
-      const questions = gameData[currentCategory]?.levels?.[levelKey] || [];
-
-      if (questions.length === 0 || currentQIndex >= questions.length) {
-        // إتمام المستوى
-        checkLevelReward();
-        if (currentLevel < 15) {
-          currentLevel++;
-          currentQIndex = 0;
-          alert(`مبروك! انتقلت للمستوى ${currentLevel}`);
-          loadQuestion();
-        } else {
-          alert('تهانينا! أكملت جميع المستويات الـ 15 بنجاح 🎉');
-          location.reload();
-        }
+      if (currentQuestionIndex >= 30) {
+        completeLevel();
         return;
       }
 
-      document.getElementById('current-lvl').innerText = currentLevel;
-      const q = questions[currentQIndex];
-      document.getElementById('question-text').innerText = q.q_ar;
+      document.getElementById('level-indicator').innerText = `المستوى ${currentLevel}`;
+      document.getElementById('progress-indicator').innerText = `السؤال ${currentQuestionIndex + 1} / 30`;
 
-      const optsBox = document.getElementById('options-container');
-      optsBox.innerHTML = '';
+      const qData = questionsList[currentQuestionIndex];
+      document.getElementById('question-text').innerText = qData.q;
 
-      q.options_ar.forEach((opt, idx) => {
+      // Randomize / Shuffle Options
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+      let shuffled = [...qData.options].sort(() => Math.random() - 0.5);
+
+      shuffled.forEach(optionText => {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
-        btn.innerText = opt;
-        btn.onclick = () => checkAnswer(idx, q.correct);
-        optsBox.appendChild(btn);
+        btn.innerText = optionText;
+        btn.onclick = () => checkAnswer(optionText, qData.correct);
+        optionsContainer.appendChild(btn);
       });
     }
 
     function checkAnswer(selected, correct) {
       if (selected === correct) {
-        alert('إجابة صحيحة! 👏');
-      } else {
-        alert('إجابة خاطئة، حاول مرة أخرى!');
-      }
-      currentQIndex++;
-      loadQuestion();
-    }
-
-    // إضافة مفتاح كل 3 مستويات
-    function checkLevelReward() {
-      if (currentLevel % 3 === 0) {
-        userKeys++;
-        localStorage.setItem('quiz_keys', userKeys);
-        document.getElementById('keys').innerText = userKeys;
-        alert('🎉 إنجاز رائع! حصلت على مفتاح جديد لإكمال 3 مستويات!');
-      }
-    }
-
-    // تخطي السؤال بفرصة المفتاح
-    function useKeySkip() {
-      if (userKeys > 0) {
-        userKeys--;
-        localStorage.setItem('quiz_keys', userKeys);
-        document.getElementById('keys').innerText = userKeys;
-        currentQIndex++;
-        alert('تم استخدام مفتاح وتخطي السؤال بنجاح!');
+        playAudio(true);
+        currentQuestionIndex++;
         loadQuestion();
       } else {
-        alert('لا يوجد لديك مفاتيح! أكمل 3 مستويات للحصول على مفتاح.');
+        playAudio(false);
+        showModal("إجابة خاطئة! ❌", "حاول مرة أخرى بتركيز أكبر.");
       }
     }
+
+    function useKeyToSkip() {
+      if (keys > 0) {
+        keys--;
+        localStorage.setItem('user_keys', keys);
+        updateHeader();
+        playAudio(true);
+        currentQuestionIndex++;
+        loadQuestion();
+      } else {
+        showModal("لا يوجد مفاتيح! 🔑", "تكسب مفتاحاً جديداً بعد إكمال كل 3 مستويات.");
+      }
+    }
+
+    function completeLevel() {
+      if (currentLevel === progress[currentCategory]) {
+        progress[currentCategory]++;
+        // Reward key every 3 levels
+        if (currentLevel % 3 === 0) {
+          keys++;
+          localStorage.setItem('user_keys', keys);
+          showModal("مبروك! 🎉", `أتممت المستوى ${currentLevel} وحصلت على مفتاح مجاني 🔑!`);
+        } else {
+          showModal("ممتاز! 👏", `أتممت المستوى ${currentLevel} بنجاح!`);
+        }
+        localStorage.setItem('user_progress', JSON.stringify(progress));
+      }
+      renderMap();
+      showView('map-view');
+    }
+
+    // Modal Helpers
+    function showModal(title, msg) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-msg').innerText = msg;
+      document.getElementById('custom-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('custom-modal').style.display = 'none';
+    }
+
+    // Initialize Page
+    updateHeader();
   </script>
 </body>
 </html>
