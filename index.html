@@ -1,797 +1,160 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="html-root">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اتحدى نفسك</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap');
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Tajawal', sans-serif;
-    background: #fef6ec;
-    background-image:
-      radial-gradient(circle at 10% 10%, rgba(255,183,77,0.25) 0%, transparent 40%),
-      radial-gradient(circle at 90% 20%, rgba(129,212,250,0.30) 0%, transparent 40%),
-      radial-gradient(circle at 20% 90%, rgba(186,104,200,0.20) 0%, transparent 40%);
-    min-height: 100vh;
-    color: #2d2340;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-
-  .top-bar {
-    position: fixed; top: 20px; right: 20px; left: 20px;
-    display: flex; justify-content: space-between;
-    max-width: 480px; margin: 0 auto;
-  }
-
-  .lang-switch {
-    display: flex; background: #fff; border: 2px solid #ffd28a;
-    border-radius: 30px; padding: 4px;
-    box-shadow: 0 4px 14px rgba(255, 154, 60, 0.2);
-  }
-
-  .lang-btn {
-    border: none; background: none; padding: 6px 14px; border-radius: 20px;
-    font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; color: #9b8ab0;
-  }
-
-  .lang-btn.active { background: #ff9a3c; color: #fff; }
-
-  .streak-badge {
-    display: flex; align-items: center; gap: 6px;
-    background: #fff; border: 2px solid #ffd28a; border-radius: 30px;
-    padding: 8px 14px; font-weight: 800; font-size: 13px; color: #ff7a1a;
-    box-shadow: 0 4px 14px rgba(255, 154, 60, 0.2);
-  }
-
-  .screen { width: 100%; max-width: 480px; display: none; }
-  .screen.active { display: block; }
-
-  #home-screen { text-align: center; }
-
-  .eyebrow {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px;
-    color: #ff9a3c; text-transform: uppercase; margin-bottom: 14px; font-weight: 700;
-  }
-
-  #home-screen h1 { font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; }
-  #home-screen p { color: #7c6f92; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
-
-  #play-btn {
-    background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; border: none;
-    border-radius: 16px; padding: 18px 56px; font-family: inherit; font-weight: 900;
-    font-size: 19px; cursor: pointer; transition: transform 0.15s;
-    box-shadow: 0 14px 30px rgba(255, 95, 109, 0.35);
-  }
-
-  #play-btn:active { transform: scale(0.97); }
-
-  .back-link {
-    display: inline-flex; align-items: center; gap: 4px;
-    color: #a297b5; font-size: 13px; margin-bottom: 16px; cursor: pointer; font-weight: 700;
-  }
-
-  #category-screen h2, #levels-screen h2 { font-size: 26px; font-weight: 900; text-align: center; margin-bottom: 8px; }
-  #category-screen .sub, #levels-screen .sub { text-align: center; color: #7c6f92; font-size: 14px; margin-bottom: 28px; }
-
-  .categories { display: flex; flex-direction: column; gap: 14px; }
-
-  .cat-card {
-    display: flex; align-items: center; gap: 16px;
-    background: #fff; border: 2px solid #ffe3c2; border-radius: 18px; padding: 20px 22px;
-    cursor: pointer; transition: border-color 0.15s, transform 0.15s;
-    box-shadow: 0 6px 18px rgba(255, 154, 60, 0.08);
-  }
-
-  .cat-card:hover { border-color: #ff9a3c; transform: translateX(-4px); }
-
-  .cat-icon {
-    font-size: 30px; width: 52px; height: 52px;
-    display: flex; align-items: center; justify-content: center;
-    background: #fff3e0; border-radius: 14px;
-  }
-
-  .cat-info { flex: 1; }
-  .cat-name { font-weight: 700; font-size: 17px; margin-bottom: 2px; }
-  .cat-desc { font-size: 13px; color: #a297b5; }
-  .cat-arrow { color: #ff9a3c; font-size: 20px; }
-
-  /* ===== خريطة المستويات ===== */
-  .level-map {
-    display: flex; flex-direction: column-reverse; align-items: center; gap: 0;
-    background: #fff; border: 2px solid #ffe3c2; border-radius: 24px;
-    padding: 30px 20px; position: relative;
-  }
-
-  .level-row { display: flex; justify-content: center; width: 100%; position: relative; padding: 14px 0; }
-  .level-row.offset-right { justify-content: flex-end; padding-right: 18%; }
-  .level-row.offset-left { justify-content: flex-start; padding-left: 18%; }
-
-  .level-row:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: -14px;
-    right: 50%;
-    width: 4px;
-    height: 42px;
-    background: repeating-linear-gradient(to bottom, #ffd28a 0, #ffd28a 6px, transparent 6px, transparent 12px);
-    border-radius: 4px;
-    z-index: 0;
-  }
-
-  .level-row.offset-right::after { right: 18%; transform: translateX(50%); }
-  .level-row.offset-left::after { right: auto; left: 18%; transform: translateX(-50%); }
-
-  .level-circle {
-    width: 64px; height: 64px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; flex-direction: column;
-    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 18px;
-    cursor: pointer; border: 4px solid #fff; position: relative; z-index: 1;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
-    transition: transform 0.15s;
-  }
-
-  .level-circle:active { transform: scale(0.93); }
-
-  .level-circle.locked {
-    background: #e5dde8; color: #b5a9c4; cursor: not-allowed;
-  }
-
-  .level-circle.unlocked {
-    background: linear-gradient(135deg, #4ade80, #22c55e); color: #fff;
-  }
-
-  .level-circle.current {
-    background: linear-gradient(135deg, #ffd23c, #ff9a3c); color: #fff;
-    box-shadow: 0 0 0 6px rgba(255,154,60,0.25), 0 6px 14px rgba(0,0,0,0.15);
-  }
-
-  .level-circle .lock-icon { font-size: 18px; }
-
-  /* ===== شاشة الأسئلة ===== */
-  #quiz-screen { background: #fff; border: 2px solid #ffe3c2; border-radius: 22px; padding: 26px 24px; box-shadow: 0 10px 30px rgba(255,154,60,0.1); }
-
-  .quiz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-
-  .quiz-cat-label {
-    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #ff9a3c; font-weight: 700;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  .quiz-progress-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a297b5; }
-
-  .timer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-  .timer-track { flex: 1; height: 8px; background: #fdeee0; border-radius: 6px; overflow: hidden; }
-  .timer-fill { height: 100%; background: linear-gradient(90deg, #4ade80, #ffd23c); border-radius: 6px; width: 100%; transition: width 1s linear, background 0.3s; }
-  .timer-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 14px; color: #ff5f6d; min-width: 26px; text-align: center; }
-
-  .progress-track { width: 100%; height: 6px; background: #fdeee0; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, #ff9a3c, #ba68c8); border-radius: 4px; transition: width 0.3s ease; width: 10%; }
-
-  .difficulty-badge {
-    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px;
-    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px; font-weight: 700;
-  }
-
-  .diff-easy { background: #dcfce7; color: #16a34a; }
-  .diff-medium { background: #fef9c3; color: #ca8a04; }
-  .diff-hard { background: #fee2e2; color: #dc2626; }
-
-  #question-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; }
-
-  .options { display: flex; flex-direction: column; gap: 10px; }
-
-  .option-btn {
-    background: #fefaf5; border: 2px solid #ffe3c2; color: #2d2340;
-    border-radius: 14px; padding: 15px 18px; font-family: inherit; font-size: 15px;
-    text-align: right; cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.1s;
-  }
-
-  .option-btn:hover:not(:disabled) { border-color: #ff9a3c; background: #fff3e0; }
-  .option-btn:active:not(:disabled) { transform: scale(0.98); }
-  .option-btn.correct { background: #dcfce7; border-color: #4ade80; color: #16a34a; }
-  .option-btn.wrong { background: #fee2e2; border-color: #f87171; color: #dc2626; }
-  .option-btn:disabled { cursor: default; }
-
-  #next-btn {
-    display: none; width: 100%; margin-top: 18px;
-    background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; border: none;
-    border-radius: 14px; padding: 15px; font-family: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
-  }
-
-  #finish-screen { text-align: center; }
-  .finish-icon { font-size: 60px; margin-bottom: 18px; }
-  #finish-screen h2 { font-size: 30px; font-weight: 900; margin-bottom: 8px; }
-  #finish-screen p { color: #7c6f92; font-size: 15px; margin-bottom: 28px; }
-
-  .score-box { background: #fff; border: 2px solid #ffe3c2; border-radius: 18px; padding: 26px; margin-bottom: 28px; }
-  .score-num { font-family: 'JetBrains Mono', monospace; font-size: 46px; font-weight: 700; color: #ff9a3c; }
-  .score-label { color: #a297b5; font-size: 13px; margin-top: 4px; }
-
-  .finish-actions { display: flex; gap: 10px; }
-  .finish-btn { flex: 1; border-radius: 14px; padding: 14px; font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer; border: none; }
-  #retry-btn { background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; }
-  #home-btn, #levels-back-btn { background: #fff; color: #2d2340; border: 2px solid #ffe3c2; }
-
-  #loading-msg { text-align: center; color: #7c6f92; padding: 40px 0; }
-
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(45, 35, 64, 0.55);
-    align-items: center; justify-content: center; z-index: 50; padding: 20px;
-  }
-
-  .modal-overlay.active { display: flex; }
-
-  .modal-box {
-    background: #fff; border-radius: 24px; padding: 36px 28px; text-align: center;
-    max-width: 340px; box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-  }
-
-  .modal-icon { font-size: 56px; margin-bottom: 12px; }
-  .modal-box h3 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
-  .modal-box p { color: #7c6f92; font-size: 14px; margin-bottom: 22px; line-height: 1.6; }
-
-  .modal-btn {
-    background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; border: none;
-    border-radius: 14px; padding: 13px 32px; font-family: inherit; font-weight: 800; font-size: 14px; cursor: pointer;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اتحدى نفسك</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #fff8f0; color: #333; margin: 0; padding: 20px; text-align: center; }
+    .header-stats { display: flex; justify-content: space-around; max-width: 400px; margin: 0 auto 20px; background: #fff; padding: 12px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .stat-item { font-size: 18px; font-weight: bold; }
+    .card-grid { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto; }
+    .cat-card { background: #fff; border: 2px solid #ffe0c8; padding: 18px; border-radius: 16px; cursor: pointer; transition: 0.2s; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+    .cat-card:hover { border-color: #ff9800; }
+    .quiz-box { background: #fff; max-width: 400px; margin: 0 auto; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
+    .option-btn { display: block; width: 100%; padding: 12px; margin: 8px 0; background: #f0f0f0; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; }
+    .option-btn:hover { background: #e0e0e0; }
+    .btn-skip { background: #ff9800; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+  </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <div class="lang-switch">
-      <button class="lang-btn" id="btn-ar" data-lang="ar">AR</button>
-      <button class="lang-btn" id="btn-en" data-lang="en">EN</button>
-    </div>
-    <div class="streak-badge">🔥 <span id="streak-count">0</span></div>
+  <!-- شريط الإحصائيات والمفاتيح -->
+  <div class="header-stats">
+    <div class="stat-item">🔑 المفاتيح: <span id="keys">0</span></div>
+    <div class="stat-item">⭐ المستوى: <span id="current-lvl">1</span> / 15</div>
   </div>
 
-  <div class="screen active" id="loading-screen">
-    <p id="loading-msg">جاري تحميل الأسئلة...</p>
+  <h2 id="main-title">اختر القسم للمنافسة</h2>
+
+  <!-- قائمة الفئات المحلية فقط -->
+  <div id="categories-list" class="card-grid"></div>
+
+  <!-- واجهة عرض الأسئلة -->
+  <div id="quiz-container" class="quiz-box">
+    <h3 id="question-text">نص السؤال هنا</h3>
+    <div id="options-container"></div>
+    <button class="btn-skip" onclick="useKeySkip()">تخطي السؤال بمفتاح 🔑</button>
   </div>
 
-  <div class="screen" id="home-screen">
-    <div class="eyebrow" data-i18n="eyebrow">Quiz Challenge</div>
-    <h1 data-i18n="title">اتحدى نفسك</h1>
-    <p data-i18n="subtitle">اتقدم في المستويات، والصعوبة بتزيد جوه كل مستوى<br>لحد ما توصل لآخر واحد 🏁</p>
-    <button id="play-btn" data-i18n="playBtn">لعب</button>
-  </div>
+  <script>
+    let gameData = {};
+    let userKeys = parseInt(localStorage.getItem('quiz_keys') || '0');
+    let currentCategory = null;
+    let currentLevel = 1;
+    let currentQIndex = 0;
 
-  <div class="screen" id="category-screen">
-    <h2 data-i18n="chooseCategory">اختار فئتك</h2>
-    <p class="sub" data-i18n="categorySub">كل فئة فيها مستويات متدرجة الصعوبة</p>
-    <div class="categories" id="categories-container"></div>
-  </div>
+    document.getElementById('keys').innerText = userKeys;
 
-  <div class="screen" id="levels-screen">
-    <div class="back-link" id="levels-back"><span>‹</span> <span data-i18n="backToCategories">رجوع للفئات</span></div>
-    <h2 id="levels-title">كورة</h2>
-    <p class="sub" data-i18n="levelsSub">افتح المستويات بالترتيب</p>
-    <div class="level-map" id="level-map-container"></div>
-  </div>
+    // جلب ملف questions.json المحلي حصراً
+    fetch('./questions.json')
+      .then(res => res.json())
+      .then(data => {
+        gameData = data;
+        renderCategories();
+      })
+      .catch(err => {
+        alert('تأكد من وجود ملف questions.json في نفس المجلد!');
+      });
 
-  <div class="screen" id="quiz-screen">
-    <div class="quiz-top">
-      <div class="quiz-cat-label"><span id="quiz-cat-icon"></span> <span id="quiz-level-label"></span></div>
-      <div class="quiz-progress-num"><span id="q-current">1</span> / <span id="q-total">10</span></div>
-    </div>
-
-    <div class="timer-row">
-      <span class="timer-num" id="timer-num">15</span>
-      <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
-    </div>
-
-    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-
-    <span class="difficulty-badge" id="difficulty-badge">سهل</span>
-    <div id="question-text"></div>
-    <div class="options" id="options-container"></div>
-    <button id="next-btn" data-i18n="nextBtn">التالي</button>
-  </div>
-
-  <div class="screen" id="finish-screen">
-    <div class="finish-icon" id="finish-icon">🏁</div>
-    <h2 id="finish-title">خلصت المستوى!</h2>
-    <p id="finish-subtitle" data-i18n="finishSub">شوف نتيجتك</p>
-    <div class="score-box">
-      <div class="score-num"><span id="final-score">0</span>/<span id="final-total">10</span></div>
-      <div class="score-label" data-i18n="correctAnswers">إجابة صحيحة</div>
-    </div>
-    <div class="finish-actions">
-      <button class="finish-btn" id="retry-btn" data-i18n="retryBtn">إعادة المحاولة</button>
-      <button class="finish-btn" id="levels-back-btn" data-i18n="backToLevels">المستويات</button>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="key-modal">
-    <div class="modal-box">
-      <div class="modal-icon">🔑</div>
-      <h3 data-i18n="keyTitle">فتحت مفتاح جديد!</h3>
-      <p data-i18n="keyDesc">جاوبت 20 سؤال صح ورا بعض. استمر كده!</p>
-      <button class="modal-btn" id="key-modal-close" data-i18n="continueBtn">أكمل</button>
-    </div>
-  </div>
-
-<script>
-  const translations = {
-    ar: {
-      eyebrow: 'تحدي الأسئلة', title: 'اتحدى نفسك',
-      subtitle: 'اتقدم في المستويات، والصعوبة بتزيد جوه كل مستوى<br>لحد ما توصل لآخر واحد 🏁',
-      playBtn: 'لعب', chooseCategory: 'اختار فئتك', categorySub: 'كل فئة فيها مستويات متدرجة الصعوبة',
-      nextBtn: 'التالي', finishSub: 'شوف نتيجتك',
-      correctAnswers: 'إجابة صحيحة', retryBtn: 'إعادة المحاولة', backToLevels: 'المستويات',
-      keyTitle: 'فتحت مفتاح جديد!', keyDesc: 'جاوبت 20 سؤال صح ورا بعض. استمر كده!', continueBtn: 'أكمل',
-      easy: 'سهل', medium: 'متوسط', hard: 'صعب', questionsAvailable: 'سؤال متاح',
-      backToCategories: 'رجوع للفئات', levelsSub: 'افتح المستويات بالترتيب',
-      levelComplete: 'نجحت في المستوى!', levelFailed: 'لم تتجاوز المستوى!', levelLocked: 'المستوى ده لسه مقفول، خلص اللي قبله الأول'
-    },
-    en: {
-      eyebrow: 'Quiz Challenge', title: 'Challenge Yourself',
-      subtitle: 'Progress through levels, difficulty rises within each one<br>until you reach the last one 🏁',
-      playBtn: 'Play', chooseCategory: 'Choose your category', categorySub: 'Each category has leveled-up stages',
-      nextBtn: 'Next', finishSub: 'Check your score',
-      correctAnswers: 'correct answers', retryBtn: 'Try Again', backToLevels: 'Levels',
-      keyTitle: 'New key unlocked!', keyDesc: "You answered 20 questions correctly in a row. Keep going!", continueBtn: 'Continue',
-      easy: 'Easy', medium: 'Medium', hard: 'Hard', questionsAvailable: 'questions available',
-      backToCategories: 'Back to categories', levelsSub: 'Unlock levels in order',
-      levelComplete: 'Level passed!', levelFailed: 'Level failed!', levelLocked: 'This level is still locked, finish the previous one first'
-    }
-  };
-
-  let currentLang = localStorage.getItem('quiz_lang') || 'ar';
-
-  function applyTranslations() {
-    document.querySelectorAll('[data-i18n]').forEach(function(el) {
-      el.innerHTML = translations[currentLang][el.dataset.i18n];
-    });
-    document.getElementById('html-root').lang = currentLang;
-    document.getElementById('html-root').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    document.getElementById('btn-ar').classList.toggle('active', currentLang === 'ar');
-    document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
-  }
-
-  document.getElementById('btn-ar').addEventListener('click', () => setLang('ar'));
-  document.getElementById('btn-en').addEventListener('click', () => setLang('en'));
-
-  function setLang(lang) {
-    currentLang = lang;
-    localStorage.setItem('quiz_lang', lang);
-    applyTranslations();
-    if (Object.keys(questionBanks).length) renderCategories();
-    if (screens.levels.classList.contains('active')) renderLevelMap();
-    if (screens.quiz.classList.contains('active')) renderQuestion();
-  }
-
-  let questionBanks = {};
-  const NUM_LEVELS = 10;
-
-  let currentCategory = null;
-  let isApiMode = false;
-  let currentLevel = 0;
-  let currentQuestionIndex = 0;
-  let score = 0;
-  let answered = false;
-  let levelQuestions = [];
-  let streak = parseInt(localStorage.getItem('quiz_streak') || '0');
-  let timerInterval = null;
-  let timeLeft = 15;
-  const TIME_LIMIT = 15;
-
-  document.getElementById('streak-count').textContent = streak;
-
-  const screens = {
-    loading: document.getElementById('loading-screen'),
-    home: document.getElementById('home-screen'),
-    category: document.getElementById('category-screen'),
-    levels: document.getElementById('levels-screen'),
-    quiz: document.getElementById('quiz-screen'),
-    finish: document.getElementById('finish-screen')
-  };
-
-  function showScreen(name) {
-    Object.values(screens).forEach(s => s.classList.remove('active'));
-    screens[name].classList.add('active');
-  }
-
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-  function playTone(frequency, duration, type) {
-    try {
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      oscillator.type = type;
-      oscillator.frequency.value = frequency;
-      gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + duration);
-    } catch(e) {}
-  }
-
-  function playCorrectSound() { playTone(523, 0.12, 'sine'); setTimeout(() => playTone(784, 0.15, 'sine'), 100); }
-  function playWrongSound() { playTone(180, 0.3, 'sawtooth'); }
-  function playLevelUpSound() { playTone(523, 0.1, 'sine'); setTimeout(() => playTone(659, 0.1, 'sine'), 90); setTimeout(() => playTone(880, 0.2, 'sine'), 180); }
-
-  const LEVELS_KEY = 'quiz_levels_progress';
-
-  function getLevelsProgress() {
-    const raw = localStorage.getItem(LEVELS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  }
-
-  function getUnlockedLevel(category) {
-    const progress = getLevelsProgress();
-    return progress[category] || 0;
-  }
-
-  function unlockNextLevel(category, completedLevel) {
-    const progress = getLevelsProgress();
-    const current = progress[category] || 0;
-    if (completedLevel >= current) {
-      progress[category] = completedLevel + 1;
-      localStorage.setItem(LEVELS_KEY, JSON.stringify(progress));
-    }
-  }
-
-  function shuffleArray(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  const apiCategories = {
-    sports:  { id: 21, name_ar: 'الرياضة العامة', name_en: 'Sports', icon: '🏆' },
-    science: { id: 17, name_ar: 'العلوم والتكنولوجيا', name_en: 'Science & Tech', icon: '🔬' },
-    history: { id: 23, name_ar: 'التاريخ والثقافة', name_en: 'History & Culture', icon: '🏛️' },
-    movies:  { id: 11, name_ar: 'السينما والأفلام', name_en: 'Movies & Cinema', icon: '🎬' }
-  };
-
-  function decodeHtml(text) {
-    const el = document.createElement('textarea');
-    el.innerHTML = text;
-    return el.value;
-  }
-
-  async function fetchApiQuestions(categoryId) {
-    const difficulties = ['easy', 'easy', 'easy', 'medium', 'medium', 'medium', 'medium', 'hard', 'hard', 'hard'];
-    const allQuestions = [];
-
-    for (const level of ['easy', 'medium', 'hard']) {
-      const count = difficulties.filter(d => d === level).length;
-      const url = `https://opentdb.com/api.php?amount=${count}&category=${categoryId}&difficulty=${level}&type=multiple`;
+    function renderCategories() {
+      const list = document.getElementById('categories-list');
+      list.innerHTML = '';
       
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Network error');
-      const data = await response.json();
-
-      if (data.results && data.results.length > 0) {
-        data.results.forEach(function(item) {
-          const options = shuffleArray([...item.incorrect_answers, item.correct_answer]).map(decodeHtml);
-          const correctIndex = options.indexOf(decodeHtml(item.correct_answer));
-          allQuestions.push({
-            q_ar: decodeHtml(item.question),
-            q_en: decodeHtml(item.question),
-            options_ar: options,
-            options_en: options,
-            correct: correctIndex
-          });
-        });
-      }
-    }
-    
-    if (allQuestions.length === 0) throw new Error('No questions retrieved');
-    return allQuestions;
-  }
-
-  fetch('questions.json')
-    .then(response => response.json())
-    .then(data => {
-      questionBanks = data;
-      applyTranslations();
-      renderCategories();
-      showScreen('home');
-    })
-    .catch(error => {
-      document.getElementById('loading-msg').textContent = 'جاري التحميل أو تعذر فتح الأسئلة المحلية.';
-      applyTranslations();
-      renderCategories();
-      showScreen('home');
-    });
-
-  function renderCategories() {
-    const container = document.getElementById('categories-container');
-    container.innerHTML = '';
-
-    Object.keys(questionBanks).forEach(function(key) {
-      const bank = questionBanks[key];
-      const name = currentLang === 'ar' ? bank.name_ar : bank.name_en;
-      const card = document.createElement('div');
-      card.className = 'cat-card';
-      card.innerHTML = `
-        <div class="cat-icon">${bank.icon}</div>
-        <div class="cat-info">
-          <div class="cat-name">${name}</div>
-          <div class="cat-desc">${NUM_LEVELS} ${currentLang === 'ar' ? 'مستوى' : 'levels'}</div>
-        </div>
-        <div class="cat-arrow">‹</div>
-      `;
-      card.addEventListener('click', function() {
-        currentCategory = key;
-        isApiMode = false;
-        showScreen('levels');
-        renderLevelMap();
+      Object.keys(gameData).forEach(catKey => {
+        const cat = gameData[catKey];
+        const card = document.createElement('div');
+        card.className = 'cat-card';
+        card.innerHTML = `
+          <div>
+            <h3 style="margin:0">${cat.name_ar}</h3>
+            <small style="color:#777">15 مستوى (30 سؤال لكل مستوى)</small>
+          </div>
+          <span style="font-size:30px">${cat.icon}</span>
+        `;
+        card.onclick = () => startQuiz(catKey);
+        list.appendChild(card);
       });
-      container.appendChild(card);
-    });
-
-    Object.keys(apiCategories).forEach(function(key) {
-      const cat = apiCategories[key];
-      const name = currentLang === 'ar' ? cat.name_ar : cat.name_en;
-      const card = document.createElement('div');
-      card.className = 'cat-card';
-      card.innerHTML = `
-        <div class="cat-icon">${cat.icon}</div>
-        <div class="cat-info">
-          <div class="cat-name">${name}</div>
-          <div class="cat-desc">${currentLang === 'ar' ? 'أسئلة متجددة باللغة الإنجليزية' : 'Fresh questions in English'}</div>
-        </div>
-        <div class="cat-arrow">‹</div>
-      `;
-      card.addEventListener('click', async function() {
-        isApiMode = true;
-        currentCategory = key;
-        card.style.opacity = '0.5';
-        try {
-          levelQuestions = await fetchApiQuestions(cat.id);
-          currentQuestionIndex = 0;
-          score = 0;
-          currentLevel = 0;
-          showScreen('quiz');
-          renderQuestion();
-        } catch (err) {
-          alert(currentLang === 'ar' ? 'حصل خطأ في تحميل الأسئلة، تأكد من الاتصال بالنت' : 'Failed to load questions, check your internet connection');
-        }
-        card.style.opacity = '1';
-      });
-      container.appendChild(card);
-    });
-  }
-
-  document.getElementById('play-btn').addEventListener('click', function() { showScreen('category'); });
-  document.getElementById('levels-back').addEventListener('click', function() { showScreen('category'); });
-  document.getElementById('levels-back-btn').addEventListener('click', function() {
-    if (isApiMode) {
-      showScreen('category');
-    } else {
-      showScreen('levels');
-      renderLevelMap();
-    }
-  });
-
-  function renderLevelMap() {
-    const bank = questionBanks[currentCategory];
-    if (!bank) return;
-    const numLevels = NUM_LEVELS;
-    const unlockedUpTo = getUnlockedLevel(currentCategory);
-
-    document.getElementById('levels-title').textContent = currentLang === 'ar' ? bank.name_ar : bank.name_en;
-
-    const map = document.getElementById('level-map-container');
-    map.innerHTML = '';
-
-    for (let i = 0; i < numLevels; i++) {
-      const row = document.createElement('div');
-      row.className = 'level-row' + (i % 3 === 1 ? ' offset-right' : i % 3 === 2 ? ' offset-left' : '');
-
-      const circle = document.createElement('div');
-      const isUnlocked = i <= unlockedUpTo;
-      const isCurrent = i === unlockedUpTo;
-
-      circle.className = 'level-circle ' + (isUnlocked ? (isCurrent ? 'current' : 'unlocked') : 'locked');
-      circle.innerHTML = isUnlocked ? (i + 1) : '<span class="lock-icon">🔒</span>';
-
-      circle.addEventListener('click', function() {
-        if (!isUnlocked) return;
-        startLevel(i);
-      });
-
-      row.appendChild(circle);
-      map.appendChild(row);
-    }
-  }
-
-  function startLevel(levelIndex) {
-    currentLevel = levelIndex;
-    currentQuestionIndex = 0;
-    score = 0;
-
-    const bank = questionBanks[currentCategory];
-    const questionsPerLevel = Math.ceil(bank.questions.length / NUM_LEVELS);
-    const start = levelIndex * questionsPerLevel;
-    const end = Math.min(start + questionsPerLevel, bank.questions.length);
-    levelQuestions = bank.questions.slice(start, end);
-
-    showScreen('quiz');
-    renderQuestion();
-  }
-
-  function startTimer() {
-    clearInterval(timerInterval);
-    timeLeft = TIME_LIMIT;
-    updateTimerDisplay();
-    timerInterval = setInterval(function() {
-      timeLeft--;
-      updateTimerDisplay();
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        if (!answered) handleTimeout();
-      }
-    }, 1000);
-  }
-
-  function updateTimerDisplay() {
-    document.getElementById('timer-num').textContent = timeLeft;
-    const fill = document.getElementById('timer-fill');
-    fill.style.width = (timeLeft / TIME_LIMIT * 100) + '%';
-    fill.style.background = timeLeft <= 5
-      ? 'linear-gradient(90deg, #ff5f6d, #ff9a3c)'
-      : 'linear-gradient(90deg, #4ade80, #ffd23c)';
-  }
-
-  function handleTimeout() {
-    answered = true;
-    const container = document.getElementById('options-container');
-    const buttons = container.querySelectorAll('.option-btn');
-    const question = levelQuestions[currentQuestionIndex];
-    buttons.forEach(b => b.disabled = true);
-    buttons[question.correct].classList.add('correct');
-    playWrongSound();
-    streak = 0;
-    localStorage.setItem('quiz_streak', streak);
-    document.getElementById('streak-count').textContent = streak;
-    document.getElementById('next-btn').style.display = 'block';
-  }
-
-  function renderQuestion() {
-    answered = false;
-    const totalQuestions = levelQuestions.length;
-    const question = levelQuestions[currentQuestionIndex];
-
-    if (isApiMode) {
-      const cat = apiCategories[currentCategory];
-      document.getElementById('quiz-cat-icon').textContent = cat.icon;
-      document.getElementById('quiz-level-label').textContent = currentLang === 'ar' ? cat.name_ar : cat.name_en;
-    } else {
-      const bank = questionBanks[currentCategory];
-      document.getElementById('quiz-cat-icon').textContent = bank.icon;
-      document.getElementById('quiz-level-label').textContent =
-        (currentLang === 'ar' ? 'مستوى ' : 'Level ') + (currentLevel + 1);
     }
 
-    document.getElementById('q-current').textContent = currentQuestionIndex + 1;
-    document.getElementById('q-total').textContent = totalQuestions;
-    document.getElementById('progress-fill').style.width = ((currentQuestionIndex + 1) / totalQuestions * 100) + '%';
-    document.getElementById('question-text').textContent = currentLang === 'ar' ? question.q_ar : question.q_en;
-    document.getElementById('next-btn').style.display = 'none';
-
-    const progress = (currentQuestionIndex + 1) / totalQuestions;
-    const badge = document.getElementById('difficulty-badge');
-    if (progress <= 0.4) { badge.textContent = translations[currentLang].easy; badge.className = 'difficulty-badge diff-easy'; }
-    else if (progress <= 0.7) { badge.textContent = translations[currentLang].medium; badge.className = 'difficulty-badge diff-medium'; }
-    else { badge.textContent = translations[currentLang].hard; badge.className = 'difficulty-badge diff-hard'; }
-
-    const container = document.getElementById('options-container');
-    container.innerHTML = '';
-
-    const options = currentLang === 'ar' ? question.options_ar : question.options_en;
-    options.forEach(function(optionText, index) {
-      const btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.textContent = optionText;
-      btn.addEventListener('click', function() { selectAnswer(index, question.correct, btn, container); });
-      container.appendChild(btn);
-    });
-
-    startTimer();
-  }
-
-  function checkStreakReward() {
-    if (streak > 0 && streak % 20 === 0) {
-      document.getElementById('key-modal').classList.add('active');
-    }
-  }
-
-  document.getElementById('key-modal-close').addEventListener('click', function() {
-    document.getElementById('key-modal').classList.remove('active');
-  });
-
-  function selectAnswer(selectedIndex, correctIndex, clickedBtn, container) {
-    if (answered) return;
-    answered = true;
-    clearInterval(timerInterval);
-
-    const buttons = container.querySelectorAll('.option-btn');
-    buttons.forEach(b => b.disabled = true);
-
-    if (selectedIndex === correctIndex) {
-      clickedBtn.classList.add('correct');
-      score++;
-      streak++;
-      playCorrectSound();
-      checkStreakReward();
-    } else {
-      clickedBtn.classList.add('wrong');
-      buttons[correctIndex].classList.add('correct');
-      streak = 0;
-      playWrongSound();
+    function startQuiz(catKey) {
+      currentCategory = catKey;
+      currentLevel = 1;
+      currentQIndex = 0;
+      document.getElementById('categories-list').style.display = 'none';
+      document.getElementById('main-title').style.display = 'none';
+      document.getElementById('quiz-container').style.display = 'block';
+      loadQuestion();
     }
 
-    localStorage.setItem('quiz_streak', streak);
-    document.getElementById('streak-count').textContent = streak;
-    document.getElementById('next-btn').style.display = 'block';
-  }
+    function loadQuestion() {
+      const levelKey = `level_${currentLevel}`;
+      const questions = gameData[currentCategory]?.levels?.[levelKey] || [];
 
-  document.getElementById('next-btn').addEventListener('click', function() {
-    currentQuestionIndex++;
-
-    if (currentQuestionIndex < levelQuestions.length) {
-      renderQuestion();
-    } else {
-      clearInterval(timerInterval);
-      document.getElementById('final-score').textContent = score;
-      document.getElementById('final-total').textContent = levelQuestions.length;
-
-      const passingScore = Math.ceil(levelQuestions.length / 2);
-
-      if (isApiMode) {
-        document.getElementById('finish-title').textContent = currentLang === 'ar' ? 'خلصت الجولة!' : 'Round complete!';
-        document.getElementById('levels-back-btn').textContent = currentLang === 'ar' ? 'الفئات' : 'Categories';
-        playLevelUpSound();
-      } else {
-        if (score >= passingScore) {
-          unlockNextLevel(currentCategory, currentLevel);
-          document.getElementById('finish-title').textContent = translations[currentLang].levelComplete;
-          playLevelUpSound();
+      if (questions.length === 0 || currentQIndex >= questions.length) {
+        // إتمام المستوى
+        checkLevelReward();
+        if (currentLevel < 15) {
+          currentLevel++;
+          currentQIndex = 0;
+          alert(`مبروك! انتقلت للمستوى ${currentLevel}`);
+          loadQuestion();
         } else {
-          document.getElementById('finish-title').textContent = translations[currentLang].levelFailed;
-          playWrongSound();
+          alert('تهانينا! أكملت جميع المستويات الـ 15 بنجاح 🎉');
+          location.reload();
         }
-        document.getElementById('levels-back-btn').textContent = translations[currentLang].backToLevels;
+        return;
       }
-      showScreen('finish');
-    }
-  });
 
-  document.getElementById('retry-btn').addEventListener('click', async function() {
-    if (isApiMode) {
-      document.getElementById('retry-btn').disabled = true;
-      try {
-        levelQuestions = await fetchApiQuestions(apiCategories[currentCategory].id);
-        currentQuestionIndex = 0;
-        score = 0;
-        showScreen('quiz');
-        renderQuestion();
-      } catch (err) {
-        alert(currentLang === 'ar' ? 'حصل خطأ في تحميل الأسئلة' : 'Failed to load questions');
+      document.getElementById('current-lvl').innerText = currentLevel;
+      const q = questions[currentQIndex];
+      document.getElementById('question-text').innerText = q.q_ar;
+
+      const optsBox = document.getElementById('options-container');
+      optsBox.innerHTML = '';
+
+      q.options_ar.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(idx, q.correct);
+        optsBox.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected, correct) {
+      if (selected === correct) {
+        alert('إجابة صحيحة! 👏');
+      } else {
+        alert('إجابة خاطئة، حاول مرة أخرى!');
       }
-      document.getElementById('retry-btn').disabled = false;
-    } else {
-      startLevel(currentLevel);
+      currentQIndex++;
+      loadQuestion();
     }
-  });
-</script>
 
+    // إضافة مفتاح كل 3 مستويات
+    function checkLevelReward() {
+      if (currentLevel % 3 === 0) {
+        userKeys++;
+        localStorage.setItem('quiz_keys', userKeys);
+        document.getElementById('keys').innerText = userKeys;
+        alert('🎉 إنجاز رائع! حصلت على مفتاح جديد لإكمال 3 مستويات!');
+      }
+    }
+
+    // تخطي السؤال بفرصة المفتاح
+    function useKeySkip() {
+      if (userKeys > 0) {
+        userKeys--;
+        localStorage.setItem('quiz_keys', userKeys);
+        document.getElementById('keys').innerText = userKeys;
+        currentQIndex++;
+        alert('تم استخدام مفتاح وتخطي السؤال بنجاح!');
+        loadQuestion();
+      } else {
+        alert('لا يوجد لديك مفاتيح! أكمل 3 مستويات للحصول على مفتاح.');
+      }
+    }
+  </script>
 </body>
 </html>
