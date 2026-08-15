@@ -1,150 +1,73 @@
 {
-  "football": {
-    "name_ar": "كورة",
-    "name_en": "Football",
-    "icon": "⚽",
-    "questions": [
-      { "q_ar": "كام لاعب في فريق كرة القدم داخل الملعب؟", "q_en": "How many players are on a football team on the pitch?", "options_ar": ["9", "10", "11", "12"], "options_en": ["9", "10", "11", "12"], "correct": 2 },
-      { "q_ar": "كام دقيقة مدة الشوط الواحد في كرة القدم؟", "q_en": "How many minutes is one half in football?", "options_ar": ["30", "40", "45", "50"], "options_en": ["30", "40", "45", "50"], "correct": 2 },
-      { "q_ar": "إيه شكل الكارت اللي بيوقف اللاعب لو اتطرد؟", "q_en": "What color card sends a player off the pitch?", "options_ar": ["أصفر", "أحمر", "أخضر", "أزرق"], "options_en": ["Yellow", "Red", "Green", "Blue"], "correct": 1 },
-      { "q_ar": "مصر فازت بكاس الأمم الأفريقية كام مرة؟", "q_en": "How many times has Egypt won the Africa Cup of Nations?", "options_ar": ["5", "6", "7", "4"], "options_en": ["5", "6", "7", "4"], "correct": 2 },
-      { "q_ar": "إيه اسم النادي اللي بيلعب له محمد صلاح؟", "q_en": "Which club does Mohamed Salah play for?", "options_ar": ["ريال مدريد", "ليفربول", "برشلونة", "مانشستر سيتي"], "options_en": ["Real Madrid", "Liverpool", "Barcelona", "Manchester City"], "correct": 1 },
-      { "q_ar": "إيه اسم الملعب اللي بيلعب فيه النادي الأهلي؟", "q_en": "What is the name of Al Ahly's stadium?", "options_ar": ["ستاد القاهرة", "استاد برج العرب", "ستاد السلام", "استاد الدفاع الجوي"], "options_en": ["Cairo Stadium", "Borg El Arab Stadium", "Al Salam Stadium", "Air Defense Stadium"], "correct": 0 },
-      { "q_ar": "مين الفريق اللي فاز بكأس العالم 2022؟", "q_en": "Which team won the 2022 World Cup?", "options_ar": ["فرنسا", "البرازيل", "الأرجنتين", "ألمانيا"], "options_en": ["France", "Brazil", "Argentina", "Germany"], "correct": 2 },
-      { "q_ar": "كام كأس عالم فاز بيها البرازيل؟", "q_en": "How many World Cups has Brazil won?", "options_ar": ["3", "4", "5", "6"], "options_en": ["3", "4", "5", "6"], "correct": 2 },
-      { "q_ar": "في أنهي سنة استضافت مصر كأس الأمم الأفريقية آخر مرة؟", "q_en": "In which year did Egypt last host the Africa Cup of Nations?", "options_ar": ["2015", "2017", "2019", "2021"], "options_en": ["2015", "2017", "2019", "2021"], "correct": 2 },
-      { "q_ar": "مين هداف كأس العالم لكل العصور؟", "q_en": "Who is the all-time top scorer in World Cup history?", "options_ar": ["بيليه", "ميروسلاف كلوزه", "رونالدو البرازيلي", "ميسي"], "options_en": ["Pele", "Miroslav Klose", "Ronaldo Nazario", "Messi"], "correct": 1 },
-      { "q_ar": "مين المدرب اللي قاد ليفربول للفوز بدوري أبطال أوروبا 2019؟", "q_en": "Who coached Liverpool to win the 2019 Champions League?", "options_ar": ["بيب جوارديولا", "يورجن كلوب", "كارلو أنشيلوتي", "زين الدين زيدان"], "options_en": ["Pep Guardiola", "Jurgen Klopp", "Carlo Ancelotti", "Zinedine Zidane"], "correct": 1 },
-      { "q_ar": "إيه اسم البطولة اللي بتجمع أبطال الدوريات الأوروبية سنوياً؟", "q_en": "What is the name of the annual competition for European league champions?", "options_ar": ["اليوروبا ليج", "دوري أبطال أوروبا", "كأس الاتحاد", "السوبر الأوروبي"], "options_en": ["Europa League", "Champions League", "UEFA Cup", "European Super Cup"], "correct": 1 },
-      { "q_ar": "كام نادي فاز بدوري أبطال أوروبا أكتر من أي فريق تاني؟", "q_en": "Which club has won the Champions League the most times?", "options_ar": ["ريال مدريد", "برشلونة", "بايرن ميونخ", "ميلان"], "options_en": ["Real Madrid", "Barcelona", "Bayern Munich", "AC Milan"], "correct": 0 },
-      { "q_ar": "مين اللاعب اللي لقبه 'الأسطورة' وسجل أكتر من 800 هدف في مسيرته؟", "q_en": "Which player is nicknamed 'The Legend' and scored over 800 career goals?", "options_ar": ["نيمار", "كريستيانو رونالدو", "مبابي", "هالاند"], "options_en": ["Neymar", "Cristiano Ronaldo", "Mbappe", "Haaland"], "correct": 1 },
-      { "q_ar": "إيه اسم القاعدة اللي بتمنع اللاعب يبقى متقدم على آخر مدافع وقت التمرير؟", "q_en": "What is the rule called that stops a player being ahead of the last defender when passed to?", "options_ar": ["الأوفسايد", "الفاول", "الكورنر", "الرمية الجانبية"], "options_en": ["Offside", "Foul", "Corner kick", "Throw-in"], "correct": 0 },
-      { "q_ar": "أنهي دولة استضافت كأس العالم 2018؟", "q_en": "Which country hosted the 2018 World Cup?", "options_ar": ["البرازيل", "روسيا", "قطر", "ألمانيا"], "options_en": ["Brazil", "Russia", "Qatar", "Germany"], "correct": 1 },
-      { "q_ar": "مين اللاعب اللي فاز بالكرة الذهبية أكتر عدد مرات في التاريخ؟", "q_en": "Who has won the Ballon d'Or the most times in history?", "options_ar": ["كريستيانو رونالدو", "ليونيل ميسي", "زيدان", "رونالدينيو"], "options_en": ["Cristiano Ronaldo", "Lionel Messi", "Zidane", "Ronaldinho"], "correct": 1 },
-      { "q_ar": "إيه اسم أول كأس عالم أقيمت في تاريخ كرة القدم؟", "q_en": "What was the first-ever World Cup in football history?", "options_ar": ["كأس عالم 1930", "كأس عالم 1950", "كأس عالم 1966", "كأس عالم 1938"], "options_en": ["1930 World Cup", "1950 World Cup", "1966 World Cup", "1938 World Cup"], "correct": 0 },
-      { "q_ar": "كام لاعب احتياطي مسموح تغييرهم في مباراة رسمية حديثاً (حد أقصى)؟", "q_en": "What is the maximum number of substitutes allowed in a modern official match?", "options_ar": ["3", "4", "5", "6"], "options_en": ["3", "4", "5", "6"], "correct": 2 },
-      { "q_ar": "مين المنتخب اللي بيلقب بـ'السامبا' نسبة لأسلوب لعبه؟", "q_en": "Which national team is nicknamed 'Samba' after its playing style?", "options_ar": ["الأرجنتين", "إسبانيا", "البرازيل", "إيطاليا"], "options_en": ["Argentina", "Spain", "Brazil", "Italy"], "correct": 2 },
-      { "q_ar": "إيه اسم الجائزة اللي بتتديها لأفضل حارس مرمى في كأس العالم؟", "q_en": "What is the award given to the best goalkeeper at the World Cup called?", "options_ar": ["الحذاء الذهبي", "الكرة الذهبية", "القفاز الذهبي", "الكرة الفضية"], "options_en": ["Golden Boot", "Golden Ball", "Golden Glove", "Silver Ball"], "correct": 2 },
-      { "q_ar": "أنهي مباراة بتتقرر بالضربات الترجيحية لو التعادل استمر بعد الوقت الإضافي؟", "q_en": "What decides a match if the draw continues after extra time?", "options_ar": ["إعادة المباراة تلقائياً", "الضربات الترجيحية", "قرعة عشوائية", "أكتر تسديدات على المرمى"], "options_en": ["Automatic replay", "Penalty shootout", "Random draw", "Most shots on target"], "correct": 1 },
-      { "q_ar": "مين اللاعب اللي حقق 'الهاتريك' في نهائي كأس العالم 1966؟", "q_en": "Who scored a hat-trick in the 1966 World Cup final?", "options_ar": ["بيليه", "جيوف هيرست", "بوبي مور", "فرانز بيكنباور"], "options_en": ["Pele", "Geoff Hurst", "Bobby Moore", "Franz Beckenbauer"], "correct": 1 },
-      { "q_ar": "إيه اسم النظام التقني المستخدم لمراجعة قرارات الحكم بالفيديو؟", "q_en": "What is the video review system used to check referee decisions called?", "options_ar": ["VAR", "GPS", "AI Ref", "Goal Line Tech"], "options_en": ["VAR", "GPS", "AI Ref", "Goal Line Tech"], "correct": 0 },
-      { "q_ar": "مين أصغر لاعب سجل هدف في تاريخ كأس العالم؟", "q_en": "Who is the youngest player to score a goal in World Cup history?", "options_ar": ["بيليه", "مبابي", "أوين", "رونالدو"], "options_en": ["Pele", "Mbappe", "Owen", "Ronaldo"], "correct": 0 },
-      { "q_ar": "إيه اسم البطولة القارية لمنتخبات أمريكا الجنوبية؟", "q_en": "What is the continental tournament for South American national teams called?", "options_ar": ["كوبا أمريكا", "كأس الكاريبي", "كأس الأنديز", "كأس المحيط الهادي"], "options_en": ["Copa America", "Caribbean Cup", "Andes Cup", "Pacific Cup"], "correct": 0 },
-      { "q_ar": "مين حارس المرمى اللي فاز بالكرة الذهبية سنة 1963 كأول حارس مرمى؟", "q_en": "Which goalkeeper won the Ballon d'Or in 1963 as the only goalkeeper ever?", "options_ar": ["مانويل نوير", "ليف ياشين", "جانلويجي بوفون", "إيكر كاسياس"], "options_en": ["Manuel Neuer", "Lev Yashin", "Gianluigi Buffon", "Iker Casillas"], "correct": 1 },
-      { "q_ar": "كام دقيقة الوقت الإضافي المعتاد لو المباراة انتهت بالتعادل؟", "q_en": "How many minutes is standard extra time if a match ends in a draw?", "options_ar": ["15 دقيقة", "30 دقيقة", "20 دقيقة", "10 دقائق"], "options_en": ["15 minutes", "30 minutes", "20 minutes", "10 minutes"], "correct": 1 },
-      { "q_ar": "مين أكثر لاعب أفريقي فاز بجائزة أفضل لاعب في أفريقيا (4 مرات)؟", "q_en": "Who won the African Footballer of the Year award 4 times?", "options_ar": ["صامويل إيتو", "جورج ويا", "محمد صلاح", "ديدييه دروجبا"], "options_en": ["Samuel Eto'o", "George Weah", "Mohamed Salah", "Didier Drogba"], "correct": 0 },
-      { "q_ar": "أنهي بطولة بتعتبر أقدم بطولة كأس محلية في العالم لسه شغالة؟", "q_en": "Which is considered the oldest domestic cup competition still running?", "options_ar": ["كأس إنجلترا (FA Cup)", "كأس إيطاليا", "كأس إسبانيا", "كأس ألمانيا"], "options_en": ["FA Cup (England)", "Coppa Italia", "Copa del Rey", "DFB-Pokal"], "correct": 0 }
-    ]
-  },
   "cooking": {
     "name_ar": "طبخ",
     "name_en": "Cooking",
     "icon": "🍳",
-    "questions": [
-      { "q_ar": "إيه المكون الأساسي في العجة؟", "q_en": "What is the main ingredient in an omelette?", "options_ar": ["طحين", "بيض", "أرز", "لحمة"], "options_en": ["Flour", "Eggs", "Rice", "Meat"], "correct": 1 },
-      { "q_ar": "الملوخية بتتعمل من إيه أساساً؟", "q_en": "What is molokhia mainly made from?", "options_ar": ["ورق العنب", "ورق الملوخية", "الخس", "السبانخ"], "options_en": ["Grape leaves", "Molokhia leaves", "Lettuce", "Spinach"], "correct": 1 },
-      { "q_ar": "إيه المكون اللي بيدي طعم حامض للسلطة عادة؟", "q_en": "What ingredient usually gives salad a sour taste?", "options_ar": ["السكر", "الليمون", "الزيت", "الملح"], "options_en": ["Sugar", "Lemon", "Oil", "Salt"], "correct": 1 },
-      { "q_ar": "إيه اللي بيخلي العجين يفرد ويرتفع؟", "q_en": "What makes dough rise?", "options_ar": ["السكر", "الخميرة", "الملح", "الزيت"], "options_en": ["Sugar", "Yeast", "Salt", "Oil"], "correct": 1 },
-      { "q_ar": "كام درجة حرارة الفرن المناسبة لعمل الكيك عادة؟", "q_en": "What is a typical oven temperature for baking a cake?", "options_ar": ["100 درجة", "150 درجة", "180 درجة", "250 درجة"], "options_en": ["100°C", "150°C", "180°C", "250°C"], "correct": 2 },
-      { "q_ar": "إيه أفضل طريقة تمنع البصل يطلع دموعك وأنت بتقطعه؟", "q_en": "What's a good way to stop onions from making you cry while cutting?", "options_ar": ["تسخنه الأول", "تبرده في التلاجة قبل التقطيع", "تضيفله ملح", "تقطعه ببطء"], "options_en": ["Heat it first", "Chill it in the fridge before cutting", "Add salt to it", "Cut it slowly"], "correct": 1 },
-      { "q_ar": "إيه الفرق بين البيكنج باودر والبيكربونات الصودا؟", "q_en": "What's the difference between baking powder and baking soda?", "options_ar": ["مفيش فرق", "البيكنج باودر فيه حمض مدمج جاهز", "البيكربونات أحلى طعم", "البيكنج باودر بس للحلويات"], "options_en": ["No difference", "Baking powder already contains an acid", "Baking soda tastes sweeter", "Baking powder is only for desserts"], "correct": 1 },
-      { "q_ar": "إيه سبب تحول اللحمة للون البني وهي بتتحمر؟", "q_en": "Why does meat turn brown when seared?", "options_ar": ["فقدان الماء بس", "تفاعل ميلارد", "إضافة التوابل", "ارتفاع نسبة الدهون"], "options_en": ["Just water loss", "The Maillard reaction", "Adding spices", "High fat content"], "correct": 1 },
-      { "q_ar": "ليه بنضيف الملح لمية المكرونة وهي بتغلي؟", "q_en": "Why do we add salt to boiling pasta water?", "options_ar": ["يخليها تستوي أسرع", "يدي طعم للمكرونة نفسها", "يمنعها تلزق", "يخلي المياه تغلي أسرع"], "options_en": ["Makes it cook faster", "Flavors the pasta itself", "Stops it sticking", "Makes water boil faster"], "correct": 1 },
-      { "q_ar": "إيه وظيفة الجلوتين في العجين؟", "q_en": "What role does gluten play in dough?", "options_ar": ["يدي طعم حلو", "يدي مرونة وقوام للعجين", "يخلي اللون أفتح", "مالوش وظيفة حقيقية"], "options_en": ["Gives a sweet taste", "Gives dough elasticity and structure", "Lightens the color", "Has no real role"], "correct": 1 },
-      { "q_ar": "إيه سبب تشقق الكيك من فوق وهو بيتخبز؟", "q_en": "Why does a cake crack on top while baking?", "options_ar": ["السكر زيادة", "حرارة الفرن عالية جداً", "قلة البيض", "كتر الفرد"], "options_en": ["Too much sugar", "Oven temperature too high", "Not enough eggs", "Over-mixing"], "correct": 1 },
-      { "q_ar": "إيه اللي بيمنع الأفوكادو من إنه يبقى بني بسرعة بعد التقطيع؟", "q_en": "What prevents avocado from browning quickly after cutting?", "options_ar": ["الملح", "عصير الليمون", "السكر", "الزيت"], "options_en": ["Salt", "Lemon juice", "Sugar", "Oil"], "correct": 1 },
-      { "q_ar": "إيه الطريقة الصح لقياس الطحين بدقة في الخبز؟", "q_en": "What's the right way to accurately measure flour for baking?", "options_ar": ["تدكه في الكوباية", "تغرفه وتسوي السطح بسكينة", "تهزه في الكوباية", "تحط أكتر من اللازم احتياط"], "options_en": ["Pack it into the cup", "Spoon it in and level with a knife", "Shake it into the cup", "Add extra just in case"], "correct": 1 },
-      { "q_ar": "إيه سبب استخدام ورق الزبدة (Baking Paper) في الفرن؟", "q_en": "Why is baking paper used in the oven?", "options_ar": ["يدي طعم أحلى", "يمنع الالتصاق ويسهل التنظيف", "يخلي الحرارة أعلى", "مفيش سبب حقيقي"], "options_en": ["Gives a better taste", "Prevents sticking and eases cleanup", "Increases the heat", "No real reason"], "correct": 1 },
-      { "q_ar": "إيه الفرق بين التحمير (Searing) والسلق (Boiling) للحوم؟", "q_en": "What's the difference between searing and boiling meat?", "options_ar": ["مفيش فرق في الطعم", "التحمير بيدي قشرة بنية ونكهة أقوى", "السلق بيدي نكهة أقوى", "التحمير بياخد وقت أطول من السلق"], "options_en": ["No difference in taste", "Searing gives a brown crust and stronger flavor", "Boiling gives stronger flavor", "Searing takes longer than boiling"], "correct": 1 },
-      { "q_ar": "إيه وظيفة النشا (Cornstarch) في تكثيف الصوصات؟", "q_en": "What's the role of cornstarch in thickening sauces?", "options_ar": ["يدي طعم حلو", "يمتص السوائل ويكوّن قوام أكتر كثافة", "يخلي اللون فاتح", "مالوش تأثير حقيقي"], "options_en": ["Adds sweetness", "Absorbs liquid and creates a thicker texture", "Lightens the color", "Has no real effect"], "correct": 1 },
-      { "q_ar": "ليه بنسيب العجين 'يرتاح' قبل ما نفرده؟", "q_en": "Why do we let dough 'rest' before rolling it out?", "options_ar": ["عشان يبرد", "عشان الجلوتين يرتخي ويسهل فرده", "عشان يتغير لونه", "مفيش سبب حقيقي"], "options_en": ["To cool it down", "So the gluten relaxes and it's easier to roll", "To change its color", "No real reason"], "correct": 1 },
-      { "q_ar": "إيه أفضل طريقة تعرف إن اللحمة استوت من غير ما تقطعها؟", "q_en": "What's a good way to check if meat is cooked without cutting it?", "options_ar": ["اللون بس", "ميزان حرارة اللحوم (Meat thermometer)", "الرائحة بس", "الوزن"], "options_en": ["Color alone", "A meat thermometer", "Smell alone", "Weight"], "correct": 1 },
-      { "q_ar": "إيه سبب استخدام الخميرة الفورية بدل الجافة العادية أحياناً؟", "q_en": "Why is instant yeast sometimes used instead of regular dry yeast?", "options_ar": ["مش بتحتاج تنشيط في مية دافية الأول", "طعمها أحلى", "أرخص تمناً", "مفيش فرق حقيقي"], "options_en": ["It doesn't need proofing in warm water first", "It tastes better", "It's cheaper", "No real difference"], "correct": 0 },
-      { "q_ar": "إيه أفضل زيت لدرجات الحرارة العالية جداً زي القلي العميق؟", "q_en": "What's a good oil choice for very high heat like deep frying?", "options_ar": ["زيت الزيتون البكر", "زيت عباد الشمس أو الكانولا", "زبدة عادية", "زيت السمسم"], "options_en": ["Extra virgin olive oil", "Sunflower or canola oil", "Regular butter", "Sesame oil"], "correct": 1 },
-      { "q_ar": "إيه سبب نقع الأرز في مية قبل الطبخ في وصفات زي الرز البسمتي؟", "q_en": "Why is rice soaked in water before cooking in recipes like basmati rice?", "options_ar": ["يقلل وقت الطبخ ويخلي الحبة أطول وأقل التصاق", "يغير لونه", "يخليه أثقل وزناً", "مفيش سبب حقيقي"], "options_en": ["Reduces cooking time and makes grains longer and less sticky", "Changes its color", "Makes it heavier", "No real reason"], "correct": 0 },
-      { "q_ar": "إيه الفرق بين البهارات الطازة والمجففة من ناحية النكهة؟", "q_en": "What's the flavor difference between fresh and dried herbs?", "options_ar": ["مفيش فرق خالص", "الطازة نكهتها أخف والمجففة أقوى تركيزاً", "المجففة دايماً أحلى", "الطازة دايماً أقوى تركيزاً"], "options_en": ["No difference at all", "Fresh herbs are milder, dried ones are more concentrated", "Dried is always better tasting", "Fresh is always more concentrated"], "correct": 1 },
-      { "q_ar": "إيه سبب استخدام تقنية 'Blanching' (السلق السريع) للخضروات؟", "q_en": "Why is the 'blanching' technique used for vegetables?", "options_ar": ["يحافظ على اللون ويوقف عملية النضج بسرعة", "يخليها طرية جداً", "يغير طعمها تماماً", "مفيش فايدة حقيقية"], "options_en": ["Preserves color and quickly stops the ripening process", "Makes them very soft", "Completely changes their taste", "No real benefit"], "correct": 0 },
-      { "q_ar": "إيه سبب تغطية العجين بمنشفة مبللة وهو بيختمر؟", "q_en": "Why is dough covered with a damp cloth while it rises?", "options_ar": ["يمنعه يجف ويكوّن قشرة", "يخليه يسخن أسرع", "يغير طعمه", "مفيش سبب حقيقي"], "options_en": ["Prevents it drying out and forming a crust", "Makes it heat up faster", "Changes its taste", "No real reason"], "correct": 0 },
-      { "q_ar": "إيه سبب إضافة صودا الخبز لبعض وصفات اللحمة المتبلة؟", "q_en": "Why is baking soda sometimes added to marinated meat recipes?", "options_ar": ["بتدي طعم حلو", "بترفع درجة الحموضة وتخلي اللحمة أطرى", "بتغير اللون بس", "مفيش تأثير حقيقي"], "options_en": ["Adds sweetness", "Raises pH and tenderizes the meat", "Just changes color", "No real effect"], "correct": 1 },
-      { "q_ar": "إيه الفرق بين 'Simmer' و'Boil' في الطبخ؟", "q_en": "What's the difference between 'simmer' and 'boil' in cooking?", "options_ar": ["مفيش فرق", "السيمر غليان هادئ بحرارة أقل من الفوران الكامل", "البويل حرارة أقل من السيمر", "السيمر بس للحلويات"], "options_en": ["No difference", "Simmering is gentle cooking at a lower heat than a full boil", "Boiling is lower heat than simmering", "Simmering is only for desserts"], "correct": 1 },
-      { "q_ar": "إيه سبب تتبيل اللحمة قبل الطبخ بوقت كافي (Marinating)؟", "q_en": "Why is meat marinated for enough time before cooking?", "options_ar": ["يدي لون بس", "يدي نكهة أعمق ويطري الألياف", "يزود الوزن", "مفيش فايدة حقيقية"], "options_en": ["Just adds color", "Deepens flavor and tenderizes fibers", "Increases weight", "No real benefit"], "correct": 1 },
-      { "q_ar": "إيه سبب استخدام 'Water Bath' في خبز أنواع معينة من الجبن كيك؟", "q_en": "Why is a 'water bath' used when baking certain cheesecakes?", "options_ar": ["يسرّع وقت الخبز", "يوزع الحرارة بالتساوي ويمنع التشقق", "يخلي الطعم أحلى", "مفيش فايدة حقيقية"], "options_en": ["Speeds up baking time", "Distributes heat evenly and prevents cracking", "Makes it taste better", "No real benefit"], "correct": 1 },
-      { "q_ar": "إيه سبب 'Resting' اللحمة بعد الطبخ قبل ما تقطعها؟", "q_en": "Why does meat 'rest' after cooking before it's sliced?", "options_ar": ["يبردها بسرعة", "يخلي العصارة توزع جوها فمتفقدش سوائلها وهي بتتقطع", "يغير طعمها", "مفيش سبب حقيقي"], "options_en": ["Cools it quickly", "Lets juices redistribute so it doesn't lose moisture when cut", "Changes its taste", "No real reason"], "correct": 1 },
-      { "q_ar": "إيه سبب استخدام 'Mise en Place' (تجهيز المكونات الأول) في المطابخ الاحترافية؟", "q_en": "Why do professional kitchens use 'mise en place' (prepping ingredients first)?", "options_ar": ["بس شكل جمالي", "يخلي الطبخ أسرع وأدق وأقل أخطاء", "يوفر فلوس", "مفيش فايدة حقيقية"], "options_en": ["Just for looks", "Makes cooking faster, more precise, and less error-prone", "Saves money", "No real benefit"], "correct": 1 }
-    ]
+    "levels": {
+      "level_1": [
+        {
+          "q_ar": "إيه المكون الأساسي في العجة؟",
+          "q_en": "What is the main ingredient in an omelette?",
+          "options_ar": ["طحين", "بيض", "أرز", "لحمة"],
+          "options_en": ["Flour", "Eggs", "Rice", "Meat"],
+          "correct": 1
+        },
+        {
+          "q_ar": "الملوخية بتتعمل من إيه أساساً؟",
+          "q_en": "What is molokhia mainly made from?",
+          "options_ar": ["ورق العنب", "ورق الملوخية", "الخس", "السبانخ"],
+          "options_en": ["Grape leaves", "Molokhia leaves", "Lettuce", "Spinach"],
+          "correct": 1
+        }
+      ]
+    }
   },
   "general": {
     "name_ar": "أسئلة عامة",
     "name_en": "General Knowledge",
     "icon": "🧠",
-    "questions": [
-      { "q_ar": "كام قارة في العالم؟", "q_en": "How many continents are there in the world?", "options_ar": ["5", "6", "7", "8"], "options_en": ["5", "6", "7", "8"], "correct": 2 },
-      { "q_ar": "عاصمة اليابان إيه؟", "q_en": "What is the capital of Japan?", "options_ar": ["بكين", "سيول", "طوكيو", "بانكوك"], "options_en": ["Beijing", "Seoul", "Tokyo", "Bangkok"], "correct": 2 },
-      { "q_ar": "إيه اسم أصغر كوكب في المجموعة الشمسية؟", "q_en": "What is the smallest planet in the solar system?", "options_ar": ["المريخ", "الزهرة", "عطارد", "بلوتو"], "options_en": ["Mars", "Venus", "Mercury", "Pluto"], "correct": 2 },
-      { "q_ar": "إيه أطول نهر في العالم؟", "q_en": "What is the longest river in the world?", "options_ar": ["الأمازون", "النيل", "المسيسيبي", "اليانجتسي"], "options_en": ["Amazon", "Nile", "Mississippi", "Yangtze"], "correct": 1 },
-      { "q_ar": "كام عظمة في جسم الإنسان البالغ؟", "q_en": "How many bones are in the adult human body?", "options_ar": ["186", "206", "226", "246"], "options_en": ["186", "206", "226", "246"], "correct": 1 },
-      { "q_ar": "مين اللي اخترع المصباح الكهربائي؟", "q_en": "Who invented the electric light bulb?", "options_ar": ["نيكولا تسلا", "توماس إديسون", "ألبرت أينشتاين", "جراهام بيل"], "options_en": ["Nikola Tesla", "Thomas Edison", "Albert Einstein", "Graham Bell"], "correct": 1 },
-      { "q_ar": "إيه أكبر محيط في العالم؟", "q_en": "What is the largest ocean in the world?", "options_ar": ["الأطلسي", "الهندي", "الهادئ", "المتجمد الشمالي"], "options_en": ["Atlantic", "Indian", "Pacific", "Arctic"], "correct": 2 },
-      { "q_ar": "في أنهي سنة اطلقت مصر أول قمر صناعي (نايل سات 101)؟", "q_en": "In which year did Egypt launch its first satellite (Nilesat 101)?", "options_ar": ["1998", "2007", "2019", "2020"], "options_en": ["1998", "2007", "2019", "2020"], "correct": 0 },
-      { "q_ar": "مين اللي كتب نظرية النسبية؟", "q_en": "Who developed the theory of relativity?", "options_ar": ["إسحاق نيوتن", "ألبرت أينشتاين", "ستيفن هوكينج", "نيلز بور"], "options_en": ["Isaac Newton", "Albert Einstein", "Stephen Hawking", "Niels Bohr"], "correct": 1 },
-      { "q_ar": "إيه اسم أكبر صحراء حارة في العالم؟", "q_en": "What is the largest hot desert in the world?", "options_ar": ["صحراء جوبي", "الصحراء الكبرى", "صحراء كالاهاري", "صحراء أتاكاما"], "options_en": ["Gobi Desert", "Sahara Desert", "Kalahari Desert", "Atacama Desert"], "correct": 1 },
-      { "q_ar": "إيه اسم أعلى جبل في العالم فوق مستوى سطح البحر؟", "q_en": "What is the highest mountain above sea level in the world?", "options_ar": ["كليمنجارو", "إفرست", "ماونت بلانك", "كي 2"], "options_en": ["Kilimanjaro", "Everest", "Mont Blanc", "K2"], "correct": 1 },
-      { "q_ar": "إيه العنصر الكيميائي الأكتر وفرة في الغلاف الجوي للأرض؟", "q_en": "What is the most abundant chemical element in Earth's atmosphere?", "options_ar": ["الأكسجين", "النيتروجين", "الكربون", "الهيدروجين"], "options_en": ["Oxygen", "Nitrogen", "Carbon", "Hydrogen"], "correct": 1 },
-      { "q_ar": "مين اللي رسم لوحة الموناليزا؟", "q_en": "Who painted the Mona Lisa?", "options_ar": ["بيكاسو", "ليوناردو دافينشي", "فان جوخ", "مايكل أنجلو"], "options_en": ["Picasso", "Leonardo da Vinci", "Van Gogh", "Michelangelo"], "correct": 1 },
-      { "q_ar": "إيه اسم أكبر جزيرة في العالم؟", "q_en": "What is the largest island in the world?", "options_ar": ["مدغشقر", "جرينلاند", "بورنيو", "نيوزيلندا"], "options_en": ["Madagascar", "Greenland", "Borneo", "New Zealand"], "correct": 1 },
-      { "q_ar": "كام عدد أضلاع الشكل السداسي؟", "q_en": "How many sides does a hexagon have?", "options_ar": ["5", "6", "7", "8"], "options_en": ["5", "6", "7", "8"], "correct": 1 },
-      { "q_ar": "مين مؤلف رواية 'الحرب والسلام'؟", "q_en": "Who wrote the novel 'War and Peace'?", "options_ar": ["دوستويفسكي", "تولستوي", "تشيخوف", "بوشكين"], "options_en": ["Dostoevsky", "Tolstoy", "Chekhov", "Pushkin"], "correct": 1 },
-      { "q_ar": "إيه اسم أكبر كوكب في المجموعة الشمسية؟", "q_en": "What is the largest planet in the solar system?", "options_ar": ["زحل", "المشترى", "أورانوس", "الأرض"], "options_en": ["Saturn", "Jupiter", "Uranus", "Earth"], "correct": 1 },
-      { "q_ar": "إيه اسم العالم اللي اكتشف قانون الجاذبية الأرضية؟", "q_en": "Who is credited with discovering gravity?", "options_ar": ["ألبرت أينشتاين", "إسحاق نيوتن", "جاليليو", "كوبرنيكوس"], "options_en": ["Albert Einstein", "Isaac Newton", "Galileo", "Copernicus"], "correct": 1 },
-      { "q_ar": "إيه أسرع حيوان بري في العالم؟", "q_en": "What is the fastest land animal in the world?", "options_ar": ["الأسد", "الفهد", "الحصان", "النمر"], "options_en": ["Lion", "Cheetah", "Horse", "Tiger"], "correct": 1 },
-      { "q_ar": "كام دولة عضو دائم في مجلس الأمن الدولي؟", "q_en": "How many permanent members are on the UN Security Council?", "options_ar": ["3", "5", "7", "10"], "options_en": ["3", "5", "7", "10"], "correct": 1 },
-      { "q_ar": "إيه اسم أول رائد فضاء مشى على سطح القمر؟", "q_en": "Who was the first astronaut to walk on the moon?", "options_ar": ["يوري جاجارين", "نيل أرمسترونج", "باز ألدرين", "جون جلين"], "options_en": ["Yuri Gagarin", "Neil Armstrong", "Buzz Aldrin", "John Glenn"], "correct": 1 },
-      { "q_ar": "إيه اللغة الأكتر انتشاراً في العالم كلغة أم؟", "q_en": "What is the most widely spoken language in the world as a first language?", "options_ar": ["الإنجليزية", "الإسبانية", "الماندرين الصينية", "العربية"], "options_en": ["English", "Spanish", "Mandarin Chinese", "Arabic"], "correct": 2 },
-      { "q_ar": "إيه اسم أصغر دولة في العالم من ناحية المساحة؟", "q_en": "What is the smallest country in the world by area?", "options_ar": ["موناكو", "الفاتيكان", "سان مارينو", "ليختنشتاين"], "options_en": ["Monaco", "Vatican City", "San Marino", "Liechtenstein"], "correct": 1 },
-      { "q_ar": "إيه اسم العملية اللي بتحول الطاقة الضوئية لطاقة كيميائية في النبات؟", "q_en": "What is the process called that converts light energy into chemical energy in plants?", "options_ar": ["التنفس الخلوي", "البناء الضوئي", "التبخر", "التحلل"], "options_en": ["Cellular respiration", "Photosynthesis", "Evaporation", "Decomposition"], "correct": 1 },
-      { "q_ar": "مين اكتشف البنسلين أول مضاد حيوي؟", "q_en": "Who discovered penicillin?", "options_ar": ["لويس باستور", "ألكسندر فليمنج", "روبرت كوخ", "إدوارد جينر"], "options_en": ["Louis Pasteur", "Alexander Fleming", "Robert Koch", "Edward Jenner"], "correct": 1 },
-      { "q_ar": "إيه اسم أطول سلسلة جبلية في العالم (على اليابسة)؟", "q_en": "What is the longest mountain range in the world (on land)?", "options_ar": ["جبال الألب", "جبال الأنديز", "جبال روكي", "جبال الهيمالايا"], "options_en": ["The Alps", "The Andes", "The Rockies", "The Himalayas"], "correct": 1 },
-      { "q_ar": "كام قلب عند الأخطبوط؟", "q_en": "How many hearts does an octopus have?", "options_ar": ["1", "2", "3", "4"], "options_en": ["1", "2", "3", "4"], "correct": 2 },
-      { "q_ar": "إيه اسم أول امرأة فازت بجائزة نوبل؟", "q_en": "Who was the first woman to win a Nobel Prize?", "options_ar": ["ماري كوري", "روزاليند فرانكلين", "أدا لوفليس", "جين غودال"], "options_en": ["Marie Curie", "Rosalind Franklin", "Ada Lovelace", "Jane Goodall"], "correct": 0 },
-      { "q_ar": "إيه اسم أعمق نقطة في محيطات العالم؟", "q_en": "What is the deepest point in the world's oceans called?", "options_ar": ["خندق ماريانا", "خندق تونجا", "خندق اليابان", "خندق بورتوريكو"], "options_en": ["Mariana Trench", "Tonga Trench", "Japan Trench", "Puerto Rico Trench"], "correct": 0 },
-      { "q_ar": "إيه العملية اللي بيها بتتحول المادة من صلبة لغازية مباشرة دون المرور بالحالة السائلة؟", "q_en": "What process describes matter changing directly from solid to gas without becoming liquid?", "options_ar": ["التبخر", "التكاثف", "التسامي", "الانصهار"], "options_en": ["Evaporation", "Condensation", "Sublimation", "Melting"], "correct": 2 }
-    ]
+    "levels": {
+      "level_1": [
+        {
+          "q_ar": "كام قارة في العالم؟",
+          "q_en": "How many continents are there in the world?",
+          "options_ar": ["5", "6", "7", "8"],
+          "options_en": ["5", "6", "7", "8"],
+          "correct": 2
+        }
+      ]
+    }
   },
   "movies": {
     "name_ar": "أفلام",
     "name_en": "Movies",
     "icon": "🎬",
-    "questions": [
-      { "q_ar": "إيه اسم أول فيلم كرتون طويل في تاريخ السينما (والت ديزني)؟", "q_en": "What was the first full-length animated film in cinema history (Disney)?", "options_ar": ["سنو وايت والأقزام السبعة", "بينوكيو", "سندريلا", "الأسد الملك"], "options_en": ["Snow White and the Seven Dwarfs", "Pinocchio", "Cinderella", "The Lion King"], "correct": 0 },
-      { "q_ar": "مين بطل سلسلة أفلام 'هاري بوتر'؟", "q_en": "Who is the main character in the 'Harry Potter' film series?", "options_ar": ["رون ويزلي", "هاري بوتر", "درملسان", "نيفيل لونجبوتوم"], "options_en": ["Ron Weasley", "Harry Potter", "Draco Malfoy", "Neville Longbottom"], "correct": 1 },
-      { "q_ar": "إيه اسم المخرج المصري الشهير اللي عمل فيلم 'المصير'؟", "q_en": "Who is the famous Egyptian director behind the film 'Al-Massir' (Destiny)?", "options_ar": ["يوسف شاهين", "صلاح أبو سيف", "محمد خان", "داوود عبد السيد"], "options_en": ["Youssef Chahine", "Salah Abu Seif", "Mohamed Khan", "Daoud Abdel Sayed"], "correct": 0 },
-      { "q_ar": "إيه اسم الجائزة السينمائية الأشهر عالمياً واللي بتتديها هوليوود سنوياً؟", "q_en": "What is the most famous global film award given annually by Hollywood?", "options_ar": ["الأوسكار", "الجولدن جلوب", "البافتا", "كان"], "options_en": ["The Oscars", "Golden Globes", "BAFTA", "Cannes"], "correct": 0 },
-      { "q_ar": "مين بطل سلسلة أفلام 'الفيل الأزرق'؟", "q_en": "Who stars in the 'El Fil El Azraq' (The Blue Elephant) film series?", "options_ar": ["أحمد حلمي", "كريم عبد العزيز", "أحمد عز", "عمرو سعد"], "options_en": ["Ahmed Helmy", "Karim Abdel Aziz", "Ahmed Ezz", "Amr Saad"], "correct": 1 },
-      { "q_ar": "إيه اسم أول فيلم اتعرض في سينمات سلسلة 'حرب النجوم' سنة 1977؟", "q_en": "What was the first film released in theaters in the 'Star Wars' saga (1977)?", "options_ar": ["فجر الخطر", "الأمل الجديد (A New Hope)", "التهديد الخفي", "امبراطورية الظلام"], "options_en": ["A Danger Dawn", "A New Hope", "The Phantom Menace", "The Empire Strikes Back"], "correct": 1 },
-      { "q_ar": "مين مؤدي شخصية 'جوكر' اللي فاز عنها بالأوسكار سنة 2020؟", "q_en": "Who won the Oscar for playing 'Joker' in 2020?", "options_ar": ["خواكين فينيكس", "هيث ليدجر", "جاريد ليتو", "ويل سميث"], "options_en": ["Joaquin Phoenix", "Heath Ledger", "Jared Leto", "Will Smith"], "correct": 0 },
-      { "q_ar": "إيه اسم الاستوديو المسؤول عن عالم أفلام 'الأفنجرز'؟", "q_en": "What studio is responsible for 'The Avengers' cinematic universe?", "options_ar": ["ديزني بيكسار", "سوني بيكتشرز", "مارفل ستوديوز", "وارنر بروذرز"], "options_en": ["Disney Pixar", "Sony Pictures", "Marvel Studios", "Warner Bros"], "correct": 2 },
-      { "q_ar": "مين مخرج فيلم 'تيتانيك' الشهير؟", "q_en": "Who directed the famous film 'Titanic'?", "options_ar": ["ستيفن سبيلبرج", "جيمس كاميرون", "كريستوفر نولان", "مارتن سكورسيزي"], "options_en": ["Steven Spielberg", "James Cameron", "Christopher Nolan", "Martin Scorsese"], "correct": 1 },
-      { "q_ar": "إيه اسم الفيلم المصري الشهير من بطولة كريم عبد العزيز وخالد الصاوي؟", "q_en": "Which famous Egyptian film stars Karim Abdel Aziz and Khaled El Sawy?", "options_ar": ["الفيل الأزرق", "تيمور وشفيقة", "كتكوت", "عسل أسود"], "options_en": ["El Fil El Azraq", "Teymour & Shafika", "Katkot", "Asal Eswed"], "correct": 0 },
-      { "q_ar": "إيه اسم البطل الخارق اللي بيلبس درع حديدي في أفلام مارفل؟", "q_en": "Which Marvel superhero wears an iron suit?", "options_ar": ["كابتن أمريكا", "الرجل الحديدي (Iron Man)", "هالك", "ثور"], "options_en": ["Captain America", "Iron Man", "Hulk", "Thor"], "correct": 1 },
-      { "q_ar": "مين مخرج ثلاثية 'الأب الروحي' (The Godfather)؟", "q_en": "Who directed 'The Godfather' trilogy?", "options_ar": ["فرانسيس فورد كوبولا", "مارتن سكورسيزي", "ستيفن سبيلبرج", "ستانلي كوبريك"], "options_en": ["Francis Ford Coppola", "Martin Scorsese", "Steven Spielberg", "Stanley Kubrick"], "correct": 0 },
-      { "q_ar": "إيه اسم أول فيلم حاز أوسكار أفضل فيلم في تاريخ الجوائز سنة 1929؟", "q_en": "What was the first film to win the Best Picture Oscar in history (1929)?", "options_ar": ["أجنحة (Wings)", "كازابلانكا", "ذهب مع الريح", "الملك الأسد"], "options_en": ["Wings", "Casablanca", "Gone with the Wind", "The Lion King"], "correct": 0 },
-      { "q_ar": "مين مؤلف قصة 'ذا لورد أوف ذا رينجز' اللي اتحولت لأفلام؟", "q_en": "Who wrote the original story of 'The Lord of the Rings' that was adapted into films?", "options_ar": ["ج.ك. رولينج", "ج.ر.ر تولكين", "جورج مارتن", "ستيفن كينج"], "options_en": ["J.K. Rowling", "J.R.R. Tolkien", "George R.R. Martin", "Stephen King"], "correct": 1 },
-      { "q_ar": "إيه اسم الشركة الأم المالكة لاستوديو 'بيكسار' لرسوم المتحركة؟", "q_en": "Which parent company owns Pixar Animation Studios?", "options_ar": ["سوني", "يونيفرسال", "ديزني", "وارنر بروذرز"], "options_en": ["Sony", "Universal", "Disney", "Warner Bros"], "correct": 2 },
-      { "q_ar": "مين مخرج فيلم 'إنسيبشن' (Inception)؟", "q_en": "Who directed the film 'Inception'?", "options_ar": ["كريستوفر نولان", "دينيس فيلنوف", "ديفيد فينشر", "ريدلي سكوت"], "options_en": ["Christopher Nolan", "Denis Villeneuve", "David Fincher", "Ridley Scott"], "correct": 0 },
-      { "q_ar": "إيه اسم الممثل اللي لعب دور 'جاك سبارو' في سلسلة قراصنة الكاريبي؟", "q_en": "Who played 'Jack Sparrow' in the Pirates of the Caribbean series?", "options_ar": ["جوني ديب", "أورلاندو بلوم", "جيفري راش", "بيل نايي"], "options_en": ["Johnny Depp", "Orlando Bloom", "Geoffrey Rush", "Bill Nighy"], "correct": 0 },
-      { "q_ar": "إيه سنة عرض أول فيلم في سلسلة أفلام 'شريك' (Shrek)؟", "q_en": "In which year was the first 'Shrek' film released?", "options_ar": ["2001", "2004", "2007", "2010"], "options_en": ["2001", "2004", "2007", "2010"], "correct": 0 },
-      { "q_ar": "مين مؤدي شخصية 'ذا جوكر' في فيلم 'The Dark Knight' سنة 2008؟", "q_en": "Who played 'The Joker' in 'The Dark Knight' (2008)?", "options_ar": ["هيث ليدجر", "خواكين فينيكس", "جاك نيكلسون", "جاريد ليتو"], "options_en": ["Heath Ledger", "Joaquin Phoenix", "Jack Nicholson", "Jared Leto"], "correct": 0 },
-      { "q_ar": "إيه اسم أشهر فيلم مصري لعادل إمام اتكلم عن 'الإرهاب والكباب'؟", "q_en": "What is the name of the famous Egyptian Adel Emam film about 'Terrorism and Kebab'?", "options_ar": ["الإرهابي", "الإرهاب والكباب", "طيور الظلام", "النوم في العسل"], "options_en": ["The Terrorist", "Terrorism and Kebab", "Birds of Darkness", "Sleeping in Honey"], "correct": 1 },
-      { "q_ar": "إيه اسم الممثلة التي قامت بدور 'Wonder Woman' في دي سي؟", "q_en": "Who played the lead role in 'Wonder Woman' for DC?", "options_ar": ["سكارليت جوهانسون", "جال جادوت", "بريا لارسون", "زوي سلدانا"], "options_en": ["Scarlett Johansson", "Gal Gadot", "Brie Larson", "Zoe Saldana"], "correct": 1 },
-      { "q_ar": "إيه اسم أشهر فيلم رسوم متحركة عن أسد صغير بيبقى ملك الغابة؟", "q_en": "What is the famous animated film about a young lion who becomes king of the jungle?", "options_ar": ["مدغشقر", "الأسد الملك (The Lion King)", "كونج فو باندا", "زوتوبيا"], "options_en": ["Madagascar", "The Lion King", "Kung Fu Panda", "Zootopia"], "correct": 1 },
-      { "q_ar": "مين مخرجة فيلم 'باربي' سنة 2023؟", "q_en": "Who directed the 2023 film 'Barbie'?", "options_ar": ["جريتا جرويج", "سوفيا كوبولا", "باتي جينكينز", "كلوي جاو"], "options_en": ["Greta Gerwig", "Sofia Coppola", "Patty Jenkins", "Chloe Zhao"], "correct": 0 },
-      { "q_ar": "إيه سنة عرض أول فيلم في سلسلة 'The Matrix'؟", "q_en": "Which year was the first 'The Matrix' film released?", "options_ar": ["1995", "1999", "2001", "2003"], "options_en": ["1995", "1999", "2001", "2003"], "correct": 1 },
-      { "q_ar": "مين مؤدي شخصية 'توني ستارك / آيرون مان' في أفلام مارفل؟", "q_en": "Who played 'Tony Stark / Iron Man' in the Marvel films?", "options_ar": ["كريس إيفانز", "روبرت داوني جونيور", "كريس هيمسورث", "مارك رافالو"], "options_en": ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo"], "correct": 1 },
-      { "q_ar": "إيه اسم الفيلم المصري الشهير 'الكيت كات' المأخوذ عن رواية مالك الحزين؟", "q_en": "What Egyptian film is titled 'El Kit Kat' based on Ibrahim Aslan's novel?", "options_ar": ["الكيت كات", "الأرض", "خلي بالك من زوزو", "شيء من الخوف"], "options_en": ["El Kit Kat", "The Land", "Watch Out for Zouzou", "Something of Fear"], "correct": 0 },
-      { "q_ar": "إيه سنة عرض أول فيلم في سلسلة 'Fast & Furious'؟", "q_en": "What year was the first 'Fast & Furious' film released?", "options_ar": ["2001", "2003", "2006", "2009"], "options_en": ["2001", "2003", "2006", "2009"], "correct": 0 },
-      { "q_ar": "مين المخرج اللي أخرج أول جزء من سلسلة أفلام 'Harry Potter'؟", "q_en": "Who directed the first 'Harry Potter' film?", "options_ar": ["كريس كولومبوس", "ألفونسو كوارون", "مايك نيويل", "ديفيد ييتس"], "options_en": ["Chris Columbus", "Alfonso Cuaron", "Mike Newell", "David Yates"], "correct": 0 },
-      { "q_ar": "إيه اسم أعلى فيلم إيراداً في تاريخ السينما العالمية؟", "q_en": "What is the highest-grossing film in cinema history?", "options_ar": ["أفاتار (Avatar)", "أفنجرز إند جيم", "تيتانيك", "ستار وورز"], "options_en": ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars"], "correct": 0 },
-      { "q_ar": "مين المخرج اللي اشتهر بأفلام الرعب النفسي زي 'Get Out' و'Us'؟", "q_en": "Which director is known for psychological horror films like 'Get Out' and 'Us'?", "options_ar": ["جوردان بيل", "جيمس وان", "إم نايت شيامالان", "سام رايمي"], "options_en": ["Jordan Peele", "James Wan", "M. Night Shyamalan", "Sam Raimi"], "correct": 0 }
-    ]
+    "levels": {
+      "level_1": [
+        {
+          "q_ar": "مين بطل سلسلة أفلام هاري بوتر؟",
+          "q_en": "Who is the main character in Harry Potter?",
+          "options_ar": ["رون ويزلي", "هاري بوتر", "درامالفي", "سنايب"],
+          "options_en": ["Ron Weasley", "Harry Potter", "Malfoy", "Snape"],
+          "correct": 1
+        }
+      ]
+    }
+  },
+  "football": {
+    "name_ar": "كرة القدم",
+    "name_en": "Football",
+    "icon": "⚽",
+    "levels": {
+      "level_1": [
+        {
+          "q_ar": "كام لاعب في فريق كرة القدم داخل الملعب؟",
+          "q_en": "How many players are on a football team on the pitch?",
+          "options_ar": ["9", "10", "11", "12"],
+          "options_en": ["9", "10", "11", "12"],
+          "correct": 2
+        }
+      ]
+    }
   }
 }
