@@ -25,50 +25,28 @@
   }
 
   .top-bar {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    left: 20px;
-    display: flex;
-    justify-content: space-between;
-    max-width: 480px;
-    margin: 0 auto;
+    position: fixed; top: 20px; right: 20px; left: 20px;
+    display: flex; justify-content: space-between;
+    max-width: 480px; margin: 0 auto;
   }
 
   .lang-switch {
-    display: flex;
-    background: #ffffff;
-    border: 2px solid #ffd28a;
-    border-radius: 30px;
-    padding: 4px;
+    display: flex; background: #fff; border: 2px solid #ffd28a;
+    border-radius: 30px; padding: 4px;
     box-shadow: 0 4px 14px rgba(255, 154, 60, 0.2);
   }
 
   .lang-btn {
-    border: none;
-    background: none;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    color: #9b8ab0;
+    border: none; background: none; padding: 6px 14px; border-radius: 20px;
+    font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; color: #9b8ab0;
   }
 
   .lang-btn.active { background: #ff9a3c; color: #fff; }
 
   .streak-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #ffffff;
-    border: 2px solid #ffd28a;
-    border-radius: 30px;
-    padding: 8px 14px;
-    font-weight: 800;
-    font-size: 13px;
-    color: #ff7a1a;
+    display: flex; align-items: center; gap: 6px;
+    background: #fff; border: 2px solid #ffd28a; border-radius: 30px;
+    padding: 8px 14px; font-weight: 800; font-size: 13px; color: #ff7a1a;
     box-shadow: 0 4px 14px rgba(255, 154, 60, 0.2);
   }
 
@@ -78,50 +56,36 @@
   #home-screen { text-align: center; }
 
   .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: #ff9a3c;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px;
+    color: #ff9a3c; text-transform: uppercase; margin-bottom: 14px; font-weight: 700;
   }
 
-  #home-screen h1 { font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; color: #2d2340; }
+  #home-screen h1 { font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; }
   #home-screen p { color: #7c6f92; font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
 
   #play-btn {
-    background: linear-gradient(135deg, #ff9a3c, #ff5f6d);
-    color: #fff;
-    border: none;
-    border-radius: 16px;
-    padding: 18px 56px;
-    font-family: inherit;
-    font-weight: 900;
-    font-size: 19px;
-    cursor: pointer;
-    transition: transform 0.15s;
+    background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; border: none;
+    border-radius: 16px; padding: 18px 56px; font-family: inherit; font-weight: 900;
+    font-size: 19px; cursor: pointer; transition: transform 0.15s;
     box-shadow: 0 14px 30px rgba(255, 95, 109, 0.35);
   }
 
-  #play-btn:hover { transform: translateY(-2px); }
   #play-btn:active { transform: scale(0.97); }
 
-  #category-screen h2 { font-size: 26px; font-weight: 900; text-align: center; margin-bottom: 8px; }
-  #category-screen .sub { text-align: center; color: #7c6f92; font-size: 14px; margin-bottom: 32px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: #a297b5; font-size: 13px; margin-bottom: 16px; cursor: pointer; font-weight: 700;
+  }
+
+  #category-screen h2, #levels-screen h2 { font-size: 26px; font-weight: 900; text-align: center; margin-bottom: 8px; }
+  #category-screen .sub, #levels-screen .sub { text-align: center; color: #7c6f92; font-size: 14px; margin-bottom: 28px; }
 
   .categories { display: flex; flex-direction: column; gap: 14px; }
 
   .cat-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: #ffffff;
-    border: 2px solid #ffe3c2;
-    border-radius: 18px;
-    padding: 20px 22px;
-    cursor: pointer;
-    transition: border-color 0.15s, transform 0.15s;
+    display: flex; align-items: center; gap: 16px;
+    background: #fff; border: 2px solid #ffe3c2; border-radius: 18px; padding: 20px 22px;
+    cursor: pointer; transition: border-color 0.15s, transform 0.15s;
     box-shadow: 0 6px 18px rgba(255, 154, 60, 0.08);
   }
 
@@ -134,161 +98,134 @@
   }
 
   .cat-info { flex: 1; }
-  .cat-name { font-weight: 700; font-size: 17px; margin-bottom: 2px; color: #2d2340; }
+  .cat-name { font-weight: 700; font-size: 17px; margin-bottom: 2px; }
   .cat-desc { font-size: 13px; color: #a297b5; }
   .cat-arrow { color: #ff9a3c; font-size: 20px; }
 
-  #quiz-screen { background: #ffffff; border: 2px solid #ffe3c2; border-radius: 22px; padding: 26px 24px; box-shadow: 0 10px 30px rgba(255,154,60,0.1); }
+  /* ===== خريطة المستويات ===== */
+  .level-map {
+    display: flex; flex-direction: column-reverse; align-items: center; gap: 6px;
+    background: #fff; border: 2px solid #ffe3c2; border-radius: 24px;
+    padding: 30px 20px; position: relative;
+  }
+
+  .level-row { display: flex; justify-content: center; width: 100%; }
+  .level-row.offset-right { justify-content: flex-end; padding-right: 15%; }
+  .level-row.offset-left { justify-content: flex-start; padding-left: 15%; }
+
+  .level-circle {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 18px;
+    cursor: pointer; border: 4px solid #fff; position: relative;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    transition: transform 0.15s;
+  }
+
+  .level-circle:active { transform: scale(0.93); }
+
+  .level-circle.locked {
+    background: #e5dde8; color: #b5a9c4; cursor: not-allowed;
+  }
+
+  .level-circle.unlocked {
+    background: linear-gradient(135deg, #4ade80, #22c55e); color: #fff;
+  }
+
+  .level-circle.current {
+    background: linear-gradient(135deg, #ffd23c, #ff9a3c); color: #fff;
+    box-shadow: 0 0 0 6px rgba(255,154,60,0.25), 0 6px 14px rgba(0,0,0,0.15);
+  }
+
+  .level-circle .lock-icon { font-size: 18px; }
+  .level-circle .star-row { font-size: 8px; margin-top: 1px; }
+
+  /* ===== شاشة الأسئلة ===== */
+  #quiz-screen { background: #fff; border: 2px solid #ffe3c2; border-radius: 22px; padding: 26px 24px; box-shadow: 0 10px 30px rgba(255,154,60,0.1); }
 
   .quiz-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 
   .quiz-cat-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; color: #ff9a3c; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #ff9a3c; font-weight: 700;
     display: flex; align-items: center; gap: 6px;
   }
 
   .quiz-progress-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a297b5; }
 
   .timer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-
   .timer-track { flex: 1; height: 8px; background: #fdeee0; border-radius: 6px; overflow: hidden; }
-
-  .timer-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #4ade80, #ffd23c);
-    border-radius: 6px;
-    width: 100%;
-    transition: width 1s linear, background 0.3s;
-  }
-
-  .timer-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 800;
-    font-size: 14px;
-    color: #ff5f6d;
-    min-width: 26px;
-    text-align: center;
-  }
+  .timer-fill { height: 100%; background: linear-gradient(90deg, #4ade80, #ffd23c); border-radius: 6px; width: 100%; transition: width 1s linear, background 0.3s; }
+  .timer-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 14px; color: #ff5f6d; min-width: 26px; text-align: center; }
 
   .progress-track { width: 100%; height: 6px; background: #fdeee0; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #ff9a3c, #ba68c8);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-    width: 10%;
-  }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #ff9a3c, #ba68c8); border-radius: 4px; transition: width 0.3s ease; width: 10%; }
 
   .difficulty-badge {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 1px;
-    padding: 4px 10px; border-radius: 20px;
-    margin-bottom: 14px; font-weight: 700;
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px; font-weight: 700;
   }
 
   .diff-easy { background: #dcfce7; color: #16a34a; }
   .diff-medium { background: #fef9c3; color: #ca8a04; }
   .diff-hard { background: #fee2e2; color: #dc2626; }
 
-  #question-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; color: #2d2340; }
+  #question-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; }
 
   .options { display: flex; flex-direction: column; gap: 10px; }
 
   .option-btn {
-    background: #fefaf5;
-    border: 2px solid #ffe3c2;
-    color: #2d2340;
-    border-radius: 14px;
-    padding: 15px 18px;
-    font-family: inherit;
-    font-size: 15px;
-    text-align: right;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    background: #fefaf5; border: 2px solid #ffe3c2; color: #2d2340;
+    border-radius: 14px; padding: 15px 18px; font-family: inherit; font-size: 15px;
+    text-align: right; cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.1s;
   }
 
   .option-btn:hover:not(:disabled) { border-color: #ff9a3c; background: #fff3e0; }
   .option-btn:active:not(:disabled) { transform: scale(0.98); }
-
   .option-btn.correct { background: #dcfce7; border-color: #4ade80; color: #16a34a; }
   .option-btn.wrong { background: #fee2e2; border-color: #f87171; color: #dc2626; }
   .option-btn:disabled { cursor: default; }
 
   #next-btn {
-    display: none;
-    width: 100%;
-    margin-top: 18px;
-    background: linear-gradient(135deg, #ff9a3c, #ff5f6d);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    padding: 15px;
-    font-family: inherit;
-    font-weight: 800;
-    font-size: 15px;
-    cursor: pointer;
+    display: none; width: 100%; margin-top: 18px;
+    background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; border: none;
+    border-radius: 14px; padding: 15px; font-family: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
   }
 
   #finish-screen { text-align: center; }
   .finish-icon { font-size: 60px; margin-bottom: 18px; }
-  #finish-screen h2 { font-size: 30px; font-weight: 900; margin-bottom: 8px; color: #2d2340; }
+  #finish-screen h2 { font-size: 30px; font-weight: 900; margin-bottom: 8px; }
   #finish-screen p { color: #7c6f92; font-size: 15px; margin-bottom: 28px; }
 
-  .score-box { background: #ffffff; border: 2px solid #ffe3c2; border-radius: 18px; padding: 26px; margin-bottom: 28px; }
+  .score-box { background: #fff; border: 2px solid #ffe3c2; border-radius: 18px; padding: 26px; margin-bottom: 28px; }
   .score-num { font-family: 'JetBrains Mono', monospace; font-size: 46px; font-weight: 700; color: #ff9a3c; }
   .score-label { color: #a297b5; font-size: 13px; margin-top: 4px; }
 
   .finish-actions { display: flex; gap: 10px; }
-
-  .finish-btn {
-    flex: 1; border-radius: 14px; padding: 14px;
-    font-family: inherit; font-weight: 700; font-size: 14px;
-    cursor: pointer; border: none;
-  }
-
+  .finish-btn { flex: 1; border-radius: 14px; padding: 14px; font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer; border: none; }
   #retry-btn { background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; }
-  #home-btn { background: #fff; color: #2d2340; border: 2px solid #ffe3c2; }
+  #home-btn, #levels-back-btn { background: #fff; color: #2d2340; border: 2px solid #ffe3c2; }
 
   #loading-msg { text-align: center; color: #7c6f92; padding: 40px 0; }
 
-  /* ===== نافذة فتح المفتاح ===== */
   .modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(45, 35, 64, 0.55);
-    align-items: center; justify-content: center;
-    z-index: 50;
-    padding: 20px;
+    display: none; position: fixed; inset: 0; background: rgba(45, 35, 64, 0.55);
+    align-items: center; justify-content: center; z-index: 50; padding: 20px;
   }
 
   .modal-overlay.active { display: flex; }
 
   .modal-box {
-    background: #fff;
-    border-radius: 24px;
-    padding: 36px 28px;
-    text-align: center;
-    max-width: 340px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+    background: #fff; border-radius: 24px; padding: 36px 28px; text-align: center;
+    max-width: 340px; box-shadow: 0 30px 60px rgba(0,0,0,0.3);
   }
 
   .modal-icon { font-size: 56px; margin-bottom: 12px; }
-  .modal-box h3 { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: #2d2340; }
+  .modal-box h3 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
   .modal-box p { color: #7c6f92; font-size: 14px; margin-bottom: 22px; line-height: 1.6; }
 
   .modal-btn {
-    background: linear-gradient(135deg, #ff9a3c, #ff5f6d);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    padding: 13px 32px;
-    font-family: inherit;
-    font-weight: 800;
-    font-size: 14px;
-    cursor: pointer;
+    background: linear-gradient(135deg, #ff9a3c, #ff5f6d); color: #fff; border: none;
+    border-radius: 14px; padding: 13px 32px; font-family: inherit; font-weight: 800; font-size: 14px; cursor: pointer;
   }
 </style>
 </head>
@@ -309,19 +246,26 @@
   <div class="screen" id="home-screen">
     <div class="eyebrow" data-i18n="eyebrow">Quiz Challenge</div>
     <h1 data-i18n="title">اتحدى نفسك</h1>
-    <p data-i18n="subtitle">10 أسئلة، الصعوبة بتزيد مرحلة بعد مرحلة<br>لحد ما توصل لخط النهاية 🏁</p>
+    <p data-i18n="subtitle">اتقدم في المستويات، والصعوبة بتزيد جوه كل مستوى<br>لحد ما توصل لآخر واحد 🏁</p>
     <button id="play-btn" data-i18n="playBtn">لعب</button>
   </div>
 
   <div class="screen" id="category-screen">
     <h2 data-i18n="chooseCategory">اختار فئتك</h2>
-    <p class="sub" data-i18n="categorySub">كل فئة فيها أسئلة بترتيب الصعوبة</p>
+    <p class="sub" data-i18n="categorySub">كل فئة فيها مستويات متدرجة الصعوبة</p>
     <div class="categories" id="categories-container"></div>
+  </div>
+
+  <div class="screen" id="levels-screen">
+    <div class="back-link" id="levels-back"><span>‹</span> <span data-i18n="backToCategories">رجوع للفئات</span></div>
+    <h2 id="levels-title">كورة</h2>
+    <p class="sub" data-i18n="levelsSub">افتح المستويات بالترتيب</p>
+    <div class="level-map" id="level-map-container"></div>
   </div>
 
   <div class="screen" id="quiz-screen">
     <div class="quiz-top">
-      <div class="quiz-cat-label"><span id="quiz-cat-icon"></span> <span id="quiz-cat-name"></span></div>
+      <div class="quiz-cat-label"><span id="quiz-cat-icon"></span> <span id="quiz-level-label"></span></div>
       <div class="quiz-progress-num"><span id="q-current">1</span> / <span id="q-total">10</span></div>
     </div>
 
@@ -339,8 +283,8 @@
   </div>
 
   <div class="screen" id="finish-screen">
-    <div class="finish-icon">🏁</div>
-    <h2 data-i18n="finishTitle">وصلت لخط النهاية!</h2>
+    <div class="finish-icon" id="finish-icon">🏁</div>
+    <h2 id="finish-title">خلصت المستوى!</h2>
     <p data-i18n="finishSub">شوف نتيجتك</p>
     <div class="score-box">
       <div class="score-num"><span id="final-score">0</span>/<span id="final-total">10</span></div>
@@ -348,11 +292,10 @@
     </div>
     <div class="finish-actions">
       <button class="finish-btn" id="retry-btn" data-i18n="retryBtn">إعادة المحاولة</button>
-      <button class="finish-btn" id="home-btn" data-i18n="homeBtn">الرئيسية</button>
+      <button class="finish-btn" id="levels-back-btn" data-i18n="backToLevels">المستويات</button>
     </div>
   </div>
 
-  <!-- نافذة فتح المفتاح بعد 20 إجابة صح متتالية -->
   <div class="modal-overlay" id="key-modal">
     <div class="modal-box">
       <div class="modal-icon">🔑</div>
@@ -363,25 +306,29 @@
   </div>
 
 <script>
-  // ===== الترجمة: كل نصوص الواجهة الثابتة بالعربي والإنجليزي =====
+  // ===== الترجمة =====
   const translations = {
     ar: {
       eyebrow: 'تحدي الأسئلة', title: 'اتحدى نفسك',
-      subtitle: '10 أسئلة، الصعوبة بتزيد مرحلة بعد مرحلة<br>لحد ما توصل لخط النهاية 🏁',
-      playBtn: 'لعب', chooseCategory: 'اختار فئتك', categorySub: 'كل فئة فيها أسئلة بترتيب الصعوبة',
-      nextBtn: 'التالي', finishTitle: 'وصلت لخط النهاية!', finishSub: 'شوف نتيجتك',
-      correctAnswers: 'إجابة صحيحة', retryBtn: 'إعادة المحاولة', homeBtn: 'الرئيسية',
+      subtitle: 'اتقدم في المستويات، والصعوبة بتزيد جوه كل مستوى<br>لحد ما توصل لآخر واحد 🏁',
+      playBtn: 'لعب', chooseCategory: 'اختار فئتك', categorySub: 'كل فئة فيها مستويات متدرجة الصعوبة',
+      nextBtn: 'التالي', finishSub: 'شوف نتيجتك',
+      correctAnswers: 'إجابة صحيحة', retryBtn: 'إعادة المحاولة', backToLevels: 'المستويات',
       keyTitle: 'فتحت مفتاح جديد!', keyDesc: 'جاوبت 20 سؤال صح ورا بعض. استمر كده!', continueBtn: 'أكمل',
-      easy: 'سهل', medium: 'متوسط', hard: 'صعب', questionsAvailable: 'سؤال متاح', loading: 'جاري تحميل الأسئلة...'
+      easy: 'سهل', medium: 'متوسط', hard: 'صعب', questionsAvailable: 'سؤال متاح',
+      backToCategories: 'رجوع للفئات', levelsSub: 'افتح المستويات بالترتيب',
+      levelComplete: 'خلصت المستوى!', levelLocked: 'المستوى ده لسه مقفول، خلص اللي قبله الأول'
     },
     en: {
       eyebrow: 'Quiz Challenge', title: 'Challenge Yourself',
-      subtitle: '10 questions, difficulty increases stage by stage<br>until you reach the finish line 🏁',
-      playBtn: 'Play', chooseCategory: 'Choose your category', categorySub: 'Each category has questions ordered by difficulty',
-      nextBtn: 'Next', finishTitle: 'You reached the finish line!', finishSub: 'Check your score',
-      correctAnswers: 'correct answers', retryBtn: 'Try Again', homeBtn: 'Home',
+      subtitle: 'Progress through levels, difficulty rises within each one<br>until you reach the last one 🏁',
+      playBtn: 'Play', chooseCategory: 'Choose your category', categorySub: 'Each category has leveled-up stages',
+      nextBtn: 'Next', finishSub: 'Check your score',
+      correctAnswers: 'correct answers', retryBtn: 'Try Again', backToLevels: 'Levels',
       keyTitle: 'New key unlocked!', keyDesc: "You answered 20 questions correctly in a row. Keep going!", continueBtn: 'Continue',
-      easy: 'Easy', medium: 'Medium', hard: 'Hard', questionsAvailable: 'questions available', loading: 'Loading questions...'
+      easy: 'Easy', medium: 'Medium', hard: 'Hard', questionsAvailable: 'questions available',
+      backToCategories: 'Back to categories', levelsSub: 'Unlock levels in order',
+      levelComplete: 'Level complete!', levelLocked: 'This level is still locked, finish the previous one first'
     }
   };
 
@@ -389,8 +336,7 @@
 
   function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(function(el) {
-      const key = el.dataset.i18n;
-      el.innerHTML = translations[currentLang][key];
+      el.innerHTML = translations[currentLang][el.dataset.i18n];
     });
     document.getElementById('html-root').lang = currentLang;
     document.getElementById('html-root').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
@@ -406,16 +352,20 @@
     localStorage.setItem('quiz_lang', lang);
     applyTranslations();
     if (Object.keys(questionBanks).length) renderCategories();
+    if (screens.levels.classList.contains('active')) renderLevelMap();
     if (screens.quiz.classList.contains('active')) renderQuestion();
   }
 
   // ===== حالة اللعبة =====
   let questionBanks = {};
+  const LEVEL_SIZE = 10; // أقصى عدد أسئلة متاح لكل مستوى، حسب حجم بنك الأسئلة الحالي
+
   let currentCategory = null;
+  let currentLevel = 0; // index المستوى الحالي (0-based)
   let currentQuestionIndex = 0;
   let score = 0;
   let answered = false;
-  let shuffledQuestions = [];
+  let levelQuestions = [];
   let streak = parseInt(localStorage.getItem('quiz_streak') || '0');
   let timerInterval = null;
   let timeLeft = 15;
@@ -427,6 +377,7 @@
     loading: document.getElementById('loading-screen'),
     home: document.getElementById('home-screen'),
     category: document.getElementById('category-screen'),
+    levels: document.getElementById('levels-screen'),
     quiz: document.getElementById('quiz-screen'),
     finish: document.getElementById('finish-screen')
   };
@@ -452,32 +403,31 @@
     oscillator.stop(audioCtx.currentTime + duration);
   }
 
-  function playCorrectSound() {
-    playTone(523, 0.12, 'sine');
-    setTimeout(() => playTone(784, 0.15, 'sine'), 100);
+  function playCorrectSound() { playTone(523, 0.12, 'sine'); setTimeout(() => playTone(784, 0.15, 'sine'), 100); }
+  function playWrongSound() { playTone(180, 0.3, 'sawtooth'); }
+  function playLevelUpSound() { playTone(523, 0.1, 'sine'); setTimeout(() => playTone(659, 0.1, 'sine'), 90); setTimeout(() => playTone(880, 0.2, 'sine'), 180); }
+
+  // ===== حفظ تقدم المستويات (أنهي مستوى اتفتح لكل فئة) =====
+  const LEVELS_KEY = 'quiz_levels_progress';
+
+  function getLevelsProgress() {
+    const raw = localStorage.getItem(LEVELS_KEY);
+    return raw ? JSON.parse(raw) : {};
   }
 
-  function playWrongSound() {
-    playTone(180, 0.3, 'sawtooth');
+  function getUnlockedLevel(category) {
+    const progress = getLevelsProgress();
+    return progress[category] || 0; // 0 يعني بس المستوى الأول مفتوح
   }
 
-  // ===== الحفظ التلقائي =====
-  const SAVE_KEY = 'quiz_progress_v2'; // v2 عشان أي بيانات قديمة من نسخة سابقة تتجاهل تلقائياً
-
-  function saveProgress() {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({
-      category: currentCategory, index: currentQuestionIndex,
-      score: score, shuffledQuestions: shuffledQuestions
-    }));
+  function unlockNextLevel(category, completedLevel) {
+    const progress = getLevelsProgress();
+    const current = progress[category] || 0;
+    if (completedLevel >= current) {
+      progress[category] = completedLevel + 1;
+      localStorage.setItem(LEVELS_KEY, JSON.stringify(progress));
+    }
   }
-
-  function loadSavedProgress() {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch (e) { return null; }
-  }
-
-  function clearProgress() { localStorage.removeItem(SAVE_KEY); }
 
   function shuffleArray(array) {
     const arr = [...array];
@@ -495,23 +445,7 @@
       questionBanks = data;
       applyTranslations();
       renderCategories();
-
-      const saved = loadSavedProgress();
-      const savedLooksValid = saved && questionBanks[saved.category]
-        && Array.isArray(saved.shuffledQuestions)
-        && saved.shuffledQuestions.length > 0
-        && saved.shuffledQuestions[0].q_ar !== undefined;
-
-      if (savedLooksValid) {
-        currentCategory = saved.category;
-        currentQuestionIndex = saved.index;
-        score = saved.score;
-        shuffledQuestions = saved.shuffledQuestions;
-        showScreen('quiz');
-        renderQuestion();
-      } else {
-        showScreen('home');
-      }
+      showScreen('home');
     })
     .catch(error => {
       document.getElementById('loading-msg').textContent = 'حصل خطأ في تحميل الأسئلة. تأكد إن ملف questions.json موجود في نفس الفولدر.';
@@ -525,39 +459,81 @@
     Object.keys(questionBanks).forEach(function(key) {
       const bank = questionBanks[key];
       const name = currentLang === 'ar' ? bank.name_ar : bank.name_en;
+      const numLevels = Math.ceil(bank.questions.length / LEVEL_SIZE);
       const card = document.createElement('div');
       card.className = 'cat-card';
       card.innerHTML = `
         <div class="cat-icon">${bank.icon}</div>
         <div class="cat-info">
           <div class="cat-name">${name}</div>
-          <div class="cat-desc">${bank.questions.length} ${translations[currentLang].questionsAvailable}</div>
+          <div class="cat-desc">${numLevels} ${currentLang === 'ar' ? 'مستوى' : 'levels'}</div>
         </div>
         <div class="cat-arrow">‹</div>
       `;
       card.addEventListener('click', function() {
         currentCategory = key;
-        currentQuestionIndex = 0;
-        score = 0;
-        shuffledQuestions = shuffleArray(questionBanks[key].questions);
-        showScreen('quiz');
-        renderQuestion();
-        saveProgress();
+        showScreen('levels');
+        renderLevelMap();
       });
       container.appendChild(card);
     });
   }
 
-  document.getElementById('play-btn').addEventListener('click', function() {
-    showScreen('category');
-  });
+  document.getElementById('play-btn').addEventListener('click', function() { showScreen('category'); });
+  document.getElementById('levels-back').addEventListener('click', function() { showScreen('category'); });
+  document.getElementById('levels-back-btn').addEventListener('click', function() { showScreen('levels'); renderLevelMap(); });
 
-  // ===== المؤقت: 15 ثانية لكل سؤال =====
+  // ===== خريطة المستويات =====
+  function renderLevelMap() {
+    const bank = questionBanks[currentCategory];
+    const numLevels = Math.ceil(bank.questions.length / LEVEL_SIZE);
+    const unlockedUpTo = getUnlockedLevel(currentCategory); // آخر مستوى مفتوح (0-based)
+
+    document.getElementById('levels-title').textContent = currentLang === 'ar' ? bank.name_ar : bank.name_en;
+
+    const map = document.getElementById('level-map-container');
+    map.innerHTML = '';
+
+    for (let i = 0; i < numLevels; i++) {
+      const row = document.createElement('div');
+      row.className = 'level-row' + (i % 3 === 1 ? ' offset-right' : i % 3 === 2 ? ' offset-left' : '');
+
+      const circle = document.createElement('div');
+      const isUnlocked = i <= unlockedUpTo;
+      const isCurrent = i === unlockedUpTo;
+
+      circle.className = 'level-circle ' + (isUnlocked ? (isCurrent ? 'current' : 'unlocked') : 'locked');
+      circle.innerHTML = isUnlocked ? (i + 1) : '<span class="lock-icon">🔒</span>';
+
+      circle.addEventListener('click', function() {
+        if (!isUnlocked) return;
+        startLevel(i);
+      });
+
+      row.appendChild(circle);
+      map.appendChild(row);
+    }
+  }
+
+  function startLevel(levelIndex) {
+    currentLevel = levelIndex;
+    currentQuestionIndex = 0;
+    score = 0;
+
+    const bank = questionBanks[currentCategory];
+    const start = levelIndex * LEVEL_SIZE;
+    const end = Math.min(start + LEVEL_SIZE, bank.questions.length);
+    levelQuestions = bank.questions.slice(start, end); // بترتيبها الأصلي عشان الصعوبة تتصاعد صح جوه المستوى
+
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  // ===== المؤقت =====
   function startTimer() {
     clearInterval(timerInterval);
     timeLeft = TIME_LIMIT;
     updateTimerDisplay();
-
     timerInterval = setInterval(function() {
       timeLeft--;
       updateTimerDisplay();
@@ -572,19 +548,16 @@
     document.getElementById('timer-num').textContent = timeLeft;
     const fill = document.getElementById('timer-fill');
     fill.style.width = (timeLeft / TIME_LIMIT * 100) + '%';
-    if (timeLeft <= 5) {
-      fill.style.background = 'linear-gradient(90deg, #ff5f6d, #ff9a3c)';
-    } else {
-      fill.style.background = 'linear-gradient(90deg, #4ade80, #ffd23c)';
-    }
+    fill.style.background = timeLeft <= 5
+      ? 'linear-gradient(90deg, #ff5f6d, #ff9a3c)'
+      : 'linear-gradient(90deg, #4ade80, #ffd23c)';
   }
 
-  // لو الوقت خلص من غير إجابة، تتحسب غلط تلقائياً
   function handleTimeout() {
     answered = true;
     const container = document.getElementById('options-container');
     const buttons = container.querySelectorAll('.option-btn');
-    const question = shuffledQuestions[currentQuestionIndex];
+    const question = levelQuestions[currentQuestionIndex];
     buttons.forEach(b => b.disabled = true);
     buttons[question.correct].classList.add('correct');
     playWrongSound();
@@ -592,17 +565,17 @@
     localStorage.setItem('quiz_streak', streak);
     document.getElementById('streak-count').textContent = streak;
     document.getElementById('next-btn').style.display = 'block';
-    saveProgress();
   }
 
   function renderQuestion() {
     answered = false;
     const bank = questionBanks[currentCategory];
-    const totalQuestions = shuffledQuestions.length;
-    const question = shuffledQuestions[currentQuestionIndex];
+    const totalQuestions = levelQuestions.length;
+    const question = levelQuestions[currentQuestionIndex];
 
     document.getElementById('quiz-cat-icon').textContent = bank.icon;
-    document.getElementById('quiz-cat-name').textContent = currentLang === 'ar' ? bank.name_ar : bank.name_en;
+    document.getElementById('quiz-level-label').textContent =
+      (currentLang === 'ar' ? 'مستوى ' : 'Level ') + (currentLevel + 1);
     document.getElementById('q-current').textContent = currentQuestionIndex + 1;
     document.getElementById('q-total').textContent = totalQuestions;
     document.getElementById('progress-fill').style.width = ((currentQuestionIndex + 1) / totalQuestions * 100) + '%';
@@ -611,16 +584,9 @@
 
     const progress = (currentQuestionIndex + 1) / totalQuestions;
     const badge = document.getElementById('difficulty-badge');
-    if (progress <= 0.4) {
-      badge.textContent = translations[currentLang].easy;
-      badge.className = 'difficulty-badge diff-easy';
-    } else if (progress <= 0.7) {
-      badge.textContent = translations[currentLang].medium;
-      badge.className = 'difficulty-badge diff-medium';
-    } else {
-      badge.textContent = translations[currentLang].hard;
-      badge.className = 'difficulty-badge diff-hard';
-    }
+    if (progress <= 0.4) { badge.textContent = translations[currentLang].easy; badge.className = 'difficulty-badge diff-easy'; }
+    else if (progress <= 0.7) { badge.textContent = translations[currentLang].medium; badge.className = 'difficulty-badge diff-medium'; }
+    else { badge.textContent = translations[currentLang].hard; badge.className = 'difficulty-badge diff-hard'; }
 
     const container = document.getElementById('options-container');
     container.innerHTML = '';
@@ -630,16 +596,13 @@
       const btn = document.createElement('button');
       btn.className = 'option-btn';
       btn.textContent = optionText;
-      btn.addEventListener('click', function() {
-        selectAnswer(index, question.correct, btn, container);
-      });
+      btn.addEventListener('click', function() { selectAnswer(index, question.correct, btn, container); });
       container.appendChild(btn);
     });
 
     startTimer();
   }
 
-  // ===== كل 20 إجابة صح متتالية = مفتاح جديد =====
   function checkStreakReward() {
     if (streak > 0 && streak % 20 === 0) {
       document.getElementById('key-modal').classList.add('active');
@@ -673,39 +636,27 @@
 
     localStorage.setItem('quiz_streak', streak);
     document.getElementById('streak-count').textContent = streak;
-
     document.getElementById('next-btn').style.display = 'block';
-    saveProgress();
   }
 
   document.getElementById('next-btn').addEventListener('click', function() {
     currentQuestionIndex++;
-    const totalQuestions = shuffledQuestions.length;
 
-    if (currentQuestionIndex < totalQuestions) {
+    if (currentQuestionIndex < levelQuestions.length) {
       renderQuestion();
-      saveProgress();
     } else {
       clearInterval(timerInterval);
+      unlockNextLevel(currentCategory, currentLevel);
+      playLevelUpSound();
       document.getElementById('final-score').textContent = score;
-      document.getElementById('final-total').textContent = totalQuestions;
+      document.getElementById('final-total').textContent = levelQuestions.length;
+      document.getElementById('finish-title').textContent = translations[currentLang].levelComplete;
       showScreen('finish');
-      clearProgress();
     }
   });
 
   document.getElementById('retry-btn').addEventListener('click', function() {
-    currentQuestionIndex = 0;
-    score = 0;
-    shuffledQuestions = shuffleArray(questionBanks[currentCategory].questions);
-    showScreen('quiz');
-    renderQuestion();
-    saveProgress();
-  });
-
-  document.getElementById('home-btn').addEventListener('click', function() {
-    clearProgress();
-    showScreen('home');
+    startLevel(currentLevel);
   });
 </script>
 
