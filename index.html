@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تحدي المعرفة - Game UI</title>
+  <title>تحدي المعرفة - 30 مستوى</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
 
@@ -19,7 +19,6 @@
       padding: 15px;
     }
 
-    /* Top Game Bar */
     .top-bar {
       width: 100%;
       max-width: 450px;
@@ -92,10 +91,7 @@
       text-shadow: 1px 2px 3px rgba(0,0,0,0.4);
     }
 
-    .btn-3d:active {
-      transform: translateY(4px);
-      box-shadow: none !important;
-    }
+    .btn-3d:active { transform: translateY(4px); box-shadow: none !important; }
 
     .btn-sports  { background: linear-gradient(180deg, #ff416c 0%, #ff4b2b 100%); box-shadow: 0 6px 0 #b31217; }
     .btn-movies  { background: linear-gradient(180deg, #8a2387 0%, #e94057 100%); box-shadow: 0 6px 0 #591054; }
@@ -104,24 +100,24 @@
     .btn-science { background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); box-shadow: 0 6px 0 #0044a3; }
 
     .map-container {
-      display: flex;
-      flex-direction: column-reverse;
-      align-items: center;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 15px;
-      max-height: 380px;
+      max-height: 420px;
       overflow-y: auto;
       padding: 15px 5px;
+      justify-items: center;
     }
 
     .level-node {
-      width: 65px;
-      height: 65px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
       font-weight: 900;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       cursor: pointer;
       box-shadow: 0 6px 0 rgba(0,0,0,0.4);
       transition: 0.2s;
@@ -138,7 +134,7 @@
       border: 2px solid rgba(255, 255, 255, 0.15);
       border-radius: 20px;
       padding: 20px;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: bold;
       min-height: 100px;
       display: flex;
@@ -148,19 +144,15 @@
       box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
     }
 
-    .answers-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .answers-list { display: flex; flex-direction: column; gap: 12px; }
 
     .answer-btn {
       background: #ffffff;
       color: #1a1a2e;
       border: none;
-      padding: 15px;
+      padding: 14px;
       border-radius: 15px;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 900;
       cursor: pointer;
       box-shadow: 0 5px 0 #cbd5e1;
@@ -198,7 +190,6 @@
   </div>
 
   <div class="container">
-    <!-- View 1: Categories -->
     <div id="category-view">
       <div class="game-title">اختر القسم للبدء 🎮</div>
       <div class="categories-list">
@@ -210,17 +201,15 @@
       </div>
     </div>
 
-    <!-- View 2: Level Map -->
     <div id="map-view" style="display: none;">
-      <div class="game-title">خريطة المستويات 🗺️</div>
+      <div class="game-title">خريطة المستويات (30 مستوى) 🗺️</div>
       <div class="map-container" id="levels-map"></div>
       <button class="action-btn back-btn" onclick="showView('category-view')">تغيير القسم</button>
     </div>
 
-    <!-- View 3: Quiz Screen -->
     <div id="quiz-view" style="display: none;">
       <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold;">
-        <span id="level-indicator" style="color: #ff9d00;">المستوى 1</span>
+        <span id="level-indicator" style="color: #ff9d00;">المستوى 1/30</span>
         <span id="progress-indicator" style="color: #00f2fe;">السؤال 1 / 30</span>
       </div>
       <div class="question-card" id="question-text">جاري تحميل السؤال...</div>
@@ -233,7 +222,6 @@
     </div>
   </div>
 
-  <!-- Custom Gamer Modal -->
   <div class="modal" id="custom-modal">
     <div class="modal-content">
       <h3 id="modal-title" style="font-size: 1.5rem; color: #ff9d00;">نتيجة</h3>
@@ -243,35 +231,23 @@
   </div>
 
   <script>
-    const questionBank = {
-      sports: [
-        { q: "كم عدد لاعبين فريق كرة القدم داخل الملعب؟", options: ["11 لاعب", "9 لاعبين", "10 لاعبين", "12 لاعب"], correct: "11 لاعب" },
-        { q: "ما هي الدولة الفائزة بكأس العالم 2022؟", options: ["الأرجنتين", "فرنسا", "البرازيل", "إسبانيا"], correct: "الأرجنتين" },
-        { q: "كم مدة شوط مباراة كرة القدم الأصلي؟", options: ["45 دقيقة", "30 دقيقة", "60 دقيقة", "40 دقيقة"], correct: "45 دقيقة" },
-        { q: "ما هي الدولة الأكثر تفويزاً بكأس العالم؟", options: ["البرازيل", "ألمانيا", "إيطاليا", "الأرجنتين"], correct: "البرازيل" }
-      ],
-      movies: [
-        { q: "ما هو اسم شخصية باتمان الحقيقية؟", options: ["بروس واين", "توني ستارك", "بيتر باركر", "كلارك كينت"], correct: "بروس واين" },
-        { q: "ما هي لغة فيلم 'Titanic' الأصلية؟", options: ["الإنكليزية", "الفرنسية", "الإيطالية", "الإسبانية"], correct: "الإنكليزية" },
-        { q: "من هو بطل فيلم Spider-Man الأصلي عام 2002؟", options: ["توبي ماغواير", "توم هولاند", "أندرو غارفيلد", "كريستيان بيل"], correct: "توبي ماغواير" }
-      ],
-      general: [
-        { q: "ما هي عاصمة جمهورية مصر العربية؟", options: ["القاهرة", "الأسكندرية", "الجيزة", "أسوان"], correct: "القاهرة" },
-        { q: "كم عدد قارات العالم؟", options: ["7 قارات", "5 قارات", "6 قارات", "8 قارات"], correct: "7 قارات" },
-        { q: "ما هو أطول نهر في العالم؟", options: ["نهر النيل", "نهر الأمازون", "نهر الميسيسيبي", "نهر اليانغتسي"], correct: "نهر النيل" }
-      ],
-      cooking: [
-        { q: "ما هو المكون الرئيسي في طبق الكشري؟", options: ["الأرز والمكرونة", "اللحمة", "الدجاج", "السمك"], correct: "الأرز والمكرونة" },
-        { q: "ما المادة التي تجعل العجين يرتفع؟", options: ["الخميرة", "النشا", "الملح", "السكر"], correct: "الخميرة" },
-        { q: "ما هي الفاكهة الأساسية لعمل المربى التقليدية؟", options: ["الفراولة", "الموز", "الخيار", "البطيخ"], correct: "الفراولة" }
-      ],
-      science: [
-        { q: "ما هو الرمز الكيميائي للماء؟", options: ["H2O", "CO2", "O2", "NaCl"], correct: "H2O" },
-        { q: "ما هو أقرب كوكب إلى الشمس؟", options: ["عطارد", "الزهرة", "الأرض", "المريخ"], correct: "عطارد" },
-        { q: "ما هو أثقل عنصر طبيعي على الأرض؟", options: ["اليورانيوم", "الذهب", "الحديد", "الرصاص"], correct: "اليورانيوم" }
-      ]
-    };
+    const TOTAL_LEVELS = 30;
+    const QUESTIONS_PER_LEVEL = 30;
 
+    let questionBank = {};
+    let usedQuestionIndexes = new Set();
+
+    async function loadQuestions() {
+      try {
+        const response = await fetch('questions.json');
+        questionBank = await response.json();
+      } catch (e) {
+        console.error("لم يتم تحميل ملف الأسئلة questions.json:", e);
+      }
+    }
+    loadQuestions();
+
+    // استرجاع عدد المفاتيح وتقدم المستويات لكل قسم
     let keys = parseInt(localStorage.getItem('user_keys')) || 0;
     let progress = JSON.parse(localStorage.getItem('user_progress')) || {
       sports: 1, movies: 1, general: 1, cooking: 1, science: 1
@@ -281,18 +257,12 @@
     let currentLevel = 1;
     let currentQuestionIndex = 0;
     let wrongAnswersCount = 0;
-    let currentQuestions = [];
+    let currentQuestionData = null;
 
-    // Global Web Audio System
     let audioCtx = null;
-
     function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
     function playAudio(type) {
@@ -305,8 +275,8 @@
 
         if (type === 'correct') {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
           gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
           osc.start();
@@ -320,9 +290,7 @@
           osc.start();
           osc.stop(audioCtx.currentTime + 0.4);
         }
-      } catch (e) {
-        console.log("Audio play error:", e);
-      }
+      } catch (e) {}
     }
 
     function showView(viewId) {
@@ -352,10 +320,9 @@
       mapContainer.innerHTML = '';
       const unlockedLevel = progress[currentCategory] || 1;
 
-      for (let i = 1; i <= 15; i++) {
+      for (let i = 1; i <= TOTAL_LEVELS; i++) {
         const node = document.createElement('div');
         node.className = 'level-node';
-        
         if (i < unlockedLevel) {
           node.classList.add('completed');
           node.innerText = '✓';
@@ -372,17 +339,21 @@
       }
     }
 
-    function generateQuestionsForLevel() {
-      const base = questionBank[currentCategory] || questionBank.general;
-      currentQuestions = [];
-      for(let i = 0; i < 30; i++) {
-        let template = base[Math.floor(Math.random() * base.length)];
-        currentQuestions.push({
-          q: template.q,
-          options: [...template.options],
-          correct: template.correct
-        });
+    function getRandomUnusedQuestion() {
+      const pool = questionBank[currentCategory] || [];
+      if (pool.length === 0) return { q: "سؤال تجريبي", options: ["1", "2", "3", "4"], correct: "1" };
+
+      if (usedQuestionIndexes.size >= pool.length) {
+        usedQuestionIndexes.clear();
       }
+
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * pool.length);
+      } while (usedQuestionIndexes.has(randomIndex) && usedQuestionIndexes.size < pool.length);
+
+      usedQuestionIndexes.add(randomIndex);
+      return pool[randomIndex];
     }
 
     function startQuiz(level) {
@@ -390,47 +361,37 @@
       currentLevel = level;
       currentQuestionIndex = 0;
       wrongAnswersCount = 0;
-      generateQuestionsForLevel();
+      usedQuestionIndexes.clear();
 
       showView('quiz-view');
-      loadQuestion();
+      loadNextQuestion();
     }
 
-    function loadQuestion() {
-      if (currentQuestionIndex >= 30) {
+    function loadNextQuestion() {
+      if (currentQuestionIndex >= QUESTIONS_PER_LEVEL) {
         completeLevel();
         return;
       }
 
-      document.getElementById('level-indicator').innerText = `المستوى ${currentLevel}`;
-      document.getElementById('progress-indicator').innerText = `السؤال ${currentQuestionIndex + 1} / 30`;
+      document.getElementById('level-indicator').innerText = `المستوى ${currentLevel} / ${TOTAL_LEVELS}`;
+      document.getElementById('progress-indicator').innerText = `السؤال ${currentQuestionIndex + 1} / ${QUESTIONS_PER_LEVEL}`;
       updateHeader();
 
-      const qData = currentQuestions[currentQuestionIndex];
-      document.getElementById('question-text').innerText = qData.q;
+      currentQuestionData = getRandomUnusedQuestion();
 
+      document.getElementById('question-text').innerText = currentQuestionData.q;
       const container = document.getElementById('options-container');
       container.innerHTML = '';
 
-      let shuffled = [...qData.options].sort(() => Math.random() - 0.5);
+      let shuffled = [...currentQuestionData.options].sort(() => Math.random() - 0.5);
 
       shuffled.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'answer-btn';
         btn.innerText = opt;
-        btn.onclick = () => checkAnswer(btn, opt, qData.correct);
+        btn.onclick = () => checkAnswer(btn, opt, currentQuestionData.correct);
         container.appendChild(btn);
       });
-    }
-
-    function getNewQuestionData() {
-      const base = questionBank[currentCategory] || questionBank.general;
-      let template = base[Math.floor(Math.random() * base.length)];
-      return {
-        q: template.q,
-        options: [...template.options],
-        correct: template.correct
-      };
     }
 
     function checkAnswer(btn, selected, correct) {
@@ -443,7 +404,7 @@
         playAudio('correct');
         setTimeout(() => {
           currentQuestionIndex++;
-          loadQuestion();
+          loadNextQuestion();
         }, 500);
       } else {
         btn.classList.add('wrong');
@@ -453,16 +414,14 @@
 
         setTimeout(() => {
           if (wrongAnswersCount >= 5) {
-            showModal("خسرت في هذا المستوى! ⚠️", "تجاوزت 5 أخطاء. ستتم إعادة المستوى من السؤال الأول!");
+            showModal("خسرت في هذا المستوى! ⚠️", "تجاوزت 5 أخطاء. ستتم إعادة المستوى من السؤال الأول بأسئلة جديدة!");
             currentQuestionIndex = 0;
             wrongAnswersCount = 0;
-            generateQuestionsForLevel();
-            loadQuestion();
+            usedQuestionIndexes.clear();
+            loadNextQuestion();
           } else {
-            showModal("إجابة خاطئة! ❌", "تم تغيير السؤال بسؤال جديد، ركز جيداً!");
-            // استبدال السؤال الحالي بسؤال جديد تماماً
-            currentQuestions[currentQuestionIndex] = getNewQuestionData();
-            loadQuestion();
+            showModal("إجابة خاطئة! ❌", "تم تغيير السؤال بسؤال جديد مختلف!");
+            loadNextQuestion();
           }
         }, 500);
       }
@@ -475,7 +434,7 @@
         localStorage.setItem('user_keys', keys);
         playAudio('correct');
         currentQuestionIndex++;
-        loadQuestion();
+        loadNextQuestion();
       } else {
         showModal("لا يوجد مفاتيح! 🔑", "تحصل على مفتاح مجاني بعد إنهاء كل 3 مستويات.");
       }
@@ -484,6 +443,9 @@
     function completeLevel() {
       if (currentLevel === progress[currentCategory]) {
         progress[currentCategory]++;
+        // حفظ التقدم مجدداً في الذاكرة المحلية
+        localStorage.setItem('user_progress', JSON.stringify(progress));
+
         if (currentLevel % 3 === 0) {
           keys++;
           localStorage.setItem('user_keys', keys);
@@ -491,7 +453,6 @@
         } else {
           showModal("ممتاز جداً! 👏", `أتممت المستوى ${currentLevel} بنجاح!`);
         }
-        localStorage.setItem('user_progress', JSON.stringify(progress));
       }
       renderMap();
       showView('map-view');
