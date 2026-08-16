@@ -54,4 +54,4 @@ for level in range(1, 31):
 with open("questions.json", "w", encoding="utf-8") as f:
     json.dump(all_levels, f, ensure_ascii=False, indent=2)
 
-print("تم إنشاء ملف questions.json بنجاح!")
+print("Done! Generated 30 levels with 15 questions each.")
