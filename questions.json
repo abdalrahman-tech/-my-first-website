@@ -1,18 +1,57 @@
-{
-  "sports": [
-    {"q": "من هو الهداف التاريخي لكأس العالم؟", "options": ["كلوزه", "رونالدو الظاهرة", "ميسي", "بيليه"], "correct": "كلوزه"},
-    {"q": "كم عدد لاعبي فريق كرة القدم داخل الملعب؟", "options": ["11", "10", "12", "9"], "correct": "11"},
-    {"q": "أي دولة فازت بكأس العالم 2022؟", "options": ["الأرجنتين", "فرنسا", "البرزيل", "كرواتيا"], "correct": "الأرجنتين"},
-    {"q": "ما هي الدولة الأكثر تتويجاً بكأس العالم؟", "options": ["البرازيل", "ألمانيا", "إيطاليا", "الأرجنتين"], "correct": "البرازيل"},
-    {"q": "كم مدة شوط المباراة الأصلي في كرة القدم؟", "options": ["45 دقيقة", "40 دقيقة", "30 دقيقة", "50 دقيقة"], "correct": "45 دقيقة"},
-    {"q": "ما هو النادي الملقب بالمرنغي؟", "options": ["ريال مدريد", "برشلونة", "بايرن ميونخ", "ليفربول"], "correct": "ريال مدريد"},
-    {"q": "كم عدد كروت الإنذار الأصفر التي تؤدي للطرد؟", "options": ["2", "1", "3", "4"], "correct": "2"},
-    {"q": "من هو اللاعب الملقب بـ البرغوث؟", "options": ["ميسي", "رونالدو", "نيمار", "صلاح"], "correct": "ميسي"},
-    {"q": "أين أقيمت أول دورة ألعاب أولمبية حديثة؟", "options": ["أثينا", "باريس", "لندن", "روما"], "correct": "أثينا"},
-    {"q": "كم عدد أفرقة المربع الذهبي؟", "options": ["4", "2", "8", "6"], "correct": "4"}
-  ],
-  "movies": [],
-  "general": [],
-  "cooking": [],
-  "science": []
-}
+import json
+import random
+
+math_ops = [
+    ("جمع", "+", lambda a, b: a + b),
+    ("طرح", "-", lambda a, b: a - b),
+    ("ضرب", "×", lambda a, b: a * b)
+]
+
+capitals = [
+    ("مصر", "القاهرة"), ("السعودية", "الرياض"), ("الإمارات", "أبوظبي"),
+    ("فرنسا", "باريس"), ("ألمانيا", "برلين"), ("إيطاليا", "روما"),
+    ("اليابان", "توكيو"), ("المملكة المتحدة", "لندن"), ("إسبانيا", "مدريد"),
+    ("الأرجنتين", "بوينس آيرس"), ("البرازيل", "برازيليا"), ("المغرب", "الرباط")
+]
+
+elements = [
+    ("الماء", "H2O"), ("ثاني أكسيد الكربون", "CO2"), ("الأكسجين", "O2"),
+    ("ملح الطعام", "NaCl"), ("النيتروجين", "N2"), ("الميثان", "CH4")
+]
+
+all_levels = {}
+
+for level in range(1, 31):
+    questions = []
+    for q_idx in range(1, 16):
+        q_type = q_idx % 3
+        if q_type == 1:
+            max_num = level * 4 + 5
+            a, b = random.randint(1, max_num), random.randint(1, max_num)
+            name, sym, func = random.choice(math_ops)
+            if sym == "-" and a < b: a, b = b, a
+            ans = str(func(a, b))
+            q_text = f"ما حاصل {a} {sym} {b}؟"
+            wrongs = [str(int(ans) + i) for i in [1, -1, 2, -2, 3, -3] if str(int(ans) + i) != ans]
+            w1, w2, w3 = random.sample(wrongs, 3)
+        elif q_type == 2:
+            country, capital = random.choice(capitals)
+            q_text = f"ما هي عاصمة دولة {country}؟"
+            ans = capital
+            w1, w2, w3 = random.sample([c[1] for c in capitals if c[1] != ans], 3)
+        else:
+            name, formula = random.choice(elements)
+            q_text = f"ما هو الرمز الكيميائي لـ {name}؟"
+            ans = formula
+            w1, w2, w3 = random.sample([e[1] for e in elements if e[1] != ans], 3)
+            
+        opts = [ans, w1, w2, w3]
+        random.shuffle(opts)
+        questions.append({"q": q_text, "options": opts, "correct": ans})
+        
+    all_levels[f"level_{level}"] = questions
+
+with open("questions.json", "w", encoding="utf-8") as f:
+    json.dump(all_levels, f, ensure_ascii=False, indent=2)
+
+print("تم إنشاء ملف questions.json بنجاح!")
