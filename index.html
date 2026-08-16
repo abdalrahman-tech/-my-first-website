@@ -202,15 +202,15 @@
     </div>
 
     <div id="map-view" style="display: none;">
-      <div class="game-title" id="map-title-text">خريطة المستويات (15 مستوى) 🗺️</div>
+      <div class="game-title" id="map-title-text">خريطة المستويات 🗺️</div>
       <div class="map-container" id="levels-map"></div>
       <button class="action-btn back-btn" onclick="showView('category-view')">تغيير القسم</button>
     </div>
 
     <div id="quiz-view" style="display: none;">
       <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold;">
-        <span id="level-indicator" style="color: #ff9d00;">المستوى 1/15</span>
-        <span id="progress-indicator" style="color: #00f2fe;">السؤال 1 / 10</span>
+        <span id="level-indicator" style="color: #ff9d00;">المستوى 1</span>
+        <span id="progress-indicator" style="color: #00f2fe;">السؤال 1</span>
       </div>
       <div class="question-card" id="question-text">جاري تحميل السؤال...</div>
       <div class="answers-list" id="options-container"></div>
@@ -231,16 +231,17 @@
   </div>
 
   <script>
-    // --- التعديل هنا: 15 مستوى بدلاً من 30، و 10 أسئلة لكل مستوى بدلاً من 30 ---
-    const TOTAL_LEVELS = 15;
+    // عدد الأسئلة المطلوبة في كل مستوى
     const QUESTIONS_PER_LEVEL = 10;
-
+    
+    let TOTAL_LEVELS = 15;
     let questionBank = {};
     let usedQuestionIndexes = new Set();
 
     async function loadQuestions() {
       try {
-        const response = await fetch('questions.json');
+        // إضافة v=Date.now() يمنع المتصفح من تخزين الملف قديمًا
+        const response = await fetch('questions.json?v=' + Date.now());
         questionBank = await response.json();
       } catch (e) {
         console.error("لم يتم تحميل ملف الأسئلة questions.json:", e);
@@ -311,6 +312,15 @@
     function selectCategory(cat) {
       initAudio();
       currentCategory = cat;
+      
+      // حساب عدد المستويات بناءً على عدد الأسئلة المتوفرة للقسم
+      const catPool = questionBank[cat] || [];
+      if (catPool.length > 0) {
+        TOTAL_LEVELS = Math.max(1, Math.floor(catPool.length / QUESTIONS_PER_LEVEL));
+      } else {
+        TOTAL_LEVELS = 15;
+      }
+
       document.getElementById('map-title-text').innerText = `خريطة المستويات (${TOTAL_LEVELS} مستوى) 🗺️`;
       renderMap();
       showView('map-view');
@@ -342,7 +352,9 @@
 
     function getRandomUnusedQuestion() {
       const pool = questionBank[currentCategory] || [];
-      if (pool.length === 0) return { q: "سؤال تجريبي", options: ["1", "2", "3", "4"], correct: "1" };
+      if (pool.length === 0) {
+        return { q: "خطأ: لم يتم العثور على أسئلة لهذا القسم في ملف questions.json", options: ["1", "2", "3", "4"], correct: "1" };
+      }
 
       if (usedQuestionIndexes.size >= pool.length) {
         usedQuestionIndexes.clear();
@@ -415,13 +427,13 @@
 
         setTimeout(() => {
           if (wrongAnswersCount >= 5) {
-            showModal("خسرت في هذا المستوى! ⚠️", "تجاوزت 5 أخطاء. ستتم إعادة المستوى من السؤال الأول بأسئلة جديدة!");
+            showModal("خسرت في هذا المستوى! ⚠️", "تجاوزت 5 أخطاء. ستتم إعادة المستوى بأسئلة جديدة!");
             currentQuestionIndex = 0;
             wrongAnswersCount = 0;
             usedQuestionIndexes.clear();
             loadNextQuestion();
           } else {
-            showModal("إجابة خاطئة! ❌", "تم تغيير السؤال بسؤال جديد مختلف!");
+            showModal("إجابة خاطئة! ❌", "تم تغيير السؤال بسؤال جديد!");
             loadNextQuestion();
           }
         }, 500);
