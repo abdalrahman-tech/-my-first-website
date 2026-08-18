@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تحدي المعرفة</title>
+  <title>تحدي المعرفة - 5 مستويات</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
 
@@ -60,7 +60,7 @@
     }
 
     .game-title {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 900;
       margin-bottom: 20px;
       color: #00f2fe;
@@ -100,24 +100,23 @@
     .btn-science { background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); box-shadow: 0 6px 0 #0044a3; }
 
     .map-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
       gap: 15px;
-      max-height: 420px;
-      overflow-y: auto;
-      padding: 15px 5px;
-      justify-items: center;
+      padding: 20px 5px;
     }
 
     .level-node {
-      width: 60px;
-      height: 60px;
+      width: 65px;
+      height: 65px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
       font-weight: 900;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       cursor: pointer;
       box-shadow: 0 6px 0 rgba(0,0,0,0.4);
       transition: 0.2s;
@@ -202,15 +201,15 @@
     </div>
 
     <div id="map-view" style="display: none;">
-      <div class="game-title" id="map-title-text">خريطة المستويات 🗺️</div>
+      <div class="game-title">خريطة المستويات (5 مستويات) 🗺️</div>
       <div class="map-container" id="levels-map"></div>
       <button class="action-btn back-btn" onclick="showView('category-view')">تغيير القسم</button>
     </div>
 
     <div id="quiz-view" style="display: none;">
       <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold;">
-        <span id="level-indicator" style="color: #ff9d00;">المستوى 1</span>
-        <span id="progress-indicator" style="color: #00f2fe;">السؤال 1</span>
+        <span id="level-indicator" style="color: #ff9d00;">المستوى 1 / 5</span>
+        <span id="progress-indicator" style="color: #00f2fe;">السؤال 1 / 7</span>
       </div>
       <div class="question-card" id="question-text">جاري تحميل السؤال...</div>
       <div class="answers-list" id="options-container"></div>
@@ -231,17 +230,16 @@
   </div>
 
   <script>
-    // عدد الأسئلة المطلوبة في كل مستوى
-    const QUESTIONS_PER_LEVEL = 10;
-    
-    let TOTAL_LEVELS = 15;
+    // الإعدادات الجديدة المطلوبة
+    const TOTAL_LEVELS = 5;
+    const QUESTIONS_PER_LEVEL = 7;
+
     let questionBank = {};
     let usedQuestionIndexes = new Set();
 
     async function loadQuestions() {
       try {
-        // إضافة v=Date.now() يمنع المتصفح من تخزين الملف قديمًا
-        const response = await fetch('questions.json?v=' + Date.now());
+        const response = await fetch('questions.json');
         questionBank = await response.json();
       } catch (e) {
         console.error("لم يتم تحميل ملف الأسئلة questions.json:", e);
@@ -312,16 +310,6 @@
     function selectCategory(cat) {
       initAudio();
       currentCategory = cat;
-      
-      // حساب عدد المستويات بناءً على عدد الأسئلة المتوفرة للقسم
-      const catPool = questionBank[cat] || [];
-      if (catPool.length > 0) {
-        TOTAL_LEVELS = Math.max(1, Math.floor(catPool.length / QUESTIONS_PER_LEVEL));
-      } else {
-        TOTAL_LEVELS = 15;
-      }
-
-      document.getElementById('map-title-text').innerText = `خريطة المستويات (${TOTAL_LEVELS} مستوى) 🗺️`;
       renderMap();
       showView('map-view');
     }
@@ -352,9 +340,7 @@
 
     function getRandomUnusedQuestion() {
       const pool = questionBank[currentCategory] || [];
-      if (pool.length === 0) {
-        return { q: "خطأ: لم يتم العثور على أسئلة لهذا القسم في ملف questions.json", options: ["1", "2", "3", "4"], correct: "1" };
-      }
+      if (pool.length === 0) return { q: "سؤال تجريبي", options: ["1", "2", "3", "4"], correct: "1" };
 
       if (usedQuestionIndexes.size >= pool.length) {
         usedQuestionIndexes.clear();
@@ -427,7 +413,7 @@
 
         setTimeout(() => {
           if (wrongAnswersCount >= 5) {
-            showModal("خسرت في هذا المستوى! ⚠️", "تجاوزت 5 أخطاء. ستتم إعادة المستوى بأسئلة جديدة!");
+            showModal("خسرت في هذا المستوى! ⚠️", "تجاوزت 5 أخطاء. ستتم إعادة المستوى من السؤال الأول!");
             currentQuestionIndex = 0;
             wrongAnswersCount = 0;
             usedQuestionIndexes.clear();
@@ -449,7 +435,7 @@
         currentQuestionIndex++;
         loadNextQuestion();
       } else {
-        showModal("لا يوجد مفاتيح! 🔑", "تحصل على مفتاح مجاني بعد إنهاء كل 3 مستويات.");
+        showModal("لا يوجد مفاتيح! 🔑", "تحصل على مفتاح بعد إكمال المستويات.");
       }
     }
 
@@ -458,13 +444,11 @@
         progress[currentCategory]++;
         localStorage.setItem('user_progress', JSON.stringify(progress));
 
-        if (currentLevel % 3 === 0) {
-          keys++;
-          localStorage.setItem('user_keys', keys);
-          showModal("مبروك يا بطل! 🎉", `أتممت المستوى ${currentLevel} وفزت بمفتاح مجاني 🔑!`);
-        } else {
-          showModal("ممتاز جداً! 👏", `أتممت المستوى ${currentLevel} بنجاح!`);
-        }
+        keys++;
+        localStorage.setItem('user_keys', keys);
+        showModal("مبروك يا بطل! 🎉", `أتممت المستوى ${currentLevel} وفزت بمفتاح مجاني 🔑!`);
+      } else {
+        showModal("ممتاز جداً! 👏", `أتممت المستوى ${currentLevel} بنجاح!`);
       }
       renderMap();
       showView('map-view');
