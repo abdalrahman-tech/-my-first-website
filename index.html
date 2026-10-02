@@ -3,646 +3,731 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمبراطوريات العصر - Grand Strategy Game</title>
+    <title>محاكي الرئيس - Modern Strategy Simulator</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --panel-bg: #1e293b;
+            --bg-main: #0b0f19;
+            --panel-bg: rgba(22, 30, 46, 0.95);
+            --panel-border: #2a374e;
             --accent-gold: #f59e0b;
             --accent-blue: #3b82f6;
             --accent-red: #ef4444;
             --accent-green: #10b981;
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             user-select: none;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
+            background-color: var(--bg-main);
+            color: var(--text-main);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* Modal / Screen Overlays */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .card {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-
-        .card h1 { color: var(--accent-gold); margin-bottom: 12px; }
-        .card p { color: var(--text-muted); margin-bottom: 20px; }
-
-        .select-btn {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            background: #273549;
-            color: #fff;
-            border: 1px solid var(--accent-blue);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .select-btn:hover {
-            background: var(--accent-blue);
-        }
-
-        /* App Layout */
+        /* Top Bar Navigation */
         header {
-            background: var(--panel-bg);
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border-color);
+            background: #111827;
+            border-bottom: 1px solid var(--panel-border);
+            padding: 8px 12px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 1000;
+        }
+
+        .header-top {
+            display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .resource-bar {
+        .country-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--accent-gold);
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            font-size: 0.85rem;
+            align-items: center;
+            gap: 8px;
         }
 
-        .res-item {
-            background: rgba(0,0,0,0.3);
-            padding: 6px 10px;
+        .date-badge {
+            background: #1e293b;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            border: 1px solid var(--panel-border);
+        }
+
+        .resource-grid {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .res-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
             border-radius: 6px;
-            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            min-width: 90px;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
         }
 
         .res-value {
-            color: var(--accent-gold);
             font-weight: bold;
+            color: #fff;
+            margin-top: 2px;
         }
 
-        /* Navigation Tabs */
-        nav {
-            display: flex;
-            background: #111827;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px 5px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-btn.active {
-            color: var(--accent-gold);
-            border-bottom-color: var(--accent-gold);
-            background: rgba(245, 158, 11, 0.05);
-        }
-
-        /* Main Content Viewports */
+        /* Main Game Layout */
         main {
             flex: 1;
             position: relative;
             overflow: hidden;
         }
 
-        .view-section {
+        .view-tab {
+            width: 100%;
+            height: 100%;
             display: none;
+            position: absolute;
+            top: 0; left: 0;
+        }
+
+        .view-tab.active {
+            display: block;
+        }
+
+        /* Map styling */
+        #world-map {
             width: 100%;
             height: 100%;
+            background: #0d131f;
+        }
+
+        /* Content Scrollable Containers */
+        .content-container {
             padding: 15px;
+            height: 100%;
             overflow-y: auto;
+            background: var(--bg-main);
+            padding-bottom: 80px;
         }
 
-        .view-section.active {
-            display: block;
-        }
-
-        /* Map Canvas */
-        #map-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            background: #090d16;
-        }
-
-        /* Dashboard UI Elements */
-        .grid-container {
+        .grid-layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
             gap: 15px;
         }
 
-        .panel {
+        .card-panel {
             background: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--panel-border);
             border-radius: 10px;
             padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .panel-title {
+        .panel-header {
+            font-size: 1rem;
+            font-weight: bold;
             color: var(--accent-gold);
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 8px;
             margin-bottom: 12px;
-            font-size: 1.1rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
-        }
-
-        .minister-card {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 6px;
+            align-items: center;
         }
 
-        .btn-action {
+        /* UI Forms & Buttons */
+        .btn {
             background: var(--accent-blue);
             color: #fff;
             border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
+            padding: 8px 14px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active { opacity: 0.8; }
+        .btn-success { background: var(--accent-green); }
+        .btn-danger { background: var(--accent-red); }
+        .btn-gold { background: var(--accent-gold); color: #000; }
+
+        /* Item Rows */
+        .trade-row, .military-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .item-info div { font-size: 0.85rem; font-weight: bold; }
+        .item-info small { color: var(--text-sub); font-size: 0.75rem; }
+
+        /* Modal Overlay */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-body {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Bottom Navigation Bar */
+        nav {
+            background: #111827;
+            border-top: 1px solid var(--panel-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            width: 20%;
+        }
+
+        .nav-item.active {
+            color: var(--accent-gold);
             font-weight: bold;
         }
 
-        .btn-danger { background: var(--accent-red); }
-        .btn-success { background: var(--accent-green); }
-
         /* End Turn Floating Button */
-        #btn-end-turn {
+        #btn-next-day {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
+            bottom: 65px;
+            left: 15px;
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #000;
             border: none;
-            padding: 14px 24px;
-            border-radius: 30px;
+            padding: 12px 20px;
+            border-radius: 25px;
             font-weight: bold;
-            font-size: 1rem;
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
             cursor: pointer;
-            z-index: 500;
+            z-index: 900;
         }
 
-        #btn-end-turn:active { transform: scale(0.95); }
-
-        /* Logs Panel */
-        #log-box {
-            height: 120px;
-            background: #090d16;
-            border: 1px solid var(--border-color);
+        /* Log Feed */
+        #log-feed {
+            height: 150px;
+            background: rgba(0,0,0,0.4);
             border-radius: 6px;
-            padding: 10px;
+            padding: 8px;
             overflow-y: auto;
             font-family: monospace;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #a7f3d0;
         }
-
-        .log-entry { margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-    <!-- Start Overlay: Choose Country -->
-    <div id="start-overlay" class="overlay">
-        <div class="card">
-            <h1>إمبراطوريات العصر</h1>
-            <p>اختر الدولة التي تريد قيادتها نحو المجد:</p>
-            <div id="country-selection-list"></div>
-        </div>
-    </div>
-
-    <!-- Main Game Header / Resource Bar -->
+    <!-- Header Section -->
     <header>
-        <div>
-            <strong id="player-country-name" style="color:var(--accent-gold); font-size:1.1rem;">الدولة</strong>
-            <span id="game-date" style="font-size:0.8rem; color:var(--text-muted); margin-right:8px;">اليوم: 1</span>
+        <div class="header-top">
+            <div class="country-title">
+                <span id="player-flag">🚩</span>
+                <span id="player-country-name">الدولة</span>
+            </div>
+            <div class="date-badge" id="game-date">التاريخ: 2026/01/01</div>
         </div>
-        <div class="resource-bar">
-            <div class="res-item">💰 المال: <span id="res-money" class="res-value">0</span></div>
-            <div class="res-item">🛢️ النفط: <span id="res-oil" class="res-value">0</span></div>
-            <div class="res-item">🌾 الغذاء: <span id="res-food" class="res-value">0</span></div>
-            <div class="res-item">⚔️ السلاح: <span id="res-weapons" class="res-value">0</span></div>
-            <div class="res-item">🪖 الجيش: <span id="res-army" class="res-value">0</span></div>
+        <div class="resource-grid">
+            <div class="res-card"><span>💰 الخزينة</span><span class="res-value" id="res-money">0$</span></div>
+            <div class="res-card"><span>🛢️️ البترول</span><span class="res-value" id="res-oil">0</span></div>
+            <div class="res-card"><span>🔥 الغاز</span><span class="res-value" id="res-gas">0</span></div>
+            <div class="res-card"><span>⛏️ الحديد</span><span class="res-value" id="res-iron">0</span></div>
+            <div class="res-card"><span>🌾 القمح</span><span class="res-value" id="res-wheat">0</span></div>
+            <div class="res-card"><span>🪙 الذهب</span><span class="res-value" id="res-gold">0</span></div>
+            <div class="res-card"><span>⚡ الطاقة</span><span class="res-value" id="res-power">0</span></div>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav>
-        <button class="tab-btn active" onclick="switchTab('tab-map')">🌐 الخريطة واللوجستيات</button>
-        <button class="tab-btn" onclick="switchTab('tab-gov')">🏛️ الحكومة والتعليم</button>
-        <button class="tab-btn" onclick="switchTab('tab-eco')">📊 الاقتصاد والميزانية</button>
-    </nav>
-
-    <!-- Main Content Area -->
+    <!-- Navigation Tabs Container -->
     <main>
         <!-- Map View -->
-        <section id="tab-map" class="view-section active" style="padding:0;">
-            <div id="map-container">
-                <canvas id="worldMap"></canvas>
-            </div>
-        </section>
+        <div id="tab-map" class="view-tab active">
+            <div id="world-map"></div>
+        </div>
 
-        <!-- Government View -->
-        <section id="tab-gov" class="view-section">
-            <div class="grid-container">
-                <div class="panel">
-                    <h3 class="panel-title">قيادة الدولة</h3>
-                    <p style="margin-bottom:10px;">الحاكم: <strong id="ruler-name">الرئيس</strong></p>
-                    <p style="margin-bottom:15px;">مستوى التعليم العام: <strong id="edu-level" style="color:var(--accent-blue);">50%</strong></p>
-                    <p style="margin-bottom:15px;">الاستقرار السياسي: <strong id="stability-level" style="color:var(--accent-green);">80%</strong></p>
-                    <button class="btn-action" onclick="increaseEducation()">تخصيص دعم للتعليم (💰 1,000)</button>
-                </div>
-
-                <div class="panel">
-                    <h3 class="panel-title">مجلس الوزراء</h3>
-                    <div id="ministers-list"></div>
+        <!-- Economy View -->
+        <div id="tab-trade" class="view-tab">
+            <div class="content-container">
+                <div class="grid-layout">
+                    <div class="card-panel">
+                        <div class="panel-header">السوق العالمي والتصدير</div>
+                        <div id="market-list"></div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Economy & Log View -->
-        <section id="tab-eco" class="view-section">
-            <div class="grid-container">
-                <div class="panel">
-                    <h3 class="panel-title">التقرير الاقتصادي اليومي</h3>
-                    <p>دخل المال اليومي: <span id="inc-money" style="color:var(--accent-green)">+0</span></p>
-                    <p>إنتاج النفط: <span id="inc-oil" style="color:var(--accent-green)">+0</span></p>
-                    <p>إنتاج الغذاء: <span id="inc-food" style="color:var(--accent-green)">+0</span></p>
-                    <p>صيانة الجيش اليومية: <span id="exp-army" style="color:var(--accent-red)">-0</span></p>
-                </div>
-
-                <div class="panel">
-                    <h3 class="panel-title">سجل الأحداث والعمليات</h3>
-                    <div id="log-box"></div>
+        <!-- Military View -->
+        <div id="tab-military" class="view-tab">
+            <div class="content-container">
+                <div class="grid-layout">
+                    <div class="card-panel">
+                        <div class="panel-header">
+                            <span>مصنع الأسلحة والمعدات</span>
+                            <small id="total-military-power" style="color:var(--accent-red)">القوة: 0</small>
+                        </div>
+                        <div id="military-factory-list"></div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
+
+        <!-- Intelligence & Log View -->
+        <div id="tab-logs" class="view-tab">
+            <div class="content-container">
+                <div class="grid-layout">
+                    <div class="card-panel">
+                        <div class="panel-header">التقارير اليومية والأحداث</div>
+                        <div id="log-feed"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- Floating End Turn Button -->
-    <button id="btn-end-turn" onclick="nextDay()">إنهاء اليوم ➔</button>
+    <!-- Start Overlay Modal -->
+    <div id="start-modal" class="modal active">
+        <div class="modal-body">
+            <h2 style="color:var(--accent-gold); margin-bottom:10px;">اختر دولتك لقيادتها</h2>
+            <p style="color:var(--text-sub); margin-bottom:15px; font-size:0.85rem;">اختر إحدى القوى للبدء في إدارة شؤونها السياسية والعسكرية والتحكم في اقتصادها:</p>
+            <div id="country-select-list"></div>
+        </div>
+    </div>
+
+    <!-- Country Diplomacy Modal -->
+    <div id="country-modal" class="modal">
+        <div class="modal-body">
+            <div class="panel-header">
+                <span id="target-country-name">اسم الدولة</span>
+                <button class="btn btn-danger" onclick="closeModal('country-modal')">✕</button>
+            </div>
+            <div style="margin-bottom:15px; font-size:0.85rem; color:var(--text-sub);">
+                <p>عدد السكان: <strong id="target-pop" style="color:#fff">0</strong></p>
+                <p>القوة العسكرية: <strong id="target-power" style="color:var(--accent-red)">0</strong></p>
+                <p>العلاقات الدبلوماسية: <strong id="target-rel" style="color:var(--accent-gold)">0</strong></p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <button class="btn btn-success" onclick="diplomacyAction('improve')">🤝 تحسين العلاقات ($10,000)</button>
+                <button class="btn btn-gold" onclick="diplomacyAction('alliance')">🛡️ طلب حلف دفاع مشترك</button>
+                <button class="btn btn-danger" onclick="diplomacyAction('war')">⚔️ إعلان الحرب وشن هجوم</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav>
+        <button class="nav-item active" onclick="switchTab('tab-map', this)">🌐 <span>الخريطة</span></button>
+        <button class="nav-item" onclick="switchTab('tab-trade', this)">📊 <span>التجارة</span></button>
+        <button class="nav-item" onclick="switchTab('tab-military', this)">🎖️ <span>الجيش</span></button>
+        <button class="nav-item" onclick="switchTab('tab-logs', this)">📜 <span>الأخبار</span></button>
+    </nav>
+
+    <!-- End Turn Floating Button -->
+    <button id="btn-next-day" onclick="processNextDay()">اليوم التالي ➔</button>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        /* --- GAME ENGINE & STATE --- */
+        /* --- GAME ENGINE & INITIAL DATA --- */
         const gameState = {
             day: 1,
+            year: 2026,
             playerCountryId: null,
-            countries: {
-                c1: { id: 'c1', name: 'جمهورية الشرق', color: '#ef4444', x: 0.25, y: 0.35, money: 10000, oil: 500, food: 1000, weapons: 300, army: 5000, edu: 60, stability: 85, ministerDef: 70, ministerFin: 65, ministerEdu: 80, relations: { c2: 50, c3: -20, c4: 0 } },
-                c2: { id: 'c2', name: 'مملكة الشمال', color: '#3b82f6', x: 0.65, y: 0.25, money: 15000, oil: 200, food: 2000, weapons: 500, army: 8000, edu: 85, stability: 90, ministerDef: 85, ministerFin: 90, ministerEdu: 75, relations: { c1: 50, c3: 10, c4: -10 } },
-                c3: { id: 'c3', name: 'اتحاد الصحراء', color: '#f59e0b', x: 0.35, y: 0.70, money: 8000, oil: 2000, food: 300, weapons: 200, army: 4000, edu: 40, stability: 70, ministerDef: 60, ministerFin: 50, ministerEdu: 45, relations: { c1: -20, c2: 10, c4: 30 } },
-                c4: { id: 'c4', name: 'دولة الغرب', color: '#10b981', x: 0.75, y: 0.65, money: 12000, oil: 800, food: 800, weapons: 600, army: 6000, edu: 70, stability: 75, ministerDef: 75, ministerFin: 70, ministerEdu: 65, relations: { c1: 0, c2: -10, c3: 30 } }
+            market: {
+                oil: { name: 'بترول', price: 80, icon: '🛢️' },
+                gas: { name: 'غاز', price: 50, icon: '🔥' },
+                iron: { name: 'حديد', price: 120, icon: '⛏️' },
+                wheat: { name: 'قمح', price: 30, icon: '🌾' },
+                gold: { name: 'ذهب', price: 500, icon: '🪙' },
+                power: { name: 'طاقة', price: 40, icon: '⚡' }
             },
-            tradeRoutes: [
-                ['c1', 'c2'], ['c1', 'c3'], ['c2', 'c4'], ['c3', 'c4']
-            ]
+            militaryHardware: {
+                infantry: { name: 'المشاة والجنود', price: 1000, ironCost: 0, power: 10, count: 500 },
+                lightTank: { name: 'دبابات خفيفة', price: 15000, ironCost: 5, power: 80, count: 20 },
+                heavyTank: { name: 'دبابات ثقيلة', price: 40000, ironCost: 15, power: 250, count: 5 },
+                modernTank: { name: 'دبابات حديثة (MBTs)', price: 100000, ironCost: 35, power: 650, count: 0 },
+                fighter: { name: 'طائرات مقاتلة', price: 200000, ironCost: 50, power: 1200, count: 2 },
+                bomber: { name: 'قاذفات قنابل', price: 350000, ironCost: 80, power: 2200, count: 0 },
+                airDefense: { name: 'أنظمة دفاع جوي', price: 80000, ironCost: 20, power: 500, count: 2 }
+            },
+            countries: {
+                'EGY': { name: 'مصر', flag: '🇪🇬', pop: '105M', money: 500000, resources: { oil: 200, gas: 500, iron: 100, wheat: 400, gold: 20, power: 300 }, rel: 0, lat: 26.8, lng: 30.8, color: '#f59e0b' },
+                'USA': { name: 'الولايات المتحدة', flag: '🇺🇸', pop: '335M', money: 5000000, resources: { oil: 2000, gas: 3000, iron: 1500, wheat: 5000, gold: 500, power: 4000 }, rel: 20, lat: 37.0, lng: -95.7, color: '#3b82f6' },
+                'RUS': { name: 'روسيا', flag: '🇷🇺', pop: '144M', money: 2000000, resources: { oil: 4000, gas: 6000, iron: 3000, wheat: 2000, gold: 800, power: 2500 }, rel: -10, lat: 61.5, lng: 105.3, color: '#ef4444' },
+                'CHN': { name: 'الصين', flag: '🇨🇳', pop: '1.4B', money: 4000000, resources: { oil: 1000, gas: 1500, iron: 5000, wheat: 4000, gold: 400, power: 5000 }, rel: 10, lat: 35.8, lng: 104.1, color: '#10b981' },
+                'SAU': { name: 'المملكة العربية السعودية', flag: '🇸🇦', pop: '36M', money: 3000000, resources: { oil: 8000, gas: 2000, iron: 500, wheat: 100, gold: 100, power: 1500 }, rel: 40, lat: 23.8, lng: 45.0, color: '#8b5cf6' }
+            }
         };
 
-        let selectedTargetCountry = null;
+        let activeSelectedCountryId = null;
+        let map, geoJsonLayer;
 
         /* --- INITIALIZATION --- */
         window.onload = () => {
-            setupCountrySelection();
-            setupCanvas();
-            window.addEventListener('resize', setupCanvas);
+            renderStartModal();
+            initMap();
+            renderMarketUI();
+            renderMilitaryUI();
         };
 
-        function setupCountrySelection() {
-            const listContainer = document.getElementById('country-selection-list');
-            listContainer.innerHTML = '';
-            
-            Object.values(gameState.countries).forEach(c => {
+        /* --- MAP SYSTEM (LEAFLET.JS) --- */
+        function initMap() {
+            map = L.map('world-map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                maxZoom: 6
+            });
+
+            // Base Tile Layer (Dark Theme World Map)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }).addTo(map);
+
+            // Add Custom Country Markers
+            Object.keys(gameState.countries).forEach(cId => {
+                const c = gameState.countries[cId];
+                const marker = L.circleMarker([c.lat, c.lng], {
+                    color: c.color,
+                    fillColor: c.color,
+                    fillOpacity: 0.6,
+                    radius: 12
+                }).addTo(map);
+
+                marker.bindTooltip(`<b>${c.flag} ${c.name}</b>`, { permanent: false, direction: 'top' });
+                marker.on('click', () => openCountryModal(cId));
+            });
+        }
+
+        /* --- COUNTRY SELECTION & MODALS --- */
+        function renderStartModal() {
+            const container = document.getElementById('country-select-list');
+            container.innerHTML = '';
+
+            Object.keys(gameState.countries).forEach(cId => {
+                const c = gameState.countries[cId];
                 const btn = document.createElement('button');
-                btn.className = 'select-btn';
-                btn.innerHTML = `<span>${c.name}</span> <span>🪖 ${c.army} | 💰 ${c.money}</span>`;
-                btn.onclick = () => startGame(c.id);
-                listContainer.appendChild(btn);
+                btn.className = 'btn btn-gold';
+                btn.style.width = '100%';
+                btn.style.marginBottom = '8px';
+                btn.style.display = 'flex';
+                btn.style.justifySpaceBetween = 'space-between';
+                btn.style.padding = '12px';
+                btn.innerHTML = `<span>${c.flag} ${c.name}</span> <span>💰 $${c.money.toLocaleString()}</span>`;
+                btn.onclick = () => selectPlayerCountry(cId);
+                container.appendChild(btn);
             });
         }
 
-        function startGame(countryId) {
-            gameState.playerCountryId = countryId;
-            document.getElementById('start-overlay').style.display = 'none';
-            document.getElementById('player-country-name').innerText = gameState.countries[countryId].name;
-            
-            logMessage(`بدأت اللعبة! أنت الآن تحكم ${gameState.countries[countryId].name}.`);
-            updateUI();
-            renderMap();
+        function selectPlayerCountry(cId) {
+            gameState.playerCountryId = cId;
+            const p = gameState.countries[cId];
+
+            document.getElementById('start-modal').classList.remove('active');
+            document.getElementById('player-country-name').innerText = p.name;
+            document.getElementById('player-flag').innerText = p.flag;
+
+            logMessage(`بدأت ولايتك على ${p.name}. قد أمتك نحو النفوذ الاقتصادي والعسكري!`);
+            updateResourcesUI();
         }
 
-        /* --- UI & TAB SYSTEM --- */
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+        function openCountryModal(cId) {
+            if (cId === gameState.playerCountryId) return;
+            activeSelectedCountryId = cId;
+            const c = gameState.countries[cId];
+
+            document.getElementById('target-country-name').innerText = `${c.flag} ${c.name}`;
+            document.getElementById('target-pop').innerText = c.pop;
+            document.getElementById('target-rel').innerText = c.rel;
             
-            event.target.classList.add('active');
+            // Calculate Estimation Target Power
+            const estPower = Math.floor(Math.random() * 5000) + 2000;
+            document.getElementById('target-power').innerText = estPower;
+
+            document.getElementById('country-modal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        /* --- UI TAB NAVIGATION --- */
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+
             document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
 
-            if(tabId === 'tab-map') renderMap();
+            if (tabId === 'tab-map') {
+                setTimeout(() => map.invalidateSize(), 200);
+            }
         }
 
-        function updateUI() {
-            const player = gameState.countries[gameState.playerCountryId];
-            if (!player) return;
+        /* --- ECONOMY & TRADE SYSTEM --- */
+        function renderMarketUI() {
+            const container = document.getElementById('market-list');
+            container.innerHTML = '';
 
-            // Header Resources
-            document.getElementById('res-money').innerText = Math.floor(player.money).toLocaleString();
-            document.getElementById('res-oil').innerText = Math.floor(player.oil).toLocaleString();
-            document.getElementById('res-food').innerText = Math.floor(player.food).toLocaleString();
-            document.getElementById('res-weapons').innerText = Math.floor(player.weapons).toLocaleString();
-            document.getElementById('res-army').innerText = Math.floor(player.army).toLocaleString();
-            document.getElementById('game-date').innerText = `اليوم: ${gameState.day}`;
-
-            // Government
-            document.getElementById('edu-level').innerText = `${Math.floor(player.edu)}%`;
-            document.getElementById('stability-level').innerText = `${Math.floor(player.stability)}%`;
-
-            // Ministers
-            const minContainer = document.getElementById('ministers-list');
-            minContainer.innerHTML = `
-                <div class="minister-card">
-                    <div><strong>وزير الدفاع</strong><br><small>كفاءة: ${player.ministerDef}%</small></div>
-                    <button class="btn-action" onclick="changeMinister('Def')">تغيير (💰 500)</button>
-                </div>
-                <div class="minister-card">
-                    <div><strong>وزير المالية</strong><br><small>كفاءة: ${player.ministerFin}%</small></div>
-                    <button class="btn-action" onclick="changeMinister('Fin')">تغيير (💰 500)</button>
-                </div>
-                <div class="minister-card">
-                    <div><strong>وزير التعليم</strong><br><small>كفاءة: ${player.ministerEdu}%</small></div>
-                    <button class="btn-action" onclick="changeMinister('Edu')">تغيير (💰 500)</button>
-                </div>
-            `;
-
-            // Economy Calculations
-            const incMoney = (player.edu * 20) + (player.ministerFin * 15);
-            const incOil = player.oil > 0 ? 50 : 0;
-            const incFood = 100;
-            const expArmy = player.army * 0.5;
-
-            document.getElementById('inc-money').innerText = `+${Math.floor(incMoney)}`;
-            document.getElementById('inc-oil').innerText = `+${incOil}`;
-            document.getElementById('inc-food').innerText = `+${incFood}`;
-            document.getElementById('exp-army').innerText = `-${Math.floor(expArmy)}`;
-        }
-
-        /* --- INTERACTIVE CANVAS MAP --- */
-        let canvas, ctx;
-
-        function setupCanvas() {
-            const container = document.getElementById('map-container');
-            canvas = document.getElementById('worldMap');
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-            ctx = canvas.getContext('2d');
-            
-            canvas.onclick = handleMapClick;
-            renderMap();
-        }
-
-        function renderMap() {
-            if (!ctx) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Logistics / Trade Routes
-            ctx.strokeStyle = '#334155';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
-            gameState.tradeRoutes.forEach(([id1, id2]) => {
-                const c1 = gameState.countries[id1];
-                const c2 = gameState.countries[id2];
-                ctx.beginPath();
-                ctx.moveTo(c1.x * canvas.width, c1.y * canvas.height);
-                ctx.lineTo(c2.x * canvas.width, c2.y * canvas.height);
-                ctx.stroke();
-            });
-            ctx.setLineDash([]);
-
-            // Draw Countries
-            Object.values(gameState.countries).forEach(c => {
-                const cx = c.x * canvas.width;
-                const cy = c.y * canvas.height;
-                const isPlayer = c.id === gameState.playerCountryId;
-
-                // Outer Ring
-                ctx.beginPath();
-                ctx.arc(cx, cy, 35, 0, Math.PI * 2);
-                ctx.fillStyle = c.color;
-                ctx.globalAlpha = 0.3;
-                ctx.fill();
-                ctx.globalAlpha = 1.0;
-
-                // Node Center
-                ctx.beginPath();
-                ctx.arc(cx, cy, 20, 0, Math.PI * 2);
-                ctx.fillStyle = c.color;
-                ctx.setLineDash([]);
-                ctx.strokeStyle = isPlayer ? '#f59e0b' : '#fff';
-                ctx.lineWidth = isPlayer ? 4 : 2;
-                ctx.fill();
-                ctx.stroke();
-
-                // Country Label
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 12px Segoe UI';
-                ctx.textAlign = 'center';
-                ctx.fillText(c.name, cx, cy + 38);
-                ctx.font = '10px Segoe UI';
-                ctx.fillText(`🪖 ${c.army}`, cx, cy + 50);
+            Object.keys(gameState.market).forEach(mId => {
+                const item = gameState.market[mId];
+                const row = document.createElement('div');
+                row.className = 'trade-row';
+                row.innerHTML = `
+                    <div class="item-info">
+                        <div>${item.icon} ${item.name}</div>
+                        <small>السعر العالمي الحالي: <span style="color:var(--accent-gold)">$${item.price}/وحدة</span></small>
+                    </div>
+                    <div>
+                        <button class="btn btn-success" onclick="tradeResource('${mId}', 'sell')">تصدير (10)</button>
+                        <button class="btn" onclick="tradeResource('${mId}', 'buy')">استيراد (10)</button>
+                    </div>
+                `;
+                container.appendChild(row);
             });
         }
 
-        function handleMapClick(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
+        function tradeResource(resId, type) {
+            const p = gameState.countries[gameState.playerCountryId];
+            const item = gameState.market[resId];
+            const amount = 10;
+            const totalPrice = item.price * amount;
 
-            Object.values(gameState.countries).forEach(c => {
-                const cx = c.x * canvas.width;
-                const cy = c.y * canvas.height;
-                const dist = Math.hypot(clickX - cx, clickY - cy);
-
-                if (dist <= 35 && c.id !== gameState.playerCountryId) {
-                    showDiplomacyAction(c);
+            if (type === 'sell') {
+                if (p.resources[resId] >= amount) {
+                    p.resources[resId] -= amount;
+                    p.money += totalPrice;
+                    logMessage(`تم تصدير ${amount} من ${item.name} مقابل $${totalPrice.toLocaleString()}.`);
+                } else {
+                    alert('لا تملك الموارد الكافية للتصدير!');
                 }
+            } else if (type === 'buy') {
+                if (p.money >= totalPrice) {
+                    p.money -= totalPrice;
+                    p.resources[resId] += amount;
+                    logMessage(`تم استيراد ${amount} من ${item.name} بتكلفة $${totalPrice.toLocaleString()}.`);
+                } else {
+                    alert('الخزينة لا تحتوي على أموال كافية!');
+                }
+            }
+            updateResourcesUI();
+        }
+
+        /* --- MILITARY HARDWARE MANUFACTURING --- */
+        function renderMilitaryUI() {
+            const container = document.getElementById('military-factory-list');
+            container.innerHTML = '';
+
+            let totalPower = 0;
+
+            Object.keys(gameState.militaryHardware).forEach(wId => {
+                const w = gameState.militaryHardware[wId];
+                totalPower += w.count * w.power;
+
+                const row = document.createElement('div');
+                row.className = 'military-row';
+                row.innerHTML = `
+                    <div class="item-info">
+                        <div>${w.name} (العدد الحالي: <span style="color:var(--accent-gold)">${w.count}</span>)</div>
+                        <small>السعر: $${w.price.toLocaleString()} | حديد: ${w.ironCost} | القوة: +${w.power}</small>
+                    </div>
+                    <button class="btn btn-gold" onclick="buyMilitaryHardware('${wId}')">شراء 1</button>
+                `;
+                container.appendChild(row);
             });
+
+            document.getElementById('total-military-power').innerText = `القوة: ${totalPower.toLocaleString()}`;
         }
 
-        function showDiplomacyAction(target) {
-            selectedTargetCountry = target;
-            const player = gameState.countries[gameState.playerCountryId];
-            const rel = player.relations[target.id] || 0;
+        function buyMilitaryHardware(wId) {
+            const p = gameState.countries[gameState.playerCountryId];
+            const w = gameState.militaryHardware[wId];
 
-            const action = confirm(`الدولة التفاعلية: ${target.name}\nالعلاقة الحالية: ${rel}\nحجم الجيش: ${target.army}\n\nهل ترغب في إعلان الحرب شن هجوم؟\n(موافق = هجوم، إلغاء = تحسين العلاقات)`);
-            
-            if (action) {
-                executeAttack(target);
+            if (p.money >= w.price && p.resources.iron >= w.ironCost) {
+                p.money -= w.price;
+                p.resources.iron -= w.ironCost;
+                w.count += 1;
+                logMessage(`تم إنتاج وحدة جديدة من: ${w.name}.`);
+                renderMilitaryUI();
+                updateResourcesUI();
             } else {
-                player.relations[target.id] = Math.min(100, rel + 15);
-                logMessage(`تم تحسين العلاقات مع ${target.name} (+15).`);
-                updateUI();
+                alert('الموارد المتاحة أو الخزينة غير كافية للتصنيع!');
             }
         }
 
-        /* --- COMBAT AI & PROBABILITY ALGORITHM (RNG) --- */
-        function executeAttack(target) {
-            const player = gameState.countries[gameState.playerCountryId];
+        /* --- DIPLOMACY & RNG COMBAT ALGORITHM --- */
+        function diplomacyAction(actionType) {
+            const target = gameState.countries[activeSelectedCountryId];
+            const p = gameState.countries[gameState.playerCountryId];
 
-            if (player.army < 1000) {
-                alert('جيشك ضعيف جداً للقيام بتركيز هجومي! (يلزم 1000 جندي على الأقل)');
-                return;
+            if (actionType === 'improve') {
+                if (p.money >= 10000) {
+                    p.money -= 10000;
+                    target.rel = Math.min(100, target.rel + 15);
+                    logMessage(`تم إرسال وفد دبلوماسي لـ ${target.name}. ارتفعت العلاقات إلى ${target.rel}.`);
+                } else {
+                    alert('المال غير كافٍ للدبلوماسية!');
+                }
+            } else if (actionType === 'alliance') {
+                if (target.rel >= 50) {
+                    alert(`وافقت ${target.name} على توقيع حلف دفاع مشترك معكم!`);
+                    logMessage(`حلف دفاع مشترك رسمي تم توقيعه مع ${target.name}.`);
+                } else {
+                    alert(`رفضت ${target.name} طلب التحالف. يلزمه علاقات أعمق (+50 على الأقل).`);
+                }
+            } else if (actionType === 'war') {
+                executeCombatAlgorithm(target);
             }
 
-            // Calculation Algorithm
-            const playerPower = (player.army * 0.5) + (player.weapons * 1.2) + (player.ministerDef * 10) + (player.edu * 5);
-            const targetPower = (target.army * 0.5) + (target.weapons * 1.2) + (target.ministerDef * 10) + (target.edu * 5);
+            closeModal('country-modal');
+            updateResourcesUI();
+        }
 
-            // Probability/RNG Factor (0.85 to 1.15)
-            const playerRNG = 0.85 + Math.random() * 0.3;
-            const targetRNG = 0.85 + Math.random() * 0.3;
+        function executeCombatAlgorithm(target) {
+            const p = gameState.countries[gameState.playerCountryId];
+
+            // Player Power Calculation
+            let playerPower = 0;
+            Object.values(gameState.militaryHardware).forEach(w => {
+                playerPower += w.count * w.power;
+            });
+
+            // RNG Combat Probability (0.85 to 1.15)
+            const playerRNG = 0.85 + (Math.random() * 0.3);
+            const targetRNG = 0.85 + (Math.random() * 0.3);
+
+            const targetEstPower = Math.floor(Math.random() * 6000) + 3000;
 
             const finalPlayerScore = playerPower * playerRNG;
-            const finalTargetScore = targetPower * targetRNG;
+            const finalTargetScore = targetEstPower * targetRNG;
 
             if (finalPlayerScore > finalTargetScore) {
-                const conqueredMoney = Math.floor(target.money * 0.4);
-                player.money += conqueredMoney;
-                target.money -= conqueredMoney;
-
-                const armyLosses = Math.floor(player.army * 0.15);
-                player.army -= armyLosses;
-                target.army = Math.floor(target.army * 0.5);
-
-                logMessage(`⚔️ نصر عظيم! تم دحر قوات ${target.name}. الاستيلاء على 💰 ${conqueredMoney} وخسارة 🪖 ${armyLosses} جندي.`);
+                const lootedMoney = Math.floor(target.money * 0.3);
+                p.money += lootedMoney;
+                logMessage(`⚔️ انتصار ساحق على ${target.name}! تم الاستيلاء على غنائم قدرها $${lootedMoney.toLocaleString()}.`);
             } else {
-                const armyLosses = Math.floor(player.army * 0.35);
-                player.army -= armyLosses;
-                logMessage(`💥 هزيمة مريرة أمام قوات ${target.name}! تكبدت قواتك خسائر فادحة بلغت 🪖 ${armyLosses} جندي.`);
+                // Battle Loss Effects
+                Object.values(gameState.militaryHardware).forEach(w => {
+                    w.count = Math.floor(w.count * 0.7);
+                });
+                logMessage(`💥 تعرضت قواتك لهزيمة مريرة ضد ${target.name}! وتدمرت 30% من معداتك العسكرية.`);
+                renderMilitaryUI();
             }
 
-            player.relations[target.id] = -100;
-            updateUI();
-            renderMap();
+            target.rel = -100;
         }
 
-        /* --- GAME ALGORITHMS & ACTIONS --- */
-        function increaseEducation() {
-            const player = gameState.countries[gameState.playerCountryId];
-            if (player.money >= 1000) {
-                player.money -= 1000;
-                player.edu = Math.min(100, player.edu + 5);
-                logMessage('تم الاستثمار في القطاع التعليمي (+5%).');
-                updateUI();
-            } else {
-                alert('المال غير كافٍ!');
-            }
-        }
-
-        function changeMinister(type) {
-            const player = gameState.countries[gameState.playerCountryId];
-            if (player.money >= 500) {
-                player.money -= 500;
-                const newSkill = Math.floor(50 + Math.random() * 45);
-                player[`minister${type}`] = newSkill;
-                logMessage(`تم تعيين وزير جديد للـ (${type}) بكفاءة قدرها ${newSkill}%.`);
-                updateUI();
-            } else {
-                alert('المال غير كافٍ!');
-            }
-        }
-
-        /* --- TURN SYSTEM (NEXT DAY ALGORITHM) --- */
-        function nextDay() {
+        /* --- TURN SYSTEM & DAILY CALCULATIONS --- */
+        function processNextDay() {
             gameState.day++;
+            if (gameState.day > 365) {
+                gameState.day = 1;
+                gameState.year++;
+            }
 
-            Object.values(gameState.countries).forEach(c => {
-                // Economic Calculations
-                const incMoney = (c.edu * 20) + (c.ministerFin * 15);
-                const expArmy = c.army * 0.5;
-                
-                c.money += (incMoney - expArmy);
-                c.food += 50;
-                if (c.oil > 0) c.oil += 20;
+            document.getElementById('game-date').innerText = `التاريخ: ${gameState.year}/${Math.floor(gameState.day/30) + 1}/${(gameState.day % 30) + 1}`;
 
-                // Progressive Education Influence on Innovation & Stability
-                c.stability = Math.min(100, c.stability + (c.ministerEdu * 0.05));
-                
-                // AI Country Army Growth
-                c.army += Math.floor(100 + (c.money * 0.01));
+            const p = gameState.countries[gameState.playerCountryId];
 
-                // Handle Bankruptcy Risks
-                if (c.money < 0) {
-                    c.money = 0;
-                    c.army = Math.floor(c.army * 0.9); // Desertion
-                    if (c.id === gameState.playerCountryId) {
-                        logMessage('⚠️ تنبيه: الدولة تعاني من عجز مالي! انخفضت أعداد الجيش بسبب الفرار.');
-                    }
-                }
-            });
+            if (p) {
+                // Daily Production & Expenses
+                p.resources.oil += 10;
+                p.resources.gas += 15;
+                p.resources.iron += 5;
+                p.resources.wheat += 20;
 
-            logMessage(`--- بداية اليوم ${gameState.day} ---`);
-            updateUI();
-            renderMap();
+                // Market Dynamic Price Changes (Fluting)
+                Object.keys(gameState.market).forEach(mId => {
+                    const delta = (Math.random() * 10) - 5;
+                    gameState.market[mId].price = Math.max(10, Math.floor(gameState.market[mId].price + delta));
+                });
+
+                renderMarketUI();
+                updateResourcesUI();
+            }
+
+            logMessage(`--- اليوم ${gameState.day}: تم تحديث مؤشرات الاقتصاد والسوق العالمي ---`);
         }
 
         /* --- HELPER FUNCTIONS --- */
+        function updateResourcesUI() {
+            const p = gameState.countries[gameState.playerCountryId];
+            if (!p) return;
+
+            document.getElementById('res-money').innerText = `$${Math.floor(p.money).toLocaleString()}`;
+            document.getElementById('res-oil').innerText = Math.floor(p.resources.oil).toLocaleString();
+            document.getElementById('res-gas').innerText = Math.floor(p.resources.gas).toLocaleString();
+            document.getElementById('res-iron').innerText = Math.floor(p.resources.iron).toLocaleString();
+            document.getElementById('res-wheat').innerText = Math.floor(p.resources.wheat).toLocaleString();
+            document.getElementById('res-gold').innerText = Math.floor(p.resources.gold).toLocaleString();
+            document.getElementById('res-power').innerText = Math.floor(p.resources.power).toLocaleString();
+        }
+
         function logMessage(msg) {
-            const logBox = document.getElementById('log-box');
+            const feed = document.getElementById('log-feed');
             const entry = document.createElement('div');
-            entry.className = 'log-entry';
+            entry.style.marginBottom = '4px';
             entry.innerText = `[يوم ${gameState.day}] ${msg}`;
-            logBox.appendChild(entry);
-            logBox.scrollTop = logBox.scrollHeight;
+            feed.appendChild(entry);
+            feed.scrollTop = feed.scrollHeight;
         }
     </script>
 </body>
