@@ -2,49 +2,62 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاكاة الرئيس - الاستراتيجية الكبرى</title>
-    <!-- مكتبة الخريطة Leaflet -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محاكاة الاستراتيجية الكبرى - المرحلة الأولى</title>
+    <!-- مكتبة Leaflet.js للخريطة -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f172a; color: #f8fafc; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* شريط الموارد العلوي */
-        #top-bar { background: #1e293b; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; flex-wrap: wrap; gap: 10px; z-index: 1000; }
-        .resource-item { background: #0f172a; padding: 5px 12px; border-radius: 6px; font-size: 14px; border: 1px solid #475569; }
-        
-        /* حاوية اللعبة الأساسية */
-        #main-container { display: flex; flex: 1; position: relative; overflow: hidden; }
-        #map { flex: 1; height: 100%; background: #000; }
+        body, html { width: 100%; height: 100%; background-color: #0f172a; color: #f8fafc; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* القائمة الجانبية أو الشاشات المنبثقة */
-        #side-panel { width: 350px; background: #1e293b; border-left: 2px solid #334155; display: flex; flex-direction: column; padding: 15px; overflow-y: auto; z-index: 1000; }
-        .panel-section { background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #334155; }
-        .panel-section h3 { margin-bottom: 8px; color: #38bdf8; font-size: 16px; border-bottom: 1px solid #334155; padding-bottom: 4px; }
+        /* شريط الموارد العلوي */
+        #top-bar {
+            background: #1e293b;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 5px;
+            z-index: 1000;
+        }
+        .res-box { background: #0f172a; padding: 4px 8px; border-radius: 4px; border: 1px solid #475569; }
+
+        /* حاوية الخريطة الكبرى لتأخذ باقي الشاشة تماماً */
+        #map-container {
+            flex: 1;
+            width: 100%;
+            position: relative;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+        }
 
         /* شريط التنقل السفلي */
-        #bottom-nav { background: #1e293b; display: flex; justify-content: space-around; padding: 10px; border-top: 2px solid #334155; z-index: 1000; }
-        .nav-btn { background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .nav-btn.active, .nav-btn:hover { background: #0284c7; }
-
-        /* أزرار الإجراءات */
-        .action-btn { background: #0284c7; color: white; border: none; padding: 8px; width: 100%; border-radius: 5px; margin-top: 5px; cursor: pointer; font-weight: bold; }
-        .action-btn:hover { background: #0369a1; }
-        .danger-btn { background: #dc2626; }
-        .danger-btn:hover { background: #b91c1c; }
-
-        /* نوافذ تفصيلية */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: #1e293b; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px; border: 1px solid #475569; max-height: 80vh; overflow-y: auto; }
-        .close-modal { float: left; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 18px; }
-
-        @media(max-width: 768px) {
-            #main-container { flex-direction: column-reverse; }
-            #side-panel { width: 100%; height: 40vh; }
-            #map { height: 60vh; }
+        #bottom-nav {
+            background: #1e293b;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 2px solid #334155;
+            z-index: 1000;
         }
+        .nav-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .nav-btn.active { background: #0284c7; }
     </style>
 </head>
 <body>
@@ -52,145 +65,70 @@
     <!-- شريط الموارد العلوي الحي -->
     <div id="top-bar">
         <div>🇪🇬 <b>مصر</b></div>
-        <div class="resource-item">💰 الخزينة: $<span id="res-cash">500,000</span></div>
-        <div class="resource-item">🛢️ البترول: <span id="res-oil">2,000</span> طن</div>
-        <div class="resource-item">⛏️ الحديد: <span id="res-iron">1,500</span> طن</div>
-        <div class="resource-item">😊 السعادة: <span id="res-happiness">85</span>%</div>
-        <div class="resource-item">📅 التاريخ: <span id="game-date">2026/01/01</span></div>
+        <div class="res-box">💰 الخزينة: $<span id="cash">500,000</span></div>
+        <div class="res-box">🛢️ البترول: <span id="oil">2,000</span></div>
+        <div class="res-box">⛏️ الحديد: <span id="iron">1,500</span></div>
+        <div class="res-box">📅 <span id="game-date">2026/01/01</span></div>
     </div>
 
-    <!-- محتوى الخريطة واللوحة الجانبية -->
-    <div id="main-container">
+    <!-- الخريطة -->
+    <div id="map-container">
         <div id="map"></div>
-        
-        <!-- اللوحة الجانبية التفاعلية -->
-        <div id="side-panel">
-            <div class="panel-section">
-                <h3>🏛️ المجلس الوزاري</h3>
-                <p><b>وزير الدفاع:</b> الجيش مستعد وجاهز.</p>
-                <p><b>وزير الاقتصاد:</b> الدخل مستقر حالياً.</p>
-                <p><b>وزير الخارجية:</b> العلاقات الدبلوماسية مستقرة.</p>
-                <p><b>وزير التعليم:</b> الأجيال تتعلم بجد.</p>
-            </div>
-
-            <div class="panel-section">
-                <h3>⚔️ القوة العسكرية</h3>
-                <p>المشاة: <span id="unit-infantry">10,000</span> جندي</p>
-                <p>الدبابات: <span id="unit-tanks">150</span> دبابة</p>
-                <p>الطائرات: <span id="unit-planes">40</span> مقاتلة</p>
-                <button class="action-btn" onclick="openMilitaryModal()">إدارة الجيش والتسليح</button>
-            </div>
-
-            <div class="panel-section">
-                <h3>🌍 الدولة المحددة</h3>
-                <p id="selected-country-info">اضغط على أي دولة في القائمة أو الدبلوماسية لعرضها.</p>
-                <button class="action-btn" onclick="openDiplomacyModal()">فتح قائمة الدول والدبلوماسية</button>
-            </div>
-        </div>
     </div>
 
     <!-- شريط التنقل السفلي -->
     <div id="bottom-nav">
-        <button class="nav-btn active" onclick="switchTab('overview')">الرئيسية</button>
-        <button class="nav-btn" onclick="openMilitaryModal()">الجيش</button>
-        <button class="nav-btn" onclick="openTradeModal()">التجارة</button>
-        <button class="nav-btn" onclick="openDiplomacyModal()">الدبلوماسية</button>
-        <button class="nav-btn" onclick="resetGame()" style="background:#7f1d1d;">إعادة ضبط</button>
-    </div>
-
-    <!-- نافذة إدارة الجيش -->
-    <div id="military-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModals()">×</span>
-            <h2>مصانع الجيش والتسليح</h2>
-            <p style="margin: 10px 0;">قم بشراء وتدريب قواتك لزيادة قوة الردع:</p>
-            <button class="action-btn" onclick="buyUnit('infantry', 5000, 100)">تجند 1,000 مشاة ($5,000)</button>
-            <button class="action-btn" onclick="buyUnit('tanks', 50000, 500, 50)">شراء كتيبة دبابات ($50,000 + 50 حديد)</button>
-            <button class="action-btn" onclick="buyUnit('planes', 120000, 1000, 80, 50)">شراء مقاتلات جوية ($120,000 + 80 حديد + 50 بترول)</button>
-        </div>
-    </div>
-
-    <!-- نافذة التجارة -->
-    <div id="trade-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModals()">×</span>
-            <h2>بورصة التجارة العالمية</h2>
-            <p style="margin: 10px 0;">بيع الفائض أو شراء الموارد:</p>
-            <button class="action-btn" onclick="tradeResource('oil', 500, 10000)">بيع 500 طن بترول مقابل $10,000</button>
-            <button class="action-btn" onclick="tradeResource('iron', 500, 8000)">بيع 500 طن حديد مقابل $8,000</button>
-        </div>
-    </div>
-
-    <!-- نافذة الدبلوماسية والدول -->
-    <div id="diplomacy-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModals()">×</span>
-            <h2>علاقات الدول والخارجية</h2>
-            <div id="countries-list" style="margin-top: 10px;">
-                <!-- تُعبأ تلقائياً بالبرمجة -->
-            </div>
-        </div>
+        <button class="nav-btn active">الخريطة</button>
+        <button class="nav-btn" onclick="alert('المرحلة القادمة: الجيش')">الجيش</button>
+        <button class="nav-btn" onclick="alert('المرحلة القادمة: التجارة')">التجارة</button>
+        <button class="nav-btn" onclick="alert('المرحلة القادمة: الدبلوماسية')">الدبلوماسية</button>
     </div>
 
     <script>
-        // بيانات اللعبة المحفوظة
+        // بيانات اللعبة الأساسية
         let gameData = {
             cash: 500000,
             oil: 2000,
             iron: 1500,
-            happiness: 85,
             day: 1,
             month: 1,
-            year: 2026,
-            units: { infantry: 10000, tanks: 150, planes: 40 },
-            countries: [
-                { name: "السودان", relation: 50, power: 300, status: "صديقة" },
-                { name: "ليبيـا", relation: 20, power: 250, status: "محايدة" },
-                { name: "إسرائيل", relation: -40, power: 800, status: "متوترة" },
-                { name: "السعودية", relation: 90, power: 700, status: "حليفة" },
-                { name: "إثيوبيا", relation: -60, power: 400, status: "عدائية" }
-            ]
+            year: 2026
         };
 
-        // تحميل البيانات المحفوظة إن وجدت
-        if(localStorage.getItem('grandStrategyEgypt')) {
-            gameData = JSON.parse(localStorage.getItem('grandStrategyEgypt'));
+        // استرجاع البيانات المحفوظة إن وجدت
+        if(localStorage.getItem('strategyGameStage1')) {
+            gameData = JSON.parse(localStorage.getItem('strategyGameStage1'));
         }
 
         function saveGame() {
-            localStorage.setItem('grandStrategyEgypt', JSON.stringify(gameData));
+            localStorage.setItem('strategyGameStage1', JSON.stringify(gameData));
         }
 
-        // إعداد خريطة Leaflet
-        const map = L.map('map').setView([26.8206, 30.8025], 5); // مركز مصر والعالم العربي
+        // تحديث واجهة المستخدم
+        function updateUI() {
+            document.getElementById('cash').innerText = gameData.cash.toLocaleString();
+            document.getElementById('oil').innerText = gameData.oil.toLocaleString();
+            document.getElementById('iron').innerText = gameData.iron.toLocaleString();
+            document.getElementById('game-date').innerText = `${gameData.year}/${String(gameData.month).padStart(2,'0')}/${String(gameData.day).padStart(2,'0')}`;
+        }
+
+        // إعداد خريطة Leaflet وضبط مساحتها بدقة للموبايل
+        const map = L.map('map', { zoomControl: false }).setView([26.8206, 30.8025], 5);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            maxZoom: 18,
+            attribution: 'OpenStreetMap'
         }).addTo(map);
 
-        // تحديث الواجهة الرسومية
-        function updateUI() {
-            document.getElementById('res-cash').innerText = gameData.cash.toLocaleString();
-            document.getElementById('res-oil').innerText = gameData.oil.toLocaleString();
-            document.getElementById('res-iron').innerText = gameData.iron.toLocaleString();
-            document.getElementById('res-happiness').innerText = gameData.happiness;
-            
-            document.getElementById('game-date').innerText = `${gameData.year}/${String(gameData.month).padStart(2,'0')}/${String(gameData.day).padStart(2,'0')}`;
-            
-            document.getElementById('unit-infantry').innerText = gameData.units.infantry.toLocaleString();
-            document.getElementById('unit-tanks').innerText = gameData.units.tanks.toLocaleString();
-            document.getElementById('unit-planes').innerText = gameData.units.planes.toLocaleString();
-        }
+        // إضافة زر التحكم بالتكبير والتصغير في مكان مناسب
+        L.control.zoom({ position: 'topright' }).addTo(map);
 
-        // نظام الوقت الحي (كل ثانية = يوم في اللعبة)
+        // نظام الوقت الحي (كل ثانية يوم) + الحفظ التلقائي
         setInterval(() => {
             gameData.day++;
+            gameData.cash += 500; // دخل دوري بسيط للتأكد من عمل العدادات
             if(gameData.day > 30) {
                 gameData.day = 1;
                 gameData.month++;
-                // دخل شهري واستهلاك موارد طبيعي
-                gameData.cash += 15000; 
-                gameData.oil -= 50;
-                gameData.iron -= 30;
                 if(gameData.month > 12) {
                     gameData.month = 1;
                     gameData.year++;
@@ -200,114 +138,285 @@
             saveGame();
         }, 1000);
 
-        // الشاشات المنبثقة
-        function openMilitaryModal() { document.getElementById('military-modal').style.display = 'flex'; }
-        function openTradeModal() { document.getElementById('trade-modal').style.display = 'flex'; }
-        function openDiplomacyModal() { 
-            renderCountriesList();
-            document.getElementById('diplomacy-modal').style.display = 'flex'; 
-        }
-        function closeModals() {
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-        }
-
-        // شراء الوحدات العسكرية
-        function buyUnit(type, costCash, costIron = 0, costOil = 0) {
-            if(gameData.cash >= costCash && gameData.iron >= costIron && gameData.oil >= costOil) {
-                gameData.cash -= costCash;
-                gameData.iron -= costIron;
-                gameData.oil -= costOil;
-                if(type === 'infantry') gameData.units.infantry += 1000;
-                if(type === 'tanks') gameData.units.tanks += 10;
-                if(type === 'planes') gameData.units.planes += 5;
-                updateUI();
-                saveGame();
-                alert("تم إتمام التدراء والشراء بنجاح!");
-            } else {
-                alert("الموارد أو الأموال غير كافية!");
-            }
-        }
-
-        // التجارة والبيع
-        function tradeResource(res, amount, price) {
-            if(res === 'oil' && gameData.oil >= amount) {
-                gameData.oil -= amount;
-                gameData.cash += price;
-            } else if(res === 'iron' && gameData.iron >= amount) {
-                gameData.iron -= amount;
-                gameData.cash += price;
-            } else {
-                alert("لا يوجد لديك رصيد كافٍ من هذا المورد للبيع!");
-                return;
-            }
-            updateUI();
-            saveGame();
-            alert("تمت صفقة التصدير بنجاح وأضيفت الأموال للخزينة!");
-        }
-
-        // عرض قائمة الدول والدبلوماسية
-        function renderCountriesList() {
-            const listDiv = document.getElementById('countries-list');
-            listDiv.innerHTML = '';
-            gameData.countries.forEach((country, index) => {
-                listDiv.innerHTML += `
-                    <div style="background:#0f172a; padding:10px; margin-bottom:8px; border-radius:6px; border:1px solid #334155;">
-                        <b>${country.name}</b> | الحالة: ${country.status} | العلاقة: ${country.relation}
-                        <br><button class="action-btn" style="margin-top:5px; background:#047857;" onclick="improveRelation(${index})">تحسين العلاقة ($10,000)</button>
-                        <button class="action-btn danger-btn" style="margin-top:5px;" onclick="declareWar(${index})">إعلان حرب وغزو</button>
-                    </div>
-                `;
-            });
-        }
-
-        function improveRelation(index) {
-            if(gameData.cash >= 10000) {
-                gameData.cash -= 10000;
-                gameData.countries[index].relation += 15;
-                if(gameData.countries[index].relation > 100) gameData.countries[index].relation = 100;
-                updateUI();
-                renderCountriesList();
-                saveGame();
-                alert("تم إرسال وفد دبلوماسي وتحسنت العلاقات!");
-            } else {
-                alert("لا توجد سيولة كافية لتحسين العلاقات!");
-            }
-        }
-
-        // خوارزمية الحروب والاحتمالات
-        function declareWar(index) {
-            let country = gameData.countries[index];
-            let myPower = (gameData.units.infantry * 0.1) + (gameData.units.tanks * 5) + (gameData.units.planes * 10);
-            
-            // خوارزمية معركة عشوائية مبنية على القوة
-            let chance = Math.random() * myPower;
-            let enemyPower = country.power * 10;
-
-            if(chance >= enemyPower) {
-                gameData.cash += 80000;
-                gameData.oil += 500;
-                gameData.happiness += 5;
-                country.relation = -100;
-                country.status = "مهزومة ومحتلة";
-                alert(`🎉 انتصار ساحق! تم هزيمة ${country.name} وغنمنا موارد وأموال طائلة وضُمت لسيطرتنا.`);
-            } else {
-                gameData.units.tanks = Math.max(0, gameData.units.tanks - 20);
-                gameData.happiness -= 10;
-                alert(`❌ للأسف، مُنيت قواتنا بخسائر فادحة في المعركة ضد ${country.name} وتراجع استقرار الدولة.`);
-            }
-            updateUI();
-            renderCountriesList();
-            saveGame();
-        }
-
-        function resetGame() {
-            if(confirm("هل أنت متأكد من إعادة ضبط اللعبة وبدء تاريخ جديد؟")) {
-                localStorage.removeItem('grandStrategyEgypt');
-                location.reload();
-            }
-        }
-
         updateUI();
+
+        // حل مشكلة تأقلم مقاسات الخريطة عند التحميل على الجوال
+        setTimeout(() => { map.invalidateSize(); }, 300);
     </script>
 </body>
 </html>
+<!-- نافذة الجيش والتسليح -->
+<div id="military-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeMilitaryModal()">×</span>
+        <h2 style="margin-bottom: 15px; font-size: 18px; color: #f8fafc;">مصانع القوات المسلحة</h2>
+        
+        <div class="section-title">نظرة عامة</div>
+        <p style="font-size: 13px; margin-bottom: 15px;">
+            إجمالي المشاة: <span id="count-infantry" style="color:#38bdf8;">10,000</span><br>
+            دبابات خفيفة: <span id="count-light-tanks" style="color:#38bdf8;">50</span> | دبابات ثقيلة: <span id="count-heavy-tanks" style="color:#38bdf8;">20</span><br>
+            مقاتلات جوية: <span id="count-fighters" style="color:#38bdf8;">15</span> | طائرات مسيرة (درون): <span id="count-drones" style="color:#38bdf8;">30</span>
+        </p>
+
+        <div class="section-title">شراء وتدريب المعدات</div>
+
+        <!-- مشاة -->
+        <div class="buy-card">
+            <div><b>كتيبة مشاة (1,000 جندي)</b><br><small style="color:#94a3b8;">التكلفة: $10,000</small></div>
+            <button class="buy-btn" onclick="buyEquipment('infantry', 10000, 0, 0, 1000)">تجنيد</button>
+        </div>
+
+        <!-- دبابات خفيفة -->
+        <div class="buy-card">
+            <div><b>دبابات خفيفة (10 وحدات)</b><br><small style="color:#94a3b8;">التكلفة: $40,000 + 30 حديد</small></div>
+            <button class="buy-btn" onclick="buyEquipment('lightTanks', 40000, 30, 0, 10)">شراء</button>
+        </div>
+
+        <!-- دبابات ثقيلة -->
+        <div class="buy-card">
+            <div><b>دبابات قتال ثقيلة (5 وحدات)</b><br><small style="color:#94a3b8;">التكلفة: $90,000 + 70 حديد</small></div>
+            <button class="buy-btn" onclick="buyEquipment('heavyTanks', 90000, 70, 0, 5)">شراء</button>
+        </div>
+
+        <!-- مقاتلات جوية -->
+        <div class="buy-card">
+            <div><b>مقاتلات جوية (5 طائرات)</b><br><small style="color:#94a3b8;">التكلفة: $150,000 + 50 حديد + 40 بترول</small></div>
+            <button class="buy-btn" onclick="buyEquipment('fighters', 150000, 50, 40, 5)">شراء</button>
+        </div>
+
+        <!-- طائرات مسيرة -->
+        <div class="buy-card">
+            <div><b>طائرات مسيرة درونز (10 طائرات)</b><br><small style="color:#94a3b8;">التكلفة: $60,000 + 20 حديد</small></div>
+            <button class="buy-btn" onclick="buyEquipment('drones', 60000, 20, 0, 10)">شراء</button>
+        </div>
+    </div>
+</div>
+// أضف هذه داخل gameData الموجود لديك مسبقاً
+units: {
+    infantry: 10000,
+    lightTanks: 50,
+    heavyTanks: 20,
+    fighters: 15,
+    drones: 30
+}
+<button class="nav-btn" onclick="openTradeModal()">التجارة</button>
+<!-- نافذة التجارة والبورصة العالمية -->
+<div id="trade-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeTradeModal()">×</span>
+        <h2 style="margin-bottom: 15px; font-size: 18px; color: #f8fafc;">سوق التجارة والبورصة</h2>
+        
+        <div class="section-title">أسعار السوق اللحظية</div>
+        <p style="font-size: 13px; margin-bottom: 15px; color: #94a3b8;">
+            سعر برميل البترول: <span style="color:#38bdf8;">$30</span> | سعر طن الحديد: <span style="color:#38bdf8;">$20</span>
+        </p>
+
+        <div class="section-title">تصدير الموارد للخزينة</div>
+
+        <!-- بيع بترول -->
+        <div class="buy-card">
+            <div><b>تصدير 300 طن بترول</b><br><small style="color:#94a3b8;">العائد الفوري: +$9,000</small></div>
+            <button class="buy-btn" onclick="tradeResource('oil', 300, 9000)">تصدير</button>
+        </div>
+
+        <!-- بيع حديد -->
+        <div class="buy-card">
+            <div><b>تصدير 300 طن حديد</b><br><small style="color:#94a3b8;">العائد الفوري: +$6,000</small></div>
+            <button class="buy-btn" onclick="tradeResource('iron', 300, 6000)">تصدير</button>
+        </div>
+    </div>
+</div>
+// فتح وإغلاق نافذة التجارة
+function openTradeModal() {
+    document.getElementById('trade-modal').style.display = 'flex';
+}
+function closeTradeModal() {
+    document.getElementById('trade-modal').style.display = 'none';
+}
+
+// تنفيذ صفقات التصدير والبيع
+function tradeResource(resourceKey, amount, cashEarned) {
+    if(gameData[resourceKey] >= amount) {
+        gameData[resourceKey] -= amount;
+        gameData.cash += cashEarned;
+        
+        updateUI(); // دالة التحديث العامة لدك
+        saveGame(); // دالة الحفظ التلقائي لديك
+        alert("تمت صفقة التصدير بنجاح وأضيفت الأموال للخزينة!");
+    } else {
+        alert("عذراً، الكمية غير كافية لديك لتصدير هذا المورد!");
+    }
+}
+// أضف هذه داخل gameData الموجود لديك مسبقاً
+countries: [
+    { name: "السودان", relation: 50, power: 300, status: "صديقة" },
+    { name: "ليبيـا", relation: 20, power: 250, status: "محايدة" },
+    { name: "إسرائيل", relation: -40, power: 800, status: "متوترة" },
+    { name: "السعودية", relation: 90, power: 700, status: "حليفة" },
+    { name: "إثيوبيا", relation: -60, power: 400, status: "عدائية" }
+]
+<!-- نافذة الدبلوماسية والعلاقات -->
+<div id="diplomacy-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDiplomacyModal()">×</span>
+        <h2 style="margin-bottom: 15px; font-size: 18px; color: #f8fafc;">المجلس الدبلوماسي وعلاقات الدول</h2>
+        
+        <div class="section-title">قائمة الدول المجاورة والكبرى</div>
+        <div id="countries-list-container" style="margin-top: 10px;">
+            <!-- تُعبأ تلقائياً بالبرمجة -->
+        </div>
+    </div>
+</div>
+<button class="nav-btn" onclick="openDiplomacyModal()">الدبلوماسية</button>
+// فتح وإغلاق نافذة الدبلوماسية
+function openDiplomacyModal() {
+    renderCountriesList();
+    document.getElementById('diplomacy-modal').style.display = 'flex';
+}
+function closeDiplomacyModal() {
+    document.getElementById('diplomacy-modal').style.display = 'none';
+}
+
+// رسم وعرض قائمة الدول داخل النافذة
+function renderCountriesList() {
+    const container = document.getElementById('countries-list-container');
+    container.innerHTML = '';
+    
+    gameData.countries.forEach((country, index) => {
+        container.innerHTML += `
+            <div style="background:#0f172a; padding:10px; margin-bottom:8px; border-radius:6px; border:1px solid #334155; font-size:13px;">
+                <b>${country.name}</b> | الحالة: ${country.status} | العلاقة: <span style="color:${country.relation >= 0 ? '#34d399' : '#ef4444'}">${country.relation}</span>
+                <div style="display:flex; gap:5px; margin-top:8px;">
+                    <button class="buy-btn" style="background:#047857;" onclick="improveRelation(${index})">تحسين ($15,000)</button>
+                    <button class="buy-btn" style="background:#dc2626;" onclick="declareWar(${index})">إعلان حرب وغزو</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// تحسين العلاقات السياسية
+function improveRelation(index) {
+    if(gameData.cash >= 15000) {
+        gameData.cash -= 15000;
+        gameData.countries[index].relation += 15;
+        if(gameData.countries[index].relation > 100) gameData.countries[index].relation = 100;
+        
+        updateUI();
+        renderCountriesList();
+        saveGame();
+        alert("تم إرسال وفد دبلوماسي وتحسنت العلاقات بنجاح!");
+    } else {
+        alert("لا توجد سيولة كافية للخزينة لتحسين العلاقات!");
+    }
+}
+
+// خوارزمية احتمالات المعارك والحروب
+function declareWar(index) {
+    let country = gameData.countries[index];
+    
+    // حساب قوتك العسكرية الإجمالية بناءً على الوحدات
+    let myPower = (gameData.units.infantry * 1) + 
+                  (gameData.units.lightTanks * 15) + 
+                  (gameData.units.heavyTanks * 35) + 
+                  (gameData.units.fighters * 50) + 
+                  (gameData.units.drones * 20);
+
+    let enemyPower = country.power * 15;
+    let chance = Math.random() * myPower;
+
+    if(chance >= enemyPower) {
+        gameData.cash += 100000;
+        gameData.oil += 400;
+        country.relation = -100;
+        country.status = "مهزومة ومحتلة";
+        alert(`🎉 انتصار ساحق! نجحت قواتنا في هزيمة ${country.name} وغنمنا أموال وموارد ضخمة.`);
+    } else {
+        // خسائر عسكرية عند الهزيمة
+        gameData.units.infantry = Math.max(0, gameData.units.infantry - 1500);
+        gameData.units.lightTanks = Math.max(0, gameData.units.lightTanks - 5);
+        country.relation = -100;
+        country.status = "في حالة حرب شرسة";
+        alert(`❌ للأسف، مُنيت قواتنا بخسائر قاسية في المعركة ضد ${country.name} وتراجعت أعداد الجيش.`);
+    }
+    
+    updateUI();
+    renderCountriesList();
+    saveGame();
+}
+// فتح وإغلاق نافذة الدبلوماسية
+function openDiplomacyModal() {
+    renderCountriesList();
+    document.getElementById('diplomacy-modal').style.display = 'flex';
+}
+function closeDiplomacyModal() {
+    document.getElementById('diplomacy-modal').style.display = 'none';
+}
+
+// رسم وعرض قائمة الدول داخل النافذة
+function renderCountriesList() {
+    const container = document.getElementById('countries-list-container');
+    container.innerHTML = '';
+    
+    gameData.countries.forEach((country, index) => {
+        container.innerHTML += `
+            <div style="background:#0f172a; padding:10px; margin-bottom:8px; border-radius:6px; border:1px solid #334155; font-size:13px;">
+                <b>${country.name}</b> | الحالة: ${country.status} | العلاقة: <span style="color:${country.relation >= 0 ? '#34d399' : '#ef4444'}">${country.relation}</span>
+                <div style="display:flex; gap:5px; margin-top:8px;">
+                    <button class="buy-btn" style="background:#047857;" onclick="improveRelation(${index})">تحسين ($15,000)</button>
+                    <button class="buy-btn" style="background:#dc2626;" onclick="declareWar(${index})">إعلان حرب وغزو</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// تحسين العلاقات السياسية
+function improveRelation(index) {
+    if(gameData.cash >= 15000) {
+        gameData.cash -= 15000;
+        gameData.countries[index].relation += 15;
+        if(gameData.countries[index].relation > 100) gameData.countries[index].relation = 100;
+        
+        updateUI();
+        renderCountriesList();
+        saveGame();
+        alert("تم إرسال وفد دبلوماسي وتحسنت العلاقات بنجاح!");
+    } else {
+        alert("لا توجد سيولة كافية للخزينة لتحسين العلاقات!");
+    }
+}
+
+// خوارزمية احتمالات المعارك والحروب
+function declareWar(index) {
+    let country = gameData.countries[index];
+    
+    // حساب قوتك العسكرية الإجمالية بناءً على الوحدات
+    let myPower = (gameData.units.infantry * 1) + 
+                  (gameData.units.lightTanks * 15) + 
+                  (gameData.units.heavyTanks * 35) + 
+                  (gameData.units.fighters * 50) + 
+                  (gameData.units.drones * 20);
+
+    let enemyPower = country.power * 15;
+    let chance = Math.random() * myPower;
+
+    if(chance >= enemyPower) {
+        gameData.cash += 100000;
+        gameData.oil += 400;
+        country.relation = -100;
+        country.status = "مهزومة ومحتلة";
+        alert(`🎉 انتصار ساحق! نجحت قواتنا في هزيمة ${country.name} وغنمنا أموال وموارد ضخمة.`);
+    } else {
+        // خسائر عسكرية عند الهزيمة
+        gameData.units.infantry = Math.max(0, gameData.units.infantry - 1500);
+        gameData.units.lightTanks = Math.max(0, gameData.units.lightTanks - 5);
+        country.relation = -100;
+        country.status = "في حالة حرب شرسة";
+        alert(`❌ للأسف، مُنيت قواتنا بخسائر قاسية في المعركة ضد ${country.name} وتراجعت أعداد الجيش.`);
+    }
+    
+    updateUI();
+    renderCountriesList();
+    saveGame();
+}
