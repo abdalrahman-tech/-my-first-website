@@ -2,295 +2,253 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>محاكي كرة القدم الفيزيائي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>محاكي كرة القدم 3D</title>
     <style>
         body {
-            background-color: #1a1a1a;
-            color: #fff;
-            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: sans-serif;
+            touch-action: none;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 20px;
+            border-radius: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        /* أزرار التحكم للموبايل واللمس */
+        .touch-btn {
+            position: absolute;
+            bottom: 20px;
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 0;
-            padding: 20px;
+            user-select: none;
+            z-index: 10;
         }
-        #scoreBoard {
-            font-size: 24px;
-            margin-bottom: 10px;
-            background: #333;
-            padding: 10px 30px;
+        .touch-btn:active { background: rgba(255, 255, 255, 0.7); }
+        #btn-pass { right: 20px; bottom: 20px; background: rgba(0, 150, 255, 0.5); }
+        #btn-shoot { right: 100px; bottom: 40px; background: rgba(255, 50, 50, 0.5); }
+        
+        /* D-Pad للحركة */
+        #dpad {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 120px;
+            height: 120px;
+            z-index: 10;
+        }
+        .d-btn {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.3);
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        canvas {
-            border: 4px solid #fff;
-            background-color: #2e8b57;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        .controls {
-            margin-top: 15px;
-            text-align: center;
-            color: #ccc;
-            font-size: 14px;
-        }
+        #up { top: 0; left: 40px; }
+        #down { bottom: 0; left: 40px; }
+        #left { top: 40px; left: 0; }
+        #right { top: 40px; right: 0; }
     </style>
+    <!-- مكتبة الجرافيكس 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div id="scoreBoard">
-    <span style="color: #ff4d4d;">الأحمر (أنت)</span> <span id="score">0 - 0</span> <span style="color: #4da6ff;">الأزرق (الكمبيوتر)</span>
-</div>
+<div id="ui">الأحمر <span id="score">0 - 0</span> الأزرق</div>
 
-<canvas id="gameCanvas" width="800" height="500"></canvas>
+<!-- أزرار اللمس للموبايل -->
+<div id="btn-pass" class="touch-btn">تمرير</div>
+<div id="btn-shoot" class="touch-btn">تسديد</div>
 
-<div class="controls">
-    <b>التحكم:</b> الأسهم (للحركة) | <b>Space</b> (تسديدة قوية) | <b>Shift</b> (جري سريع - يستهلك الطاقة)
+<div id="dpad">
+    <div id="up" class="d-btn"></div>
+    <div id="down" class="d-btn"></div>
+    <div id="left" class="d-btn"></div>
+    <div id="right" class="d-btn"></div>
 </div>
 
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+// --- 1. إعداد المشهد ثلاثي الأبعاد (3D Scene & Camera) ---
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb); // لون السماء
 
-// --- الثوابت الفيزيائية (Physics Constants) ---
-const FRICTION = 0.98; // معامل احتكاك الأرضية بالكرة
-const BALL_RESTITUTION = 0.7; // معامل ارتداد الكرة عند الاصطدام
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
 
-// --- بيانات المباراة ---
-let scorePlayer = 0;
-let scoreAI = 0;
+// الإضاءة (Lights)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
 
-// --- كائن الكرة (Ball Physics Object) ---
-const ball = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
-    radius: 8,
-    vx: 0,
-    vy: 0,
-    mass: 1,
-    update: function() {
-        // تطبيق الاحتكاك الفيزيائي
-        this.vx *= FRICTION;
-        this.vy *= FRICTION;
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.position.set(20, 40, 20);
+dirLight.castShadow = true;
+scene.add(dirLight);
 
-        // تحديث الموقع بناءً على السرعة
-        this.x += this.vx;
-        this.y += this.vy;
+// --- 2. بناء الملعب العشبي والماركات (Field) ---
+const pitchGeo = new THREE.PlaneGeometry(60, 40);
+const pitchMat = new THREE.MeshLambertMaterial({ color: 0x2e8b57 });
+const pitch = new THREE.Mesh(pitchGeo, pitchMat);
+pitch.rotation.x = -Math.PI / 2;
+pitch.receiveShadow = true;
+scene.add(pitch);
 
-        // حدود الملعب والارتداد من الجدران
-        if (this.y - this.radius < 10 || this.y + this.radius > canvas.height - 10) {
-            this.vy *= -BALL_RESTITUTION;
-            this.y = this.y - this.radius < 10 ? 10 + this.radius : canvas.height - 10 - this.radius;
-        }
+// خطوط الملعب
+const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+const lineGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-30, 0.05, -20), new THREE.Vector3(30, 0.05, -20),
+    new THREE.Vector3(30, 0.05, 20), new THREE.Vector3(-30, 0.05, 20),
+    new THREE.Vector3(-30, 0.05, -20), new THREE.Vector3(0, 0.05, -20),
+    new THREE.Vector3(0, 0.05, 20)
+]);
+const lines = new THREE.Line(lineGeo, lineMat);
+scene.add(lines);
 
-        // ارتداد الكرة من الخطوط الخلفية (خارج خط المرمى)
-        if ((this.x - this.radius < 10 || this.x + this.radius > canvas.width - 10)) {
-            // التحقق من الهدف
-            if (this.y > 180 && this.y < 320) {
-                if (this.x < 10) scoreAI++;
-                else scorePlayer++;
-                document.getElementById('score').innerText = `${scorePlayer} - ${scoreAI}`;
-                resetPositions();
-            } else {
-                this.vx *= -BALL_RESTITUTION;
-                this.x = this.x - this.radius < 10 ? 10 + this.radius : canvas.width - 10 - this.radius;
-            }
-        }
-    },
-    draw: function() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.strokeStyle = "#000";
-        ctx.stroke();
-        ctx.closePath();
-    }
-};
+// --- 3. تصميم الكرة واللاعبين (3D Player & Ball) ---
+// الكرة
+const ballGeo = new THREE.SphereGeometry(0.6, 16, 16);
+const ballMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+const ball = new THREE.Mesh(ballGeo, ballMat);
+ball.castShadow = true;
+ball.position.set(0, 0.6, 0);
+scene.add(ball);
+let ballVel = new THREE.Vector3(0, 0, 0);
 
-// --- كائن اللاعب (Player Class with Stamina & Dynamics) ---
-class Player {
-    constructor(x, y, color, isAI = false) {
-        this.x = x;
-        this.y = y;
-        this.radius = 15;
-        this.color = color;
-        this.vx = 0;
-        this.vy = 0;
-        this.baseSpeed = 2.5;
-        this.sprintSpeed = 4.5;
-        this.stamina = 100; // الطاقة القصوى
-        this.maxStamina = 100;
-        this.isAI = isAI;
-    }
+// دالة دمج مجسم اللاعب (جسم + رأس)
+function createPlayer(color) {
+    const group = new THREE.Group();
+    // الجسم
+    const bodyGeo = new THREE.CylinderGeometry(0.5, 0.3, 1.8, 16);
+    const bodyMat = new THREE.MeshStandardMaterial({ color: color });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 0.9;
+    body.castShadow = true;
+    group.add(body);
+    // الرأس
+    const headGeo = new THREE.SphereGeometry(0.35, 16, 16);
+    const headMat = new THREE.MeshStandardMaterial({ color: 0xffdbac });
+    const head = new THREE.Mesh(headGeo, headMat);
+    head.position.y = 2.0;
+    head.castShadow = true;
+    group.add(head);
 
-    update(keys) {
-        let currentSpeed = this.baseSpeed;
-
-        // نظام الطاقة والجري السريع
-        if (!this.isAI) {
-            if (keys['Shift'] && this.stamina > 5) {
-                currentSpeed = this.sprintSpeed;
-                this.stamina -= 0.6; // استهلاك الطاقة
-            } else if (this.stamina < this.maxStamina) {
-                this.stamina += 0.25; // استرجاع الطاقة
-            }
-
-            // حركة اللاعب المدخلة
-            this.vx = 0;
-            this.vy = 0;
-            if (keys['ArrowUp']) this.vy = -currentSpeed;
-            if (keys['ArrowDown']) this.vy = currentSpeed;
-            if (keys['ArrowLeft']) this.vx = -currentSpeed;
-            if (keys['ArrowRight']) this.vx = currentSpeed;
-
-        } else {
-            // لوجيك ذكاء الاصطناعي (AI Dynamics)
-            let dx = ball.x - this.x;
-            let dy = ball.y - this.y;
-            let dist = Math.hypot(dx, dy);
-
-            // استهلاك واسترجاع طاقة الـ AI
-            if (dist < 150 && this.stamina > 20) {
-                currentSpeed = this.sprintSpeed;
-                this.stamina -= 0.4;
-            } else if (this.stamina < this.maxStamina) {
-                this.stamina += 0.2;
-            }
-
-            if (dist > 5) {
-                this.vx = (dx / dist) * currentSpeed;
-                this.vy = (dy / dist) * currentSpeed;
-            }
-        }
-
-        // تطبيق الحركة والحدود
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // منع الخروج من حدود الملعب
-        this.x = Math.max(10 + this.radius, Math.min(canvas.width - 10 - this.radius, this.x));
-        this.y = Math.max(10 + this.radius, Math.min(canvas.height - 10 - this.radius, this.y));
-
-        // حساب التصادم الفيزيائي مع الكرة
-        this.resolveBallCollision();
-    }
-
-    resolveBallCollision() {
-        let dx = ball.x - this.x;
-        let dy = ball.y - this.y;
-        let distance = Math.hypot(dx, dy);
-
-        if (distance < this.radius + ball.radius) {
-            // حساب زاوية الارتطام الفيزيائي (Impulse Physics)
-            let angle = Math.atan2(dy, dx);
-            let power = Math.hypot(this.vx, this.vy) + 2;
-
-            ball.vx = Math.cos(angle) * power * 1.5;
-            ball.vy = Math.sin(angle) * power * 1.5;
-        }
-    }
-
-    kickBall() {
-        let dx = ball.x - this.x;
-        let dy = ball.y - this.y;
-        let distance = Math.hypot(dx, dy);
-
-        // إمكانية التسديد فقط عند الاقتراب من الكرة
-        if (distance < this.radius + ball.radius + 10) {
-            let angle = Math.atan2(dy, dx);
-            let kickPower = 10; // قوة التسديدة
-            ball.vx = Math.cos(angle) * kickPower;
-            ball.vy = Math.sin(angle) * kickPower;
-        }
-    }
-
-    draw() {
-        // رسم جسم اللاعب
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.closePath();
-
-        // رسم شريط الطاقة فوق اللاعب (Stamina Bar)
-        ctx.fillStyle = "#555";
-        ctx.fillRect(this.x - 15, this.y - 25, 30, 4);
-        ctx.fillStyle = this.stamina > 30 ? "#00ff00" : "#ff0000";
-        ctx.fillRect(this.x - 15, this.y - 25, (this.stamina / this.maxStamina) * 30, 4);
-    }
+    return group;
 }
 
-// --- إنشاء الأجسام ---
-const player = new Player(200, 250, '#ff4d4d');
-const ai = new Player(600, 250, '#4da6ff', true);
+const player = createPlayer(0xff3333); // اللاعب الأحمر
+player.position.set(-10, 0, 0);
+scene.add(player);
+
+const ai = createPlayer(0x3388ff); // المنافس الأزرق
+ai.position.set(10, 0, 0);
+scene.add(ai);
+
+// --- 4. التحكم والتفاعل (Controls & Physics) ---
 const keys = {};
+window.addEventListener('keydown', e => keys[e.code] = true);
+window.addEventListener('keyup', e => keys[e.code] = false);
 
-// --- إدارة المدخلات (Events) ---
-window.addEventListener('keydown', (e) => {
-    keys[e.key] = true;
-    if (e.key === ' ') player.kickBall(); // زر التسديد
+// ربط أزرار الشاشة باللمس
+function bindTouch(id, code) {
+    const el = document.getElementById(id);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[code] = true; });
+    el.addEventListener('touchend', (e) => { e.preventDefault(); keys[code] = false; });
+    el.addEventListener('mousedown', () => keys[code] = true);
+    el.addEventListener('mouseup', () => keys[code] = false);
+}
+bindTouch('up', 'KeyW');
+bindTouch('down', 'KeyS');
+bindTouch('left', 'KeyA');
+bindTouch('right', 'KeyD');
+bindTouch('btn-shoot', 'Space');
+bindTouch('btn-pass', 'KeyK');
+
+let scoreP = 0, scoreAI = 0;
+
+// --- 5. حلقة اللعبة والفيزياء (Game Loop) ---
+function animate() {
+    requestAnimationFrame(animate);
+
+    // حركة اللاعب
+    const speed = 0.18;
+    let moveZ = 0, moveX = 0;
+
+    if (keys['KeyW'] || keys['ArrowUp']) moveZ -= speed;
+    if (keys['KeyS'] || keys['ArrowDown']) moveZ += speed;
+    if (keys['KeyA'] || keys['ArrowLeft']) moveX -= speed;
+    if (keys['KeyD'] || keys['ArrowRight']) moveX += speed;
+
+    player.position.x += moveX;
+    player.position.z += moveZ;
+
+    // توجيه وجه اللاعب باتجاه الحركة
+    if (moveX !== 0 || moveZ !== 0) {
+        player.rotation.y = Math.atan2(moveX, moveZ);
+    }
+
+    // حركة الذكاء الاصطناعي البسيطة (AI)
+    const aiDir = new THREE.Vector3().subVectors(ball.position, ai.position);
+    aiDir.y = 0;
+    if (aiDir.length() > 1.2) {
+        aiDir.normalize().multiplyScalar(0.1);
+        ai.position.add(aiDir);
+        ai.rotation.y = Math.atan2(aiDir.x, aiDir.z);
+    }
+
+    // فيزياء الكرة واحتكاكها
+    ball.position.add(ballVel);
+    ballVel.multiplyScalar(0.95); // احتكاك العشب
+
+    // اصطدام اللاعب بالكرة
+    const distP = player.position.distanceTo(ball.position);
+    if (distP < 1.3) {
+        const pDir = new THREE.Vector3().subVectors(ball.position, player.position).normalize();
+        ballVel.add(pDir.multiplyScalar(0.08));
+    }
+
+    // زر التسديد (Space)
+    if (keys['Space'] && distP < 2.0) {
+        const shootDir = new THREE.Vector3(1, 0.2, 0).normalize();
+        ballVel.copy(shootDir.multiplyScalar(0.8)); // تسديدة قوية
+        keys['Space'] = false;
+    }
+
+    // الكاميرا تتتبع اللاعب والكرة زي فيفا (Isometric Camera)
+    camera.position.set(player.position.x, 18, player.position.z + 22);
+    camera.lookAt(player.position.x, 0, player.position.z);
+
+    renderer.render(scene, camera);
+}
+
+animate();
+
+// إعادة ضبط الشاشة عند التدوير
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
-window.addEventListener('keyup', (e) => { keys[e.key] = false; });
-
-function resetPositions() {
-    ball.x = canvas.width / 2;
-    ball.y = canvas.height / 2;
-    ball.vx = 0;
-    ball.vy = 0;
-    player.x = 200; player.y = 250;
-    ai.x = 600; ai.y = 250;
-}
-
-// --- رسم الملعب (Pitch Drawing) ---
-function drawPitch() {
-    ctx.fillStyle = "#2e8b57";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.lineWidth = 3;
-
-    // الحدود الخارجية
-    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-
-    // خط المنتصف والدائرة
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, 10);
-    ctx.lineTo(canvas.width / 2, canvas.height - 10);
-    ctx.arc(canvas.width / 2, canvas.height / 2, 60, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // المرمى الأيسر والأيمن
-    ctx.fillStyle = "rgba(255,255,255,0.3)";
-    ctx.fillRect(0, 180, 10, 140);
-    ctx.fillRect(canvas.width - 10, 180, 10, 140);
-}
-
-// --- حلقة اللعبة الأساسية (Game Loop) ---
-function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawPitch();
-
-    // تحديث الفيزياء والأوضاع
-    player.update(keys);
-    ai.update(keys);
-    ball.update();
-
-    // الرسم
-    player.draw();
-    ai.draw();
-    ball.draw();
-
-    requestAnimationFrame(gameLoop);
-}
-
-// تشغيل المحرك
-gameLoop();
 </script>
-
 </body>
 </html>
