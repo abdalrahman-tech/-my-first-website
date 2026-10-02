@@ -3,821 +3,647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة كرة القدم المحترفة للموبايل - Realistic Graphics Mobile Football</title>
+    <title>إمبراطوريات العصر - Grand Strategy Game</title>
     <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --accent-gold: #f59e0b;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
             user-select: none;
-            touch-action: none;
-        }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #030712;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
         }
 
-        /* شاشة البداية الاحترافية */
-        #startScreen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(6, 78, 59, 0.95)), 
-                        radial-gradient(circle at center, #1e3a8a 0%, #030712 100%);
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Modal / Screen Overlays */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 100;
-            text-align: center;
+            z-index: 1000;
             padding: 20px;
         }
-        .match-card {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin: 20px 0;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
         }
-        .player-preview {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        .player-preview svg {
-            width: 70px;
-            height: 70px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
-        }
-        .vs-badge {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: #f59e0b;
-            font-style: italic;
-        }
-        #startScreen h1 {
-            font-size: 2.2rem;
-            color: #10b981;
-            text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-        }
-        .play-btn {
-            padding: 16px 50px;
-            font-size: 1.3rem;
-            font-weight: bold;
+
+        .card h1 { color: var(--accent-gold); margin-bottom: 12px; }
+        .card p { color: var(--text-muted); margin-bottom: 20px; }
+
+        .select-btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #273549;
             color: #fff;
-            background: linear-gradient(90deg, #10b981, #059669);
-            border: none;
-            border-radius: 50px;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+            border: 1px solid var(--accent-blue);
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .play-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* لوحة النتيجة */
-        #scoreboard {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 8px 24px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-weight: bold;
             font-size: 1rem;
-            z-index: 10;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
         }
-        .team-badge { display: flex; align-items: center; gap: 8px; }
-        .team-badge.player { color: #f87171; }
-        .team-badge.ai { color: #60a5fa; }
-        .score { font-size: 1.3rem; color: #fbbf24; }
-        .timer { color: #9ca3af; font-size: 0.9rem; border-right: 1px solid #374151; padding-right: 10px; }
 
-        /* أدوات التحكم باللمس */
-        #touchControls {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .select-btn:hover {
+            background: var(--accent-blue);
+        }
+
+        /* App Layout */
+        header {
+            background: var(--panel-bg);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .resource-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+
+        .res-item {
+            background: rgba(0,0,0,0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .res-value {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        /* Navigation Tabs */
+        nav {
+            display: flex;
+            background: #111827;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 5px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--accent-gold);
+            border-bottom-color: var(--accent-gold);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        /* Main Content Viewports */
+        main {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-section {
+            display: none;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 20;
-            display: none;
+            padding: 15px;
+            overflow-y: auto;
         }
-        #joystickZone {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            width: 130px;
-            height: 130px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            border-radius: 50%;
-            pointer-events: auto;
-            backdrop-filter: blur(4px);
-        }
-        #joystickKnob {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 52px;
-            height: 52px;
-            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(200,200,200,0.7) 100%);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        #actionButtons {
-            position: absolute;
-            bottom: 25px;
-            right: 25px;
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
-            pointer-events: auto;
-        }
-        .action-btn {
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            font-weight: bold;
-            font-size: 0.95rem;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-        }
-        #btnPass { background: rgba(59, 130, 246, 0.85); }
-        #btnShoot { background: rgba(239, 68, 68, 0.85); }
-        #btnSprint { background: rgba(234, 179, 8, 0.85); width: 55px; height: 55px; }
 
-        #powerBarContainer {
-            position: absolute;
-            bottom: 105px;
-            right: 25px;
-            width: 140px;
-            height: 12px;
-            background: rgba(0,0,0,0.8);
-            border: 1px solid #fff;
-            border-radius: 6px;
-            overflow: hidden;
-            display: none;
+        .view-section.active {
+            display: block;
         }
-        #powerBarFill {
-            width: 0%;
+
+        /* Map Canvas */
+        #map-container {
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+            position: relative;
         }
 
         canvas {
-            display: block;
             width: 100%;
             height: 100%;
+            display: block;
+            background: #090d16;
         }
+
+        /* Dashboard UI Elements */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .panel-title {
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .minister-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+
+        .btn-action {
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .btn-danger { background: var(--accent-red); }
+        .btn-success { background: var(--accent-green); }
+
+        /* End Turn Floating Button */
+        #btn-end-turn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            cursor: pointer;
+            z-index: 500;
+        }
+
+        #btn-end-turn:active { transform: scale(0.95); }
+
+        /* Logs Panel */
+        #log-box {
+            height: 120px;
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #a7f3d0;
+        }
+
+        .log-entry { margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-    <!-- شاشة البداية والتعريف بالأطقم -->
-    <div id="startScreen">
-        <h1>مباراة كرة القدم المحترفة</h1>
-        <p>العب بكريستيانو رونالدو بالتحكم الكامل باللمس</p>
-        
-        <div class="match-card">
-            <div class="player-preview">
-                <!-- SVG قميص وسراويل اللاعب (رونالدو - رقم 7) -->
-                <svg viewBox="0 0 100 100">
-                    <path d="M 30,30 L 40,20 L 60,20 L 70,30 L 80,40 L 70,50 L 65,45 L 65,70 L 35,70 L 35,45 L 30,50 Z" fill="#dc2626" />
-                    <text x="50" y="52" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
-                    <rect x="35" y="70" width="30" height="20" fill="#1e3a8a" />
-                    <circle cx="50" cy="15" r="10" fill="#fca5a5" />
-                </svg>
-                <span style="color:#f87171; font-weight:bold;">رونالدو (7)</span>
+    <!-- Start Overlay: Choose Country -->
+    <div id="start-overlay" class="overlay">
+        <div class="card">
+            <h1>إمبراطوريات العصر</h1>
+            <p>اختر الدولة التي تريد قيادتها نحو المجد:</p>
+            <div id="country-selection-list"></div>
+        </div>
+    </div>
+
+    <!-- Main Game Header / Resource Bar -->
+    <header>
+        <div>
+            <strong id="player-country-name" style="color:var(--accent-gold); font-size:1.1rem;">الدولة</strong>
+            <span id="game-date" style="font-size:0.8rem; color:var(--text-muted); margin-right:8px;">اليوم: 1</span>
+        </div>
+        <div class="resource-bar">
+            <div class="res-item">💰 المال: <span id="res-money" class="res-value">0</span></div>
+            <div class="res-item">🛢️ النفط: <span id="res-oil" class="res-value">0</span></div>
+            <div class="res-item">🌾 الغذاء: <span id="res-food" class="res-value">0</span></div>
+            <div class="res-item">⚔️ السلاح: <span id="res-weapons" class="res-value">0</span></div>
+            <div class="res-item">🪖 الجيش: <span id="res-army" class="res-value">0</span></div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav>
+        <button class="tab-btn active" onclick="switchTab('tab-map')">🌐 الخريطة واللوجستيات</button>
+        <button class="tab-btn" onclick="switchTab('tab-gov')">🏛️ الحكومة والتعليم</button>
+        <button class="tab-btn" onclick="switchTab('tab-eco')">📊 الاقتصاد والميزانية</button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main>
+        <!-- Map View -->
+        <section id="tab-map" class="view-section active" style="padding:0;">
+            <div id="map-container">
+                <canvas id="worldMap"></canvas>
             </div>
-            
-            <span class="vs-badge">VS</span>
-            
-            <div class="player-preview">
-                <svg viewBox="0 0 100 100">
-                    <path d="M 30,30 L 40,20 L 60,20 L 70,30 L 80,40 L 70,50 L 65,45 L 65,70 L 35,70 L 35,45 L 30,50 Z" fill="#2563eb" />
-                    <text x="50" y="52" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">10</text>
-                    <rect x="35" y="70" width="30" height="20" fill="#ffffff" />
-                    <circle cx="50" cy="15" r="10" fill="#fde047" />
-                </svg>
-                <span style="color:#60a5fa; font-weight:bold;">منافس (10)</span>
+        </section>
+
+        <!-- Government View -->
+        <section id="tab-gov" class="view-section">
+            <div class="grid-container">
+                <div class="panel">
+                    <h3 class="panel-title">قيادة الدولة</h3>
+                    <p style="margin-bottom:10px;">الحاكم: <strong id="ruler-name">الرئيس</strong></p>
+                    <p style="margin-bottom:15px;">مستوى التعليم العام: <strong id="edu-level" style="color:var(--accent-blue);">50%</strong></p>
+                    <p style="margin-bottom:15px;">الاستقرار السياسي: <strong id="stability-level" style="color:var(--accent-green);">80%</strong></p>
+                    <button class="btn-action" onclick="increaseEducation()">تخصيص دعم للتعليم (💰 1,000)</button>
+                </div>
+
+                <div class="panel">
+                    <h3 class="panel-title">مجلس الوزراء</h3>
+                    <div id="ministers-list"></div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <button class="play-btn" onclick="startGame()">ابدأ المباراة الآن</button>
-    </div>
+        <!-- Economy & Log View -->
+        <section id="tab-eco" class="view-section">
+            <div class="grid-container">
+                <div class="panel">
+                    <h3 class="panel-title">التقرير الاقتصادي اليومي</h3>
+                    <p>دخل المال اليومي: <span id="inc-money" style="color:var(--accent-green)">+0</span></p>
+                    <p>إنتاج النفط: <span id="inc-oil" style="color:var(--accent-green)">+0</span></p>
+                    <p>إنتاج الغذاء: <span id="inc-food" style="color:var(--accent-green)">+0</span></p>
+                    <p>صيانة الجيش اليومية: <span id="exp-army" style="color:var(--accent-red)">-0</span></p>
+                </div>
 
-    <!-- لوحة النتيجة والوقت -->
-    <div id="scoreboard">
-        <span class="timer" id="timeText">00:00</span>
-        <div class="team-badge player">
-            <span>رونالدو</span>
-        </div>
-        <span class="score" id="scoreText">0 - 0</span>
-        <div class="team-badge ai">
-            <span>الخصم</span>
-        </div>
-    </div>
+                <div class="panel">
+                    <h3 class="panel-title">سجل الأحداث والعمليات</h3>
+                    <div id="log-box"></div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-    <!-- واجهة اللمس -->
-    <div id="touchControls">
-        <div id="joystickZone">
-            <div id="joystickKnob"></div>
-        </div>
+    <!-- Floating End Turn Button -->
+    <button id="btn-end-turn" onclick="nextDay()">إنهاء اليوم ➔</button>
 
-        <div id="powerBarContainer">
-            <div id="powerBarFill"></div>
-        </div>
+    <script>
+        /* --- GAME ENGINE & STATE --- */
+        const gameState = {
+            day: 1,
+            playerCountryId: null,
+            countries: {
+                c1: { id: 'c1', name: 'جمهورية الشرق', color: '#ef4444', x: 0.25, y: 0.35, money: 10000, oil: 500, food: 1000, weapons: 300, army: 5000, edu: 60, stability: 85, ministerDef: 70, ministerFin: 65, ministerEdu: 80, relations: { c2: 50, c3: -20, c4: 0 } },
+                c2: { id: 'c2', name: 'مملكة الشمال', color: '#3b82f6', x: 0.65, y: 0.25, money: 15000, oil: 200, food: 2000, weapons: 500, army: 8000, edu: 85, stability: 90, ministerDef: 85, ministerFin: 90, ministerEdu: 75, relations: { c1: 50, c3: 10, c4: -10 } },
+                c3: { id: 'c3', name: 'اتحاد الصحراء', color: '#f59e0b', x: 0.35, y: 0.70, money: 8000, oil: 2000, food: 300, weapons: 200, army: 4000, edu: 40, stability: 70, ministerDef: 60, ministerFin: 50, ministerEdu: 45, relations: { c1: -20, c2: 10, c4: 30 } },
+                c4: { id: 'c4', name: 'دولة الغرب', color: '#10b981', x: 0.75, y: 0.65, money: 12000, oil: 800, food: 800, weapons: 600, army: 6000, edu: 70, stability: 75, ministerDef: 75, ministerFin: 70, ministerEdu: 65, relations: { c1: 0, c2: -10, c3: 30 } }
+            },
+            tradeRoutes: [
+                ['c1', 'c2'], ['c1', 'c3'], ['c2', 'c4'], ['c3', 'c4']
+            ]
+        };
 
-        <div id="actionButtons">
-            <button class="action-btn" id="btnSprint">جري</button>
-            <button class="action-btn" id="btnPass">تمرير</button>
-            <button class="action-btn" id="btnShoot">تسديد</button>
-        </div>
-    </div>
+        let selectedTargetCountry = null;
 
-    <canvas id="gameCanvas"></canvas>
+        /* --- INITIALIZATION --- */
+        window.onload = () => {
+            setupCountrySelection();
+            setupCanvas();
+            window.addEventListener('resize', setupCanvas);
+        };
 
-<script>
-// ==========================================
-// 1. إعداد الـ SVG Sprites المباشرة للاعبين
-// ==========================================
-function createPlayerSVG(jerseyColor, shortsColor, numberStr, skinColor, hairColor) {
-    const svgString = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
-        <!-- الظل السفلي -->
-        <ellipse cx="50" cy="88" rx="28" ry="8" fill="rgba(0,0,0,0.35)" />
-        
-        <!-- القدمين والحذاء -->
-        <rect x="36" y="72" width="10" height="15" rx="3" fill="${skinColor}" />
-        <rect x="54" y="72" width="10" height="15" rx="3" fill="${skinColor}" />
-        <ellipse cx="41" cy="85" rx="7" ry="4" fill="#111827" />
-        <ellipse cx="59" cy="85" rx="7" ry="4" fill="#111827" />
-
-        <!-- السروال -->
-        <path d="M 32,54 L 68,54 L 66,74 L 52,74 L 50,60 L 48,60 L 46,74 L 34,74 Z" fill="${shortsColor}" />
-
-        <!-- القميص والأذرع -->
-        <path d="M 22,28 L 36,18 L 64,18 L 78,28 L 84,42 L 72,48 L 68,40 L 68,56 L 32,56 L 32,40 L 28,48 L 16,42 Z" fill="${jerseyColor}" />
-        
-        <!-- الذراعان (بشرة) -->
-        <circle cx="21" cy="45" r="5" fill="${skinColor}" />
-        <circle cx="79" cy="45" r="5" fill="${skinColor}" />
-
-        <!-- الرقم على القميص -->
-        <text x="50" y="44" font-size="19" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" text-anchor="middle">${numberStr}</text>
-
-        <!-- الرأس والوجه والشعر -->
-        <circle cx="50" cy="15" r="10" fill="${skinColor}" />
-        <!-- الشعر -->
-        <path d="M 40,12 C 42,4 58,4 60,12 C 55,8 45,8 40,12 Z" fill="${hairColor}" />
-    </svg>`;
-
-    const img = new Image();
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
-    return img;
-}
-
-// تحميل صور اللاعبين الحقيقية
-const ronaldoSprite = createPlayerSVG('#dc2626', '#1e3a8a', '7', '#fca5a5', '#271c19'); // رونالدو
-const aiSprite = createPlayerSVG('#2563eb', '#ffffff', '10', '#fde047', '#451a03'); // المنافس
-
-// ==========================================
-// 2. إعداد الملعب والكاميرا والفيزياء
-// ==========================================
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-const PITCH = {
-    width: 1400,
-    height: 850,
-    border: 90, // مساحة للجمهور والمدرجات حول الملعب
-    goalWidth: 160,
-    goalDepth: 45
-};
-
-let gameRunning = false;
-let scorePlayer = 0;
-let scoreAI = 0;
-let gameTimeSeconds = 0;
-let timerInterval = null;
-
-class Camera {
-    constructor() {
-        this.x = 0;
-        this.y = 0;
-        this.lerpSpeed = 0.1;
-    }
-    follow(target) {
-        const targetX = target.x - canvas.width / 2;
-        const targetY = target.y - canvas.height / 2;
-        this.x += (targetX - this.x) * this.lerpSpeed;
-        this.y += (targetY - this.y) * this.lerpSpeed;
-    }
-}
-const camera = new Camera();
-
-// ==========================================
-// 3. الكرة والفيزياء
-// ==========================================
-class Ball {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.radius = 10;
-        this.vx = 0;
-        this.vy = 0;
-        this.friction = 0.981;
-        this.bounce = 0.75;
-        this.rotation = 0;
-    }
-
-    update() {
-        this.vx *= this.friction;
-        this.vy *= this.friction;
-
-        if (Math.abs(this.vx) < 0.01) this.vx = 0;
-        if (Math.abs(this.vy) < 0.01) this.vy = 0;
-
-        this.x += this.vx;
-        this.y += this.vy;
-        this.rotation += Math.hypot(this.vx, this.vy) * 0.1;
-
-        this.handleCollisions();
-    }
-
-    handleCollisions() {
-        const topY = PITCH.border;
-        const bottomY = PITCH.border + PITCH.height;
-        const leftX = PITCH.border;
-        const rightX = PITCH.border + PITCH.width;
-        const goalTop = PITCH.border + (PITCH.height / 2) - (PITCH.goalWidth / 2);
-        const goalBottom = PITCH.border + (PITCH.height / 2) + (PITCH.goalWidth / 2);
-
-        // التماس العلوي والسفلي
-        if (this.y - this.radius < topY) {
-            this.y = topY + this.radius;
-            this.vy *= -this.bounce;
-        }
-        if (this.y + this.radius > bottomY) {
-            this.y = bottomY - this.radius;
-            this.vy *= -this.bounce;
+        function setupCountrySelection() {
+            const listContainer = document.getElementById('country-selection-list');
+            listContainer.innerHTML = '';
+            
+            Object.values(gameState.countries).forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'select-btn';
+                btn.innerHTML = `<span>${c.name}</span> <span>🪖 ${c.army} | 💰 ${c.money}</span>`;
+                btn.onclick = () => startGame(c.id);
+                listContainer.appendChild(btn);
+            });
         }
 
-        // المرمى والأهداف
-        if (this.x - this.radius < leftX) {
-            if (this.y > goalTop && this.y < goalBottom) {
-                if (this.x < leftX - PITCH.goalDepth + this.radius) {
-                    this.x = leftX - PITCH.goalDepth + this.radius;
-                    this.vx *= -this.bounce;
+        function startGame(countryId) {
+            gameState.playerCountryId = countryId;
+            document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('player-country-name').innerText = gameState.countries[countryId].name;
+            
+            logMessage(`بدأت اللعبة! أنت الآن تحكم ${gameState.countries[countryId].name}.`);
+            updateUI();
+            renderMap();
+        }
+
+        /* --- UI & TAB SYSTEM --- */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            if(tabId === 'tab-map') renderMap();
+        }
+
+        function updateUI() {
+            const player = gameState.countries[gameState.playerCountryId];
+            if (!player) return;
+
+            // Header Resources
+            document.getElementById('res-money').innerText = Math.floor(player.money).toLocaleString();
+            document.getElementById('res-oil').innerText = Math.floor(player.oil).toLocaleString();
+            document.getElementById('res-food').innerText = Math.floor(player.food).toLocaleString();
+            document.getElementById('res-weapons').innerText = Math.floor(player.weapons).toLocaleString();
+            document.getElementById('res-army').innerText = Math.floor(player.army).toLocaleString();
+            document.getElementById('game-date').innerText = `اليوم: ${gameState.day}`;
+
+            // Government
+            document.getElementById('edu-level').innerText = `${Math.floor(player.edu)}%`;
+            document.getElementById('stability-level').innerText = `${Math.floor(player.stability)}%`;
+
+            // Ministers
+            const minContainer = document.getElementById('ministers-list');
+            minContainer.innerHTML = `
+                <div class="minister-card">
+                    <div><strong>وزير الدفاع</strong><br><small>كفاءة: ${player.ministerDef}%</small></div>
+                    <button class="btn-action" onclick="changeMinister('Def')">تغيير (💰 500)</button>
+                </div>
+                <div class="minister-card">
+                    <div><strong>وزير المالية</strong><br><small>كفاءة: ${player.ministerFin}%</small></div>
+                    <button class="btn-action" onclick="changeMinister('Fin')">تغيير (💰 500)</button>
+                </div>
+                <div class="minister-card">
+                    <div><strong>وزير التعليم</strong><br><small>كفاءة: ${player.ministerEdu}%</small></div>
+                    <button class="btn-action" onclick="changeMinister('Edu')">تغيير (💰 500)</button>
+                </div>
+            `;
+
+            // Economy Calculations
+            const incMoney = (player.edu * 20) + (player.ministerFin * 15);
+            const incOil = player.oil > 0 ? 50 : 0;
+            const incFood = 100;
+            const expArmy = player.army * 0.5;
+
+            document.getElementById('inc-money').innerText = `+${Math.floor(incMoney)}`;
+            document.getElementById('inc-oil').innerText = `+${incOil}`;
+            document.getElementById('inc-food').innerText = `+${incFood}`;
+            document.getElementById('exp-army').innerText = `-${Math.floor(expArmy)}`;
+        }
+
+        /* --- INTERACTIVE CANVAS MAP --- */
+        let canvas, ctx;
+
+        function setupCanvas() {
+            const container = document.getElementById('map-container');
+            canvas = document.getElementById('worldMap');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            ctx = canvas.getContext('2d');
+            
+            canvas.onclick = handleMapClick;
+            renderMap();
+        }
+
+        function renderMap() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Logistics / Trade Routes
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            gameState.tradeRoutes.forEach(([id1, id2]) => {
+                const c1 = gameState.countries[id1];
+                const c2 = gameState.countries[id2];
+                ctx.beginPath();
+                ctx.moveTo(c1.x * canvas.width, c1.y * canvas.height);
+                ctx.lineTo(c2.x * canvas.width, c2.y * canvas.height);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Draw Countries
+            Object.values(gameState.countries).forEach(c => {
+                const cx = c.x * canvas.width;
+                const cy = c.y * canvas.height;
+                const isPlayer = c.id === gameState.playerCountryId;
+
+                // Outer Ring
+                ctx.beginPath();
+                ctx.arc(cx, cy, 35, 0, Math.PI * 2);
+                ctx.fillStyle = c.color;
+                ctx.globalAlpha = 0.3;
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+
+                // Node Center
+                ctx.beginPath();
+                ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+                ctx.fillStyle = c.color;
+                ctx.setLineDash([]);
+                ctx.strokeStyle = isPlayer ? '#f59e0b' : '#fff';
+                ctx.lineWidth = isPlayer ? 4 : 2;
+                ctx.fill();
+                ctx.stroke();
+
+                // Country Label
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText(c.name, cx, cy + 38);
+                ctx.font = '10px Segoe UI';
+                ctx.fillText(`🪖 ${c.army}`, cx, cy + 50);
+            });
+        }
+
+        function handleMapClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            Object.values(gameState.countries).forEach(c => {
+                const cx = c.x * canvas.width;
+                const cy = c.y * canvas.height;
+                const dist = Math.hypot(clickX - cx, clickY - cy);
+
+                if (dist <= 35 && c.id !== gameState.playerCountryId) {
+                    showDiplomacyAction(c);
                 }
-                if (this.x < leftX - 15) onGoalScored('AI');
+            });
+        }
+
+        function showDiplomacyAction(target) {
+            selectedTargetCountry = target;
+            const player = gameState.countries[gameState.playerCountryId];
+            const rel = player.relations[target.id] || 0;
+
+            const action = confirm(`الدولة التفاعلية: ${target.name}\nالعلاقة الحالية: ${rel}\nحجم الجيش: ${target.army}\n\nهل ترغب في إعلان الحرب شن هجوم؟\n(موافق = هجوم، إلغاء = تحسين العلاقات)`);
+            
+            if (action) {
+                executeAttack(target);
             } else {
-                this.x = leftX + this.radius;
-                this.vx *= -this.bounce;
+                player.relations[target.id] = Math.min(100, rel + 15);
+                logMessage(`تم تحسين العلاقات مع ${target.name} (+15).`);
+                updateUI();
             }
         }
 
-        if (this.x + this.radius > rightX) {
-            if (this.y > goalTop && this.y < goalBottom) {
-                if (this.x > rightX + PITCH.goalDepth - this.radius) {
-                    this.x = rightX + PITCH.goalDepth - this.radius;
-                    this.vx *= -this.bounce;
-                }
-                if (this.x > rightX + 15) onGoalScored('PLAYER');
+        /* --- COMBAT AI & PROBABILITY ALGORITHM (RNG) --- */
+        function executeAttack(target) {
+            const player = gameState.countries[gameState.playerCountryId];
+
+            if (player.army < 1000) {
+                alert('جيشك ضعيف جداً للقيام بتركيز هجومي! (يلزم 1000 جندي على الأقل)');
+                return;
+            }
+
+            // Calculation Algorithm
+            const playerPower = (player.army * 0.5) + (player.weapons * 1.2) + (player.ministerDef * 10) + (player.edu * 5);
+            const targetPower = (target.army * 0.5) + (target.weapons * 1.2) + (target.ministerDef * 10) + (target.edu * 5);
+
+            // Probability/RNG Factor (0.85 to 1.15)
+            const playerRNG = 0.85 + Math.random() * 0.3;
+            const targetRNG = 0.85 + Math.random() * 0.3;
+
+            const finalPlayerScore = playerPower * playerRNG;
+            const finalTargetScore = targetPower * targetRNG;
+
+            if (finalPlayerScore > finalTargetScore) {
+                const conqueredMoney = Math.floor(target.money * 0.4);
+                player.money += conqueredMoney;
+                target.money -= conqueredMoney;
+
+                const armyLosses = Math.floor(player.army * 0.15);
+                player.army -= armyLosses;
+                target.army = Math.floor(target.army * 0.5);
+
+                logMessage(`⚔️ نصر عظيم! تم دحر قوات ${target.name}. الاستيلاء على 💰 ${conqueredMoney} وخسارة 🪖 ${armyLosses} جندي.`);
             } else {
-                this.x = rightX - this.radius;
-                this.vx *= -this.bounce;
+                const armyLosses = Math.floor(player.army * 0.35);
+                player.army -= armyLosses;
+                logMessage(`💥 هزيمة مريرة أمام قوات ${target.name}! تكبدت قواتك خسائر فادحة بلغت 🪖 ${armyLosses} جندي.`);
+            }
+
+            player.relations[target.id] = -100;
+            updateUI();
+            renderMap();
+        }
+
+        /* --- GAME ALGORITHMS & ACTIONS --- */
+        function increaseEducation() {
+            const player = gameState.countries[gameState.playerCountryId];
+            if (player.money >= 1000) {
+                player.money -= 1000;
+                player.edu = Math.min(100, player.edu + 5);
+                logMessage('تم الاستثمار في القطاع التعليمي (+5%).');
+                updateUI();
+            } else {
+                alert('المال غير كافٍ!');
             }
         }
-    }
 
-    draw(ctx) {
-        // ظل الكرة
-        ctx.beginPath();
-        ctx.ellipse(this.x, this.y + 6, this.radius, this.radius * 0.5, 0, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-        ctx.fill();
-
-        // جسم الكرة مع خطوط سداسية
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
-
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = "#000000";
-        ctx.stroke();
-
-        // نقش كرة القدم
-        ctx.fillStyle = "#000000";
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius * 0.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-    }
-}
-const ball = new Ball(PITCH.border + PITCH.width / 2, PITCH.border + PITCH.height / 2);
-
-// ==========================================
-// 4. كائن اللاعب (باستخدام الرسومات الحقيقية - NO CIRCLES)
-// ==========================================
-class Player {
-    constructor(x, y, spriteImg, name) {
-        this.x = x;
-        this.y = y;
-        this.width = 44;
-        this.height = 44;
-        this.sprite = spriteImg;
-        this.name = name;
-
-        this.speed = 4.0;
-        this.sprintSpeed = 6.2;
-        this.shotPower = 16;
-        this.stamina = 100;
-
-        this.vx = 0;
-        this.vy = 0;
-        this.angle = 0;
-        this.isSprinting = false;
-    }
-
-    update() {
-        if (this.isSprinting && (this.vx !== 0 || this.vy !== 0)) {
-            this.stamina = Math.max(0, this.stamina - 0.4);
-            if (this.stamina === 0) this.isSprinting = false;
-        } else {
-            this.stamina = Math.min(100, this.stamina + 0.2);
+        function changeMinister(type) {
+            const player = gameState.countries[gameState.playerCountryId];
+            if (player.money >= 500) {
+                player.money -= 500;
+                const newSkill = Math.floor(50 + Math.random() * 45);
+                player[`minister${type}`] = newSkill;
+                logMessage(`تم تعيين وزير جديد للـ (${type}) بكفاءة قدرها ${newSkill}%.`);
+                updateUI();
+            } else {
+                alert('المال غير كافٍ!');
+            }
         }
 
-        const currentSpeed = (this.isSprinting && this.stamina > 5) ? this.sprintSpeed : this.speed;
+        /* --- TURN SYSTEM (NEXT DAY ALGORITHM) --- */
+        function nextDay() {
+            gameState.day++;
 
-        this.x += this.vx * currentSpeed;
-        this.y += this.vy * currentSpeed;
+            Object.values(gameState.countries).forEach(c => {
+                // Economic Calculations
+                const incMoney = (c.edu * 20) + (c.ministerFin * 15);
+                const expArmy = c.army * 0.5;
+                
+                c.money += (incMoney - expArmy);
+                c.food += 50;
+                if (c.oil > 0) c.oil += 20;
 
-        if (this.vx !== 0 || this.vy !== 0) {
-            this.angle = Math.atan2(this.vy, this.vx);
+                // Progressive Education Influence on Innovation & Stability
+                c.stability = Math.min(100, c.stability + (c.ministerEdu * 0.05));
+                
+                // AI Country Army Growth
+                c.army += Math.floor(100 + (c.money * 0.01));
+
+                // Handle Bankruptcy Risks
+                if (c.money < 0) {
+                    c.money = 0;
+                    c.army = Math.floor(c.army * 0.9); // Desertion
+                    if (c.id === gameState.playerCountryId) {
+                        logMessage('⚠️ تنبيه: الدولة تعاني من عجز مالي! انخفضت أعداد الجيش بسبب الفرار.');
+                    }
+                }
+            });
+
+            logMessage(`--- بداية اليوم ${gameState.day} ---`);
+            updateUI();
+            renderMap();
         }
 
-        // الحدود
-        this.x = Math.max(PITCH.border + 20, Math.min(PITCH.border + PITCH.width - 20, this.x));
-        this.y = Math.max(PITCH.border + 20, Math.min(PITCH.border + PITCH.height - 20, this.y));
-
-        // احتكاك اللاعب بالكرة
-        const distToBall = Math.hypot(ball.x - this.x, ball.y - this.y);
-        if (distToBall < 26) {
-            const pushAngle = Math.atan2(ball.y - this.y, ball.x - this.x);
-            ball.vx = Math.cos(pushAngle) * 1.2 + this.vx * 0.6;
-            ball.vy = Math.sin(pushAngle) * 1.2 + this.vy * 0.6;
+        /* --- HELPER FUNCTIONS --- */
+        function logMessage(msg) {
+            const logBox = document.getElementById('log-box');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = `[يوم ${gameState.day}] ${msg}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
         }
-    }
-
-    draw(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-
-        // شريط طاقة التحمل
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
-        ctx.fillRect(-18, -this.height / 2 - 18, 36, 5);
-        ctx.fillStyle = this.stamina > 30 ? "#22c55e" : "#ef4444";
-        ctx.fillRect(-18, -this.height / 2 - 18, (this.stamina / 100) * 36, 5);
-
-        // رسم مؤشر التوجيه تحت جسم اللاعب
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 0, 24, this.angle - 0.5, this.angle + 0.5);
-        ctx.stroke();
-
-        // رسم جسم اللاعب الحقيقي عبر الـ Sprite
-        ctx.drawImage(this.sprite, -this.width / 2, -this.height / 2, this.width, this.height);
-
-        // اسم اللاعب فوق رأسه
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 12px sans-serif";
-        ctx.textAlign = "center";
-        ctx.shadowColor = "#000000";
-        ctx.shadowBlur = 4;
-        ctx.fillText(this.name, 0, -this.height / 2 - 22);
-
-        ctx.restore();
-    }
-}
-
-const player = new Player(PITCH.border + 220, PITCH.border + PITCH.height / 2, ronaldoSprite, 'رونالدو');
-const aiPlayer = new Player(PITCH.border + PITCH.width - 220, PITCH.border + PITCH.height / 2, aiSprite, 'الخصم');
-
-// ==========================================
-// 5. الذكاء الاصطناعي
-// ==========================================
-function updateAI() {
-    const distToBall = Math.hypot(ball.x - aiPlayer.x, ball.y - aiPlayer.y);
-    const angle = Math.atan2(ball.y - aiPlayer.y, ball.x - aiPlayer.x);
-
-    aiPlayer.vx = Math.cos(angle);
-    aiPlayer.vy = Math.sin(angle);
-
-    if (distToBall < 28) {
-        const goalTargetY = PITCH.border + PITCH.height / 2;
-        const goalTargetX = PITCH.border;
-        const shootAngle = Math.atan2(goalTargetY - ball.y, goalTargetX - ball.x);
-
-        ball.vx = Math.cos(shootAngle) * (aiPlayer.shotPower * 0.85);
-        ball.vy = Math.sin(shootAngle) * (aiPlayer.shotPower * 0.85);
-    }
-}
-
-// ==========================================
-// 6. تحكم اللمس للموبايل
-// ==========================================
-const joystickZone = document.getElementById('joystickZone');
-const joystickKnob = document.getElementById('joystickKnob');
-let joystickActive = false;
-let joystickTouchId = null;
-let joystickCenter = { x: 0, y: 0 };
-
-joystickZone.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    const touch = e.changedTouches[0];
-    joystickActive = true;
-    joystickTouchId = touch.identifier;
-
-    const rect = joystickZone.getBoundingClientRect();
-    joystickCenter = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-    };
-});
-
-window.addEventListener('touchmove', (e) => {
-    if (!joystickActive) return;
-
-    for (let touch of e.changedTouches) {
-        if (touch.identifier === joystickTouchId) {
-            const dx = touch.clientX - joystickCenter.x;
-            const dy = touch.clientY - joystickCenter.y;
-            const dist = Math.hypot(dx, dy);
-            const maxRadius = 42;
-
-            const angle = Math.atan2(dy, dx);
-            const moveDist = Math.min(dist, maxRadius);
-
-            const knobX = Math.cos(angle) * moveDist;
-            const knobY = Math.sin(angle) * moveDist;
-
-            joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
-
-            player.vx = Math.cos(angle) * (moveDist / maxRadius);
-            player.vy = Math.sin(angle) * (moveDist / maxRadius);
-        }
-    }
-});
-
-const stopJoystick = (e) => {
-    if (!joystickActive) return;
-    for (let touch of e.changedTouches) {
-        if (touch.identifier === joystickTouchId) {
-            joystickActive = false;
-            joystickTouchId = null;
-            joystickKnob.style.transform = 'translate(-50%, -50%)';
-            player.vx = 0;
-            player.vy = 0;
-        }
-    }
-};
-window.addEventListener('touchend', stopJoystick);
-window.addEventListener('touchcancel', stopJoystick);
-
-// أزرار التسديد والجري والتمرير
-const btnSprint = document.getElementById('btnSprint');
-const btnPass = document.getElementById('btnPass');
-const btnShoot = document.getElementById('btnShoot');
-const powerBarContainer = document.getElementById('powerBarContainer');
-const powerBarFill = document.getElementById('powerBarFill');
-
-let shootPowerValue = 0;
-let shootPowerInterval = null;
-
-btnSprint.addEventListener('touchstart', (e) => { e.preventDefault(); player.isSprinting = true; });
-btnSprint.addEventListener('touchend', (e) => { e.preventDefault(); player.isSprinting = false; });
-
-btnPass.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    const passAngle = player.angle || 0;
-    const passPower = 8.5;
-    ball.vx = Math.cos(passAngle) * passPower;
-    ball.vy = Math.sin(passAngle) * passPower;
-});
-
-btnShoot.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    shootPowerValue = 0;
-    powerBarContainer.style.display = 'block';
-
-    shootPowerInterval = setInterval(() => {
-        shootPowerValue = Math.min(100, shootPowerValue + 6);
-        powerBarFill.style.width = shootPowerValue + '%';
-    }, 25);
-});
-
-btnShoot.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    clearInterval(shootPowerInterval);
-    powerBarContainer.style.display = 'none';
-
-    const targetY = PITCH.border + PITCH.height / 2;
-    const targetX = PITCH.border + PITCH.width;
-    const shootAngle = Math.atan2(targetY - player.y, targetX - player.x);
-
-    const calculatedPower = 6 + (shootPowerValue / 100) * player.shotPower;
-    ball.vx = Math.cos(shootAngle) * calculatedPower;
-    ball.vy = Math.sin(shootAngle) * calculatedPower;
-
-    shootPowerValue = 0;
-});
-
-// ==========================================
-// 7. رسم الملعب والمدرجات والجمهور الشامل
-// ==========================================
-function drawPitch() {
-    // 1. المدرجات والجمهور المحيط بالملعب
-    ctx.fillStyle = "#1e1b4b"; // لون كراسي المدرجات
-    ctx.fillRect(0, 0, PITCH.width + PITCH.border * 2, PITCH.height + PITCH.border * 2);
-
-    // نقاط ملونة صغيرة تمثل الجمهور
-    ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-    for (let i = 10; i < PITCH.width + PITCH.border * 2; i += 25) {
-        for (let j = 10; j < PITCH.border - 15; j += 15) {
-            ctx.fillRect(i, j, 4, 4);
-            ctx.fillRect(i, PITCH.height + PITCH.border + j, 4, 4);
-        }
-    }
-
-    const startX = PITCH.border;
-    const startY = PITCH.border;
-    const goalTop = startY + (PITCH.height / 2) - (PITCH.goalWidth / 2);
-
-    // 2. العشب المقلم عالي الدقة
-    const stripeWidth = 80;
-    for (let x = startX; x < startX + PITCH.width; x += stripeWidth) {
-        ctx.fillStyle = ((x / stripeWidth) % 2 === 0) ? '#166534' : '#15803d';
-        ctx.fillRect(x, startY, Math.min(stripeWidth, startX + PITCH.width - x), PITCH.height);
-    }
-
-    // 3. الخطوط الرسمية
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.lineWidth = 5;
-    ctx.strokeRect(startX, startY, PITCH.width, PITCH.height);
-
-    // خط المنتصف والدائرة
-    ctx.beginPath();
-    ctx.moveTo(startX + PITCH.width / 2, startY);
-    ctx.lineTo(startX + PITCH.width / 2, startY + PITCH.height);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(startX + PITCH.width / 2, startY + PITCH.height / 2, 95, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // نقطة المنتصف
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.arc(startX + PITCH.width / 2, startY + PITCH.height / 2, 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // مناطق الجزاء
-    ctx.strokeRect(startX, startY + PITCH.height / 2 - 170, 200, 340);
-    ctx.strokeRect(startX + PITCH.width - 200, startY + PITCH.height / 2 - 170, 200, 340);
-
-    // 4. الشباك والعمودان والعارضة
-    // المرمى الأيسر
-    drawGoalMesh(startX - PITCH.goalDepth, goalTop, PITCH.goalDepth, PITCH.goalWidth);
-    // المرمى الأيمن
-    drawGoalMesh(startX + PITCH.width, goalTop, PITCH.goalDepth, PITCH.goalWidth);
-}
-
-function drawGoalMesh(x, y, w, h) {
-    // خلفية الشبكة
-    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-    ctx.fillRect(x, y, w, h);
-
-    // شبكة مربعات التفاعلية
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.lineWidth = 1;
-    for (let gx = x; gx <= x + w; gx += 8) {
-        ctx.beginPath(); ctx.moveTo(gx, y); ctx.lineTo(gx, y + h); ctx.stroke();
-    }
-    for (let gy = y; gy <= y + h; gy += 8) {
-        ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x + w, gy); ctx.stroke();
-    }
-
-    // إطار المرمى والقائمين
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 6;
-    ctx.strokeRect(x, y, w, h);
-}
-
-// ==========================================
-// 8. إدارة المباراة والأهداف والوقت
-// ==========================================
-function onGoalScored(scorer) {
-    if (scorer === 'PLAYER') scorePlayer++;
-    else scoreAI++;
-
-    document.getElementById('scoreText').innerText = `${scorePlayer} - ${scoreAI}`;
-
-    ball.x = PITCH.border + PITCH.width / 2;
-    ball.y = PITCH.border + PITCH.height / 2;
-    ball.vx = 0; ball.vy = 0;
-
-    player.x = PITCH.border + 220;
-    player.y = PITCH.border + PITCH.height / 2;
-
-    aiPlayer.x = PITCH.border + PITCH.width - 220;
-    aiPlayer.y = PITCH.border + PITCH.height / 2;
-}
-
-function startTimer() {
-    timerInterval = setInterval(() => {
-        gameTimeSeconds++;
-        const mins = String(Math.floor(gameTimeSeconds / 60)).padStart(2, '0');
-        const secs = String(gameTimeSeconds % 60).padStart(2, '0');
-        document.getElementById('timeText').innerText = `${mins}:${secs}`;
-    }, 1000);
-}
-
-function startGame() {
-    document.getElementById('startScreen').style.display = 'none';
-    document.getElementById('touchControls').style.display = 'block';
-    gameRunning = true;
-    startTimer();
-}
-
-// ==========================================
-// 9. حلقة اللعبة
-// ==========================================
-function gameLoop() {
-    if (gameRunning) {
-        player.update();
-        updateAI();
-        aiPlayer.update();
-        ball.update();
-        camera.follow(player);
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.save();
-    ctx.translate(-camera.x, -camera.y);
-
-    drawPitch();
-    ball.draw(ctx);
-    player.draw(ctx);
-    aiPlayer.draw(ctx);
-
-    ctx.restore();
-
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-</script>
+    </script>
 </body>
 </html>
