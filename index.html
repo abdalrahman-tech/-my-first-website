@@ -3,331 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>معركة الدفاع الاستراتيجي</title>
+    <title>المحقق - قضية مقتل القصر</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
-        body, html { width: 100%; height: 100%; background: #0f172a; color: #f8fafc; overflow: hidden; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, 'Segoe UI', Tahoma, monospace; user-select: none; }
+        body, html { width: 100%; height: 100%; background-color: #0b0d12; color: #e2e8f0; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* شريط الموارد العلوي */
+        /* شريط العنوان علوي */
         #top-bar {
-            background: #1e293b;
-            padding: 10px 15px;
+            background: #111827;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #38bdf8;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            z-index: 10;
+            border-bottom: 2px solid #f59e0b;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
         }
-        .stat-box { font-size: 13px; font-weight: bold; background: #0f172a; padding: 5px 10px; border-radius: 6px; border: 1px solid #334155; }
-        .stat-val { color: #38bdf8; }
+        .title-badge { font-weight: bold; color: #f59e0b; font-size: 14px; }
+        .energy-box { background: #1f2937; padding: 4px 10px; border-radius: 6px; border: 1px solid #374151; font-size: 12px; }
 
-        /* منطقة اللعب */
+        /* الشاشة الرئيسية للعبة */
         #game-container {
             flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            background: #020617;
-        }
-
-        canvas {
-            background: #0f172a;
-            border: 2px solid #334155;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            cursor: pointer;
-        }
-
-        /* لوحة التحكم السفلي للبناء */
-        #build-panel {
-            background: #1e293b;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            border-top: 2px solid #334155;
-        }
-
-        .build-btn {
-            background: #0f172a;
-            border: 2px solid #334155;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 15px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            transition: 0.2s;
-            min-width: 90px;
+            gap: 15px;
+            max-width: 650px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .build-btn:hover, .build-btn.active {
-            border-color: #38bdf8;
-            background: #1e293b;
-            transform: translateY(-2px);
-        }
-
-        .btn-title { font-size: 11px; font-weight: bold; }
-        .btn-cost { font-size: 10px; color: #f59e0b; }
-
-        /* زر بدء الموجة */
-        #wave-btn {
-            background: #22c55e;
-            border: none;
-            color: white;
-            font-weight: bold;
-            padding: 10px 20px;
+        /* كروت التفاصيل والمعاينة */
+        .case-card {
+            background: #111827;
+            border: 1px solid #1f2937;
             border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .card-header { font-size: 14px; font-weight: bold; color: #38bdf8; margin-bottom: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 5px; }
+        .card-body { font-size: 12px; line-height: 1.6; color: #cbd5e1; }
+
+        /* قائمة التفاعل (الأدلة، المشتبه فيهم) */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: #1f2937;
+            border: 1px solid #374151;
+            color: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background: #374151; border-color: #f59e0b; }
+
+        /* شريط التنقل السفلي */
+        #bottom-nav {
+            background: #111827;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 2px solid #1f2937;
+        }
+        .nav-btn {
+            background: #1f2937;
+            color: #9ca3af;
+            border: 1px solid #374151;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .nav-btn.active, .nav-btn:hover { background: #f59e0b; color: #000; border-color: #f59e0b; }
+
+        /* قائمة الحوار والنصوص */
+        .dialogue-box {
+            background: #000;
+            border: 1px solid #f59e0b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #22c55e;
+        }
+
+        /* نافذة الاتهام النهائي */
+        .suspect-select {
+            width: 100%;
+            padding: 10px;
+            background: #1f2937;
+            color: white;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .accuse-btn {
+            width: 100%;
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 10px;
             cursor: pointer;
             font-size: 13px;
-            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
         }
-        #wave-btn:hover { background: #16a34a; }
+        .accuse-btn:hover { background: #b91c1c; }
     </style>
 </head>
 <body>
 
-    <!-- شريط الموارد -->
+    <!-- شريط العلوي -->
     <div id="top-bar">
-        <div class="stat-box">💰 الذهب: <span id="gold-txt" class="stat-val">250</span></div>
-        <div class="stat-box">❤️ الصحة: <span id="hp-txt" class="stat-val">100</span></div>
-        <div class="stat-box">🌊 الموجة: <span id="wave-txt" class="stat-val">1</span></div>
-        <button id="wave-btn" onclick="startWave()">إطلاق الهجوم ⚔️</button>
+        <div class="title-badge">🕵️ ملف القضية #104</div>
+        <div class="energy-box">⏳ نقاط التحقيق: <span id="points" style="color:#f59e0b">5</span></div>
     </div>
 
-    <!-- شاشة اللعبة -->
+    <!-- محتوى اللعبة -->
     <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
+        
+        <!-- تفاصيل القصة -->
+        <div class="case-card">
+            <div class="card-header">📂 تفاصيل الحادثة</div>
+            <div class="card-body">
+                تم العثور على رجل الأعمال الشهير **مراد الألفي** مقتولاً داخل مكتبه الخاص في القصر عند الساعة 9:00 مساءً. جثة الضحية كانت مطعونة بدبوس زينة فضي حاد، وتوجد كاسات عصير وساعة حائط مكسورة تشير للساعة 8:15.
+            </div>
+        </div>
+
+        <!-- المنطقة الديناميكية التي تتغير حسب التبويب -->
+        <div id="dynamic-view"></div>
+
     </div>
 
-    <!-- أدوات البناء -->
-    <div id="build-panel">
-        <div class="build-btn active" id="btn-gun" onclick="selectTower('gun')">
-            <span style="font-size: 16px;">🔫</span>
-            <span class="btn-title">رشاش تكتيكي</span>
-            <span class="btn-cost">100 ذهب</span>
-        </div>
-        <div class="build-btn" id="btn-rocket" onclick="selectTower('rocket')">
-            <span style="font-size: 16px;">🚀</span>
-            <span class="btn-title">برج صواريخ</span>
-            <span class="btn-cost">180 ذهب</span>
-        </div>
-        <div class="build-btn" id="btn-wall" onclick="selectTower('wall')">
-            <span style="font-size: 16px;">🧱</span>
-            <span class="btn-title">جدار حماية</span>
-            <span class="btn-cost">40 ذهب</span>
-        </div>
+    <!-- شريط التنقل -->
+    <div id="bottom-nav">
+        <button class="nav-btn active" id="btn-scene" onclick="switchView('scene')">🔍 مسرح الجريمة</button>
+        <button class="nav-btn" id="btn-suspects" onclick="switchView('suspects')">👥 المشتبه فيهم</button>
+        <button class="nav-btn" id="btn-clues" onclick="switchView('clues')">📁 دفتر الأدلة</button>
+        <button class="nav-btn" id="btn-accuse" onclick="switchView('accuse')">⚖️ الاتهام والقبض</button>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        let points = 5;
+        let cluesFound = [];
+        let currentView = 'scene';
 
-        // ضبط أبعاد الخريطة
-        const GRID_SIZE = 40;
-        const COLS = 16;
-        const ROWS = 10;
-        canvas.width = COLS * GRID_SIZE;
-        canvas.height = ROWS * GRID_SIZE;
-
-        // مسار حركة الأعداء
-        const waypoints = [
-            {x: 0, y: 2}, {x: 5, y: 2}, {x: 5, y: 7},
-            {x: 11, y: 7}, {x: 11, y: 3}, {x: 15, y: 3}
-        ];
-
-        let gold = 250;
-        let hp = 100;
-        let wave = 1;
-        let inWave = false;
-        let selectedType = 'gun';
-
-        let towers = [];
-        let enemies = [];
-        let bullets = [];
-
-        // أنواع الأبراج
-        const towerTypes = {
-            gun: { cost: 100, range: 110, rate: 25, damage: 15, color: '#38bdf8', icon: '🔫' },
-            rocket: { cost: 180, range: 160, rate: 50, damage: 45, color: '#f59e0b', icon: '🚀' },
-            wall: { cost: 40, range: 0, rate: 0, damage: 0, color: '#64748b', icon: '🧱' }
+        const cluesData = {
+            desk: { name: "رسالة تهديد", text: "تم العثور في المكتوب على خط يد يطالب مراد بدفع ديون قديمة قبل نهاية الأسبوع." },
+            clock: { name: "ساعة الحائط المكسورة", text: "الساعة توقفت عند 8:15 مساءً إثر مشاجرة وتكسير في المكتب." },
+            glass: { name: "كأس عصير محتوي على منوم", text: "الكأس الثاني يحتوي على بقايا مادة مهدئة ومسكنة." },
+            safe: { name: "الخزنة المفتوحة", text: "الخزنة مفتوحة ومسروق منها الأوراق المالية فقط، بينما المجوهرات سليمة." }
         };
 
-        function selectTower(type) {
-            selectedType = type;
-            document.querySelectorAll('.build-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${type}`).classList.add('active');
-        }
-
-        // إدراك الضغط على الخريطة للبناء
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / GRID_SIZE);
-            const y = Math.floor((e.clientY - rect.top) / GRID_SIZE);
-
-            // التأكد من عدم البناء على المسار
-            if (isOnPath(x, y)) return;
-
-            // التأكد من عدم وجود برج سابق
-            if (towers.some(t => t.x === x && t.y === y)) return;
-
-            const conf = towerTypes[selectedType];
-            if (gold >= conf.cost) {
-                gold -= conf.cost;
-                towers.push({ x, y, type: selectedType, timer: 0 });
-                updateUI();
-            }
-        });
-
-        function isOnPath(x, y) {
-            for (let i = 0; i < waypoints.length - 1; i++) {
-                let p1 = waypoints[i];
-                let p2 = waypoints[i+1];
-                let minX = Math.min(p1.x, p2.x), maxX = Math.max(p1.x, p2.x);
-                let minY = Math.min(p1.y, p2.y), maxY = Math.max(p1.y, p2.y);
-                if (x >= minX && x <= maxX && y >= minY && y <= maxY) return true;
-            }
-            return false;
-        }
-
-        function startWave() {
-            if (inWave) return;
-            inWave = true;
-            document.getElementById('wave-btn').style.opacity = '0.5';
-
-            let count = 5 + wave * 3;
-            let spawned = 0;
-            let interval = setInterval(() => {
-                enemies.push({
-                    x: waypoints[0].x * GRID_SIZE + 20,
-                    y: waypoints[0].y * GRID_SIZE + 20,
-                    targetIdx: 1,
-                    hp: 50 + wave * 20,
-                    maxHp: 50 + wave * 20,
-                    speed: 1.2 + Math.random() * 0.4
-                });
-                spawned++;
-                if (spawned >= count) clearInterval(interval);
-            }, 800);
-        }
+        const suspectsData = {
+            s1: { name: "خالد (الشريك التجاري)", dialogue: "كنت في المنزل عند الساعة 8:00 مساءً! مراد كان مدين لي بالمال ولكني لم أقتله." },
+            s2: { name: "مريم (الزوجة)", dialogue: "كنت في الحديقة أتناول العصير معه عند 7:30، ثم صعدت لغرفتي ولم أسمع شيئاً." },
+            s3: { name: "سعيد (الخادم الخاص)", dialogue: "حضرت له العصير بناءً على طلب الزوجة مريم، وخرجت لمطبخ القصر فوراً." }
+        };
 
         function updateUI() {
-            document.getElementById('gold-txt').innerText = gold;
-            document.getElementById('hp-txt').innerText = hp;
-            document.getElementById('wave-txt').innerText = wave;
+            document.getElementById('points').innerText = points;
         }
 
-        // حلقة اللعبة (Game Loop)
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${view}`).classList.add('active');
 
-            // 1. رسم الشبكة
-            ctx.strokeStyle = '#1e293b';
-            for (let i = 0; i <= COLS; i++) {
-                ctx.beginPath(); ctx.moveTo(i * GRID_SIZE, 0); ctx.lineTo(i * GRID_SIZE, canvas.height); ctx.stroke();
+            const container = document.getElementById('dynamic-view');
+
+            if (view === 'scene') {
+                container.innerHTML = `
+                    <div class="case-card">
+                        <div class="card-header">🔍 معاينة مسرح الجريمة (اختر مكاناً لتفتيشه)</div>
+                        <div class="action-grid" style="margin-top: 10px;">
+                            <button class="action-btn" onclick="inspect('desk')">📑 تفتيش المكتب</button>
+                            <button class="action-btn" onclick="inspect('clock')">🕰️ معاينة الساعة</button>
+                            <button class="action-btn" onclick="inspect('glass')">🍷 فحص الكؤوس</button>
+                            <button class="action-btn" onclick="inspect('safe')">🔓 فتح الخزنة</button>
+                        </div>
+                    </div>
+                    <div id="dialogue-target"></div>
+                `;
+            } else if (view === 'suspects') {
+                container.innerHTML = `
+                    <div class="case-card">
+                        <div class="card-header">👥 استجواب المشتبه فيهم</div>
+                        <div class="action-grid" style="margin-top: 10px;">
+                            <button class="action-btn" onclick="interrogate('s1')">🤵 خالد (الشريك)</button>
+                            <button class="action-btn" onclick="interrogate('s2')">💃 مريم (الزوجة)</button>
+                            <button class="action-btn" onclick="interrogate('s3')">👨‍🍳 سعيد (الخادم)</button>
+                        </div>
+                    </div>
+                    <div id="dialogue-target"></div>
+                `;
+            } else if (view === 'clues') {
+                let cluesHtml = cluesFound.map(c => `
+                    <div style="background:#1f2937; padding:8px; border-radius:4px; margin-bottom:6px; border-right:3px solid #f59e0b;">
+                        <b style="color:#f59e0b; font-size:12px;">${c.name}</b>
+                        <p style="font-size:11px; color:#cbd5e1; margin-top:2px;">${c.text}</p>
+                    </div>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="case-card">
+                        <div class="card-header">📁 الأدلة المسجلة (${cluesFound.length}/4)</div>
+                        <div class="card-body" style="margin-top:10px;">
+                            ${cluesFound.length === 0 ? "لم تجمع أي أدلة بعد. قم بتفتيش مسرح الجريمة!" : cluesHtml}
+                        </div>
+                    </div>
+                `;
+            } else if (view === 'accuse') {
+                container.innerHTML = `
+                    <div class="case-card">
+                        <div class="card-header">⚖️ إصدار أمر القبض والإدانة</div>
+                        <div class="card-body">
+                            بناءً على الأدلة والتحقيقات، حدد القاتل الحقيقي المرتكب للجريمة:
+                            <select id="suspect-select" class="suspect-select">
+                                <option value="s1">خالد (الشريك التجاري)</option>
+                                <option value="s2">مريم (الزوجة)</option>
+                                <option value="s3">سعيد (الخادم)</option>
+                            </select>
+                            <button class="accuse-btn" onclick="makeAccusation()">🚨 إغلاق القضية والقبض على الجاني</button>
+                        </div>
+                    </div>
+                `;
             }
-            for (let j = 0; j <= ROWS; j++) {
-                ctx.beginPath(); ctx.moveTo(0, j * GRID_SIZE); ctx.lineTo(canvas.اختيار ممتاز! لعبة **بناء القاعدة والدفاع عن الأبراج (Base Builder & Tower Defense)** بتطلع ممتازة جداً وتفاعلية على المتصفح والموبايل.
-
-عملت لك لعبة متكاملة بنظام **شبكي (Grid Matrix)** نظيف ومضبوط 100% بدون أي لغبطة في الشاشة، وتقدر تشغلها فوراً داخل ملف `index.html`.
-
-### مميزات اللعبة:
-* **بناء الموارد:** بناء مصانع الذهب والحديد لجمع الموارد تلقائياً.
-* **الأبراج الدفاعية:** بناء مدفعية، أبراج صواريخ، وأبراج ثلج لتبطئ الأعداء.
-* **موجات أعداء متدرجة:** هجوم موجات من الدبابات والجنود بتزيد صعوبتها مع كل موجة.
-* **تحكم كامل:** أزرار لتطوير القاعدة، بيع الأبراج، وبدء الموجات بنفسك.
-
-انسخ الكود وشغله مباشرة:
-
-```html
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>حرب الأبراج - دفاع القاعدة</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
-        body, html { width: 100%; height: 100%; background-color: #0f172a; color: #f8fafc; overflow: hidden; display: flex; flex-direction: column; }
-
-        /* شريط الموارد */
-        #top-bar {
-            background: #1e293b;
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-bottom: 2px solid #38bdf8;
-            font-size: 13px;
-            font-weight: bold;
-        }
-        .res-item { background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid #334155; }
-
-        /* منطقة ساحة المعركة */
-        #game-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #020617;
-            position: relative;
         }
 
-        canvas {
-            background: #0d192b;
-            border: 2px solid #334155;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        function inspect(key) {
+            if (points <= 0) {
+                alert("نفذت نقاط التحقيق المتاحة لدي اليوم!");
+                return;
+            }
+            const clue = cluesData[key];
+            if (!cluesFound.some(c => c.name === clue.name)) {
+                cluesFound.push(clue);
+                points--;
+                updateUI();
+            }
+            document.getElementById('dialogue-target').innerHTML = `
+                <div class="dialogue-box">
+                    <b>🔍 نتيجة المعاينة:</b><br>${clue.text}
+                </div>
+            `;
         }
 
-        /* لوحة التحكم والبناء السفلية */
-        #controls {
-            background: #1e293b;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            border-top: 2px solid #334155;
-            flex-wrap: wrap;
+        function interrogate(key) {
+            if (points <= 0) {
+                alert("نفذت نقاط التحقيق!");
+                return;
+            }
+            const s = suspectsData[key];
+            points--;
+            updateUI();
+            document.getElementById('dialogue-target').innerHTML = `
+                <div class="dialogue-box">
+                    <b>🗣️ أقوال ${s.name}:</b><br>"${s.dialogue}"
+                </div>
+            `;
         }
 
-        .build-btn {
-            background: #0f172a;
-            color: #f8fafc;
-            border: 1px solid #38bdf8;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            transition: 0.2s;
+        function makeAccusation() {
+            const selected = document.getElementById('suspect-select').value;
+            if (selected === 's2') {
+                alert("🎉 مبروك يا سيادة المحقق! إجابة صحيحة 100%!\n\nالجاني هي الزوجة (مريم)؛ حيث وضعت المنوم في الكأس واستخدمت دبوس الزينة الخاص بها لإخفاء معالم السرقات والديون.");
+            } else {
+                alert("❌ اتهام خاطئ! الجاني الحقيقي استغل عدم تركيزك وربح القضية وفَر هارباً.");
+            }
         }
-        .build-btn:hover, .build-btn.active { background: #0284c7; border-color: #38bdf8; }
-        .build-btn span { font-size: 9px; color: #cbd5e1; }
 
-        .start-btn {
-            background: #16a34a;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        .start-btn:hover { background: #15803d; }
-    </style>
-</head>
-<body>
-
-    <!-- شريط الموارد -->
-    <div id="top-bar">
-        <div
+        // تشغيل البداية
+        switchView('scene');
+        updateUI();
+    </script>
+</body>
+</html>
