@@ -1,319 +1,296 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لعبة التحدي والمسابقات الكاملة</title>
-  <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --text: #f8fafc;
-      --correct: #22c55e;
-      --wrong: #ef4444;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      background-color: var(--card-bg);
-      width: 100%;
-      max-width: 650px;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-
-    h1 {
-      color: var(--accent);
-      margin-bottom: 20px;
-    }
-
-    .screen {
-      display: none;
-    }
-
-    .screen.active {
-      display: block;
-    }
-
-    .btn {
-      background-color: var(--accent);
-      color: #000;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 8px;
-      transition: background 0.2s, transform 0.1s;
-      width: 100%;
-      max-width: 300px;
-    }
-
-    .btn:hover {
-      background-color: var(--accent-hover);
-      color: #fff;
-    }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .option-btn {
-      background-color: #334155;
-      color: var(--text);
-      border: 2px solid transparent;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: right;
-      transition: all 0.2s;
-    }
-
-    .option-btn:hover {
-      border-color: var(--accent);
-    }
-
-    .option-btn.correct {
-      background-color: var(--correct) !important;
-      color: white;
-    }
-
-    .option-btn.wrong {
-      background-color: var(--wrong) !important;
-      color: white;
-    }
-
-    .header-info {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      font-size: 14px;
-      color: #94a3b8;
-      border-bottom: 1px solid #334155;
-      padding-bottom: 10px;
-    }
-
-    .question-text {
-      font-size: 20px;
-      margin: 20px 0;
-      line-height: 1.5;
-      min-height: 60px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>محاكي كرة القدم الفيزيائي</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #scoreBoard {
+            font-size: 24px;
+            margin-bottom: 10px;
+            background: #333;
+            padding: 10px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        canvas {
+            border: 4px solid #fff;
+            background-color: #2e8b57;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .controls {
+            margin-top: 15px;
+            text-align: center;
+            color: #ccc;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- شاشة البداية -->
-    <div id="start-screen" class="screen active">
-      <h1>لعبة التحدي الكبرى 🎯</h1>
-      <p style="margin-bottom: 20px;">اختر القسم للبدء في التحدي والمستويات المتعددة:</p>
-      <button class="btn" onclick="startGame('movies')">🎬 سينما وأفلام</button>
-      <button class="btn" onclick="startGame('general')">🌍 معلومات عامة</button>
-    </div>
+<div id="scoreBoard">
+    <span style="color: #ff4d4d;">الأحمر (أنت)</span> <span id="score">0 - 0</span> <span style="color: #4da6ff;">الأزرق (الكمبيوتر)</span>
+</div>
 
-    <!-- شاشة اللعب -->
-    <div id="quiz-screen" class="screen">
-      <div class="header-info">
-        <span id="category-tag">القسم</span>
-        <span id="level-tag">المستوى 1</span>
-        <span id="score-tag">النقاط: 0</span>
-      </div>
-      <div class="question-text" id="question-box">جاري تحميل السؤال...</div>
-      <div class="options-grid" id="options-box"></div>
-    </div>
+<canvas id="gameCanvas" width="800" height="500"></canvas>
 
-    <!-- شاشة النهاية -->
-    <div id="end-screen" class="screen">
-      <h1>🏆 مبروك! أكملت التحدي بنجاح</h1>
-      <p style="font-size: 20px; margin: 20px 0;" id="final-score"></p>
-      <button class="btn" onclick="restartGame()">الرجوع للقائمة الرئيسية</button>
-    </div>
-  </div>
+<div class="controls">
+    <b>التحكم:</b> الأسهم (للحركة) | <b>Space</b> (تسديدة قوية) | <b>Shift</b> (جري سريع - يستهلك الطاقة)
+</div>
 
-  <script>
-    // بنك الأسئلة الشامل بجميع المستويات والأسئلة الاحتياطية المدمجة
-    const questionBank = {
-      movies: {
-        level_1: [
-          { q: "في أي مدينة تدور أحداث فيلم Spider-Man؟", options: ["بروك", "جام", "نوم", "نيويورك"], correct: "نيويورك" },
-          { q: "ما اسم الكوكب الأصلي لشخصية سوبرمان؟", options: ["نيويورك", "لوس أنجلوس", "شيكاغو", "ميامي"], correct: "نيويورك" },
-          { q: "من هو المخرج الشهير لسلسلة أفلام Jurassic Park؟", options: ["كريبتون", "هاريس", "تيتان", "أسغارد"], correct: "كريبتون" },
-          { q: "احتياطي 1: ما هي الجائزة السينمائية الأرفع شأناً في فرنسا؟", options: ["سيزار", "نولان", "سكورسيزي", "لوكاس"], correct: "سيزار" },
-          { q: "احتياطي 2: من أدّى دور جاك داوسون في فيلم Titanic؟", options: ["الأوسكار", "بافتا", "الغولدن غلوب", "ليوناردو دي كابريو"], correct: "ليوناردو دي كابريو" },
-          { q: "احتياطي 3: ما اسم الشخصية الرئيسية الخضراء في فيلم Ogres؟", options: ["ليوناردو دي كابريو", "توم هانكس", "مت ديمون", "كيانو ريفز"], correct: "شريك" }
-        ],
-        level_2: [
-          { q: "ما اسم المطرقة الخارقة الخاصة بشخصية ثور؟", options: ["شريك", "فيونا", "دونكي", "فاركواد"], correct: "ميولنير" },
-          { q: "ما هو اسم الدمية المسكونة الشهيرة في عالم Conjuring؟", options: ["ميولنير", "ستورم بريكر", "ايجيس", "اسكالبر"], correct: "أنابل" },
-          { q: "أي فيلم حصد 11 جائزة أوسكار وكان مستوحى من كتاب؟", options: ["أنابل", "تشانكي", "سليندرمان", "بيني وايز"], correct: "Lord of the Rings" }
-        ],
-        level_3: [
-          { q: "من قام بصوت شخصية جيني في فيلم علاء الدين؟", options: ["Lord of the Rings", "Gladiator", "Braveheart", "Forrest Gump"], correct: "روبن وليامز" },
-          { q: "ما هي حبوب الدواء التي نختارها نيو في The Matrix؟", options: ["روبن وليامز", "إد مورفي", "جيم كاري", "الدين 1992"], correct: "الحبة الحمراء" },
-          { q: "من مخرج فيلم Pulp Fiction؟", options: ["الحبة الحمراء", "الحبة الزرقاء", "الحبة الخضراء", "للخروج؟"], correct: "كوينتن تارانتينو" }
-        ],
-        level_4: [
-          { q: "ما اسم مدينة ديزني في فيلم Zootopia؟", options: ["كوانتين تارانتينو", "فينتشر", "سكورسيزي", "سبيلبرغ"], correct: "زوتوبيا" },
-          { q: "ما هو الاسم الحقيقي لشخصية ولفيرين في فيلم Wolverine؟", options: ["زوتوبيا", "متروبوليس", "غوثام", "أتلانتس"], correct: "لوغان" },
-          { q: "شخصية فولدمورت هي في أي سلسلة أفلام؟", options: ["هيو جاكمان", "كريستيان بيل", "بن أفليك", "توم هاردي"], correct: "هاري بوتر" }
-        ]
-      },
-      general: {
-        level_1: [
-          { q: "ما هي أكبر قارة في العالم؟", options: ["آسيا", "إفريقيا", "أوروبا", "أمريكا الشمالية"], correct: "آسيا" },
-          { q: "ما هي عاصمة أستراليا؟", options: ["كانبرا", "سيدني", "ملبورن", "بريزبان"], correct: "كانبرا" },
-          { q: "ما هو أطول نهر في العالم؟", options: ["نهر النيل", "الأمازون", "الميسيسيبي", "الراين"], correct: "نهر النيل" },
-          { q: "احتياطي 1: ما هي اللغة الأكثر تحدثاً كأول لغة في العالم؟", options: ["الصينية المندرين", "الإنجليزية", "الإسبانية", "العربية"], correct: "الصينية المندرين" }
-        ],
-        level_2: [
-          { q: "ما هي أكبر دولة في العالم من حيث المساحة؟", options: ["روسيا", "كندا", "الصين", "أمريكا"], correct: "روسيا" },
-          { q: "ما هي عاصمة اليابان؟", options: ["طوكيو", "أوساكا", "كيوتو", "سابورو"], correct: "طوكيو" },
-          { q: "احتياطي 1: ما هي العملة الرسمية في المملكة المتحدة؟", options: ["الجنيه الإسترليني", "اليورو", "الدولار", "الفرنك"], correct: "الجنيه الإسترليني" }
-        ],
-        level_3: [
-          { q: "كم عدد قارات العالم؟", options: ["7 قارات", "6 قارات", "8 قارات", "5 قارات"], correct: "7 قارات" },
-          { q: "ما هي عاصمة كندا الرسمية؟", options: ["أوتاوا", "تورونتو", "مونتريال", "فانكوفر"], correct: "أوتاوا" },
-          { q: "أي محيط يفصل بين القارة الآسيوية والأمريكية؟", options: ["المحيط الهادئ", "المحيط الأطلسي", "المحيط الهندي", "المحيط المتجمد"], correct: "المحيط الهادئ" }
-        ],
-        level_4: [
-          { q: "ما هي أعمق نقطة في محيطات العالم؟", options: ["خندق ماريانا", "خندق بورتوريكو", "خندق جاوا", "خندق تونغا"], correct: "خندق ماريانا" },
-          { q: "ما هي الصحراء الكبرى الأكبر في العالم (الباردة)؟", options: ["القارة القطبية الجنوبية", "الصحراء الكبرى", "صحراء جوبي", "أتاما"], correct: "القارة القطبية الجنوبية" },
-          { q: "ما هي عاصمة دولة السويد؟", options: ["ستوكهولم", "أوسلو", "هلسنكي", "كوبنهاغن"], correct: "ستوكهولم" }
-        ]
-      }
-    };
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-    let currentCategory = '';
-    let currentLevel = 1;
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let activeQuestionsList = [];
+// --- الثوابت الفيزيائية (Physics Constants) ---
+const FRICTION = 0.98; // معامل احتكاك الأرضية بالكرة
+const BALL_RESTITUTION = 0.7; // معامل ارتداد الكرة عند الاصطدام
 
-    function showScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
-    }
+// --- بيانات المباراة ---
+let scorePlayer = 0;
+let scoreAI = 0;
 
-    function startGame(category) {
-      currentCategory = category;
-      currentLevel = 1;
-      score = 0;
-      showScreen('quiz-screen');
-      prepareLevelQuestions();
-    }
+// --- كائن الكرة (Ball Physics Object) ---
+const ball = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    radius: 8,
+    vx: 0,
+    vy: 0,
+    mass: 1,
+    update: function() {
+        // تطبيق الاحتكاك الفيزيائي
+        this.vx *= FRICTION;
+        this.vy *= FRICTION;
 
-    function prepareLevelQuestions() {
-      const levelKey = `level_${currentLevel}`;
-      const questionsData = questionBank[currentCategory]?.[levelKey];
+        // تحديث الموقع بناءً على السرعة
+        this.x += this.vx;
+        this.y += this.vy;
 
-      if (!questionsData || questionsData.length === 0) {
-        // الانتقال للمستوى التالي إذا وجد، وإلا ننهي اللعبة
-        currentLevel++;
-        if (questionBank[currentCategory][`level_${currentLevel}`]) {
-          prepareLevelQuestions();
-        } else {
-          endGame();
+        // حدود الملعب والارتداد من الجدران
+        if (this.y - this.radius < 10 || this.y + this.radius > canvas.height - 10) {
+            this.vy *= -BALL_RESTITUTION;
+            this.y = this.y - this.radius < 10 ? 10 + this.radius : canvas.height - 10 - this.radius;
         }
-        return;
-      }
 
-      // خلط الأسئلة المتاحة للمستوى (تتضمن الأسئلة الأساسية والاحتياطية)
-      activeQuestionsList = [...questionsData].sort(() => Math.random() - 0.5);
-      currentQuestionIndex = 0;
-      loadQuestion();
-    }
-
-    function loadQuestion() {
-      if (currentQuestionIndex >= activeQuestionsList.length) {
-        // الانتقال للمستوى التالي
-        currentLevel++;
-        if (questionBank[currentCategory][`level_${currentLevel}`]) {
-          prepareLevelQuestions();
-        } else {
-          endGame();
+        // ارتداد الكرة من الخطوط الخلفية (خارج خط المرمى)
+        if ((this.x - this.radius < 10 || this.x + this.radius > canvas.width - 10)) {
+            // التحقق من الهدف
+            if (this.y > 180 && this.y < 320) {
+                if (this.x < 10) scoreAI++;
+                else scorePlayer++;
+                document.getElementById('score').innerText = `${scorePlayer} - ${scoreAI}`;
+                resetPositions();
+            } else {
+                this.vx *= -BALL_RESTITUTION;
+                this.x = this.x - this.radius < 10 ? 10 + this.radius : canvas.width - 10 - this.radius;
+            }
         }
-        return;
-      }
+    },
+    draw: function() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.strokeStyle = "#000";
+        ctx.stroke();
+        ctx.closePath();
+    }
+};
 
-      const qData = activeQuestionsList[currentQuestionIndex];
-      document.getElementById('category-tag').innerText = currentCategory === 'movies' ? '🎬 سينما' : '🌍 معلومات عامة';
-      document.getElementById('level-tag').innerText = `المستوى ${currentLevel}`;
-      document.getElementById('score-tag').innerText = `النقاط: ${score}`;
-      document.getElementById('question-box').innerText = qData.q;
-
-      const optionsBox = document.getElementById('options-box');
-      optionsBox.innerHTML = '';
-
-      // خلط الخيارات لكي لا تكون في نفس المكان دائماً
-      const shuffledOptions = [...qData.options].sort(() => Math.random() - 0.5);
-
-      shuffledOptions.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.innerText = opt;
-        btn.onclick = () => selectAnswer(btn, opt, qData.correct);
-        optionsBox.appendChild(btn);
-      });
+// --- كائن اللاعب (Player Class with Stamina & Dynamics) ---
+class Player {
+    constructor(x, y, color, isAI = false) {
+        this.x = x;
+        this.y = y;
+        this.radius = 15;
+        this.color = color;
+        this.vx = 0;
+        this.vy = 0;
+        this.baseSpeed = 2.5;
+        this.sprintSpeed = 4.5;
+        this.stamina = 100; // الطاقة القصوى
+        this.maxStamina = 100;
+        this.isAI = isAI;
     }
 
-    function selectAnswer(btn, selected, correct) {
-      const allBtns = document.querySelectorAll('.option-btn');
-      allBtns.forEach(b => b.disabled = true);
+    update(keys) {
+        let currentSpeed = this.baseSpeed;
 
-      if (selected === correct) {
-        btn.classList.add('correct');
-        score += 10;
-      } else {
-        btn.classList.add('wrong');
-        allBtns.forEach(b => {
-          if (b.innerText === correct) b.classList.add('correct');
-        });
-      }
+        // نظام الطاقة والجري السريع
+        if (!this.isAI) {
+            if (keys['Shift'] && this.stamina > 5) {
+                currentSpeed = this.sprintSpeed;
+                this.stamina -= 0.6; // استهلاك الطاقة
+            } else if (this.stamina < this.maxStamina) {
+                this.stamina += 0.25; // استرجاع الطاقة
+            }
 
-      setTimeout(() => {
-        currentQuestionIndex++;
-        loadQuestion();
-      }, 1200);
+            // حركة اللاعب المدخلة
+            this.vx = 0;
+            this.vy = 0;
+            if (keys['ArrowUp']) this.vy = -currentSpeed;
+            if (keys['ArrowDown']) this.vy = currentSpeed;
+            if (keys['ArrowLeft']) this.vx = -currentSpeed;
+            if (keys['ArrowRight']) this.vx = currentSpeed;
+
+        } else {
+            // لوجيك ذكاء الاصطناعي (AI Dynamics)
+            let dx = ball.x - this.x;
+            let dy = ball.y - this.y;
+            let dist = Math.hypot(dx, dy);
+
+            // استهلاك واسترجاع طاقة الـ AI
+            if (dist < 150 && this.stamina > 20) {
+                currentSpeed = this.sprintSpeed;
+                this.stamina -= 0.4;
+            } else if (this.stamina < this.maxStamina) {
+                this.stamina += 0.2;
+            }
+
+            if (dist > 5) {
+                this.vx = (dx / dist) * currentSpeed;
+                this.vy = (dy / dist) * currentSpeed;
+            }
+        }
+
+        // تطبيق الحركة والحدود
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // منع الخروج من حدود الملعب
+        this.x = Math.max(10 + this.radius, Math.min(canvas.width - 10 - this.radius, this.x));
+        this.y = Math.max(10 + this.radius, Math.min(canvas.height - 10 - this.radius, this.y));
+
+        // حساب التصادم الفيزيائي مع الكرة
+        this.resolveBallCollision();
     }
 
-    function endGame() {
-      showScreen('end-screen');
-      document.getElementById('final-score').innerText = `مجموع نقاطك النهائي: ${score}`;
+    resolveBallCollision() {
+        let dx = ball.x - this.x;
+        let dy = ball.y - this.y;
+        let distance = Math.hypot(dx, dy);
+
+        if (distance < this.radius + ball.radius) {
+            // حساب زاوية الارتطام الفيزيائي (Impulse Physics)
+            let angle = Math.atan2(dy, dx);
+            let power = Math.hypot(this.vx, this.vy) + 2;
+
+            ball.vx = Math.cos(angle) * power * 1.5;
+            ball.vy = Math.sin(angle) * power * 1.5;
+        }
     }
 
-    function restartGame() {
-      showScreen('start-screen');
+    kickBall() {
+        let dx = ball.x - this.x;
+        let dy = ball.y - this.y;
+        let distance = Math.hypot(dx, dy);
+
+        // إمكانية التسديد فقط عند الاقتراب من الكرة
+        if (distance < this.radius + ball.radius + 10) {
+            let angle = Math.atan2(dy, dx);
+            let kickPower = 10; // قوة التسديدة
+            ball.vx = Math.cos(angle) * kickPower;
+            ball.vy = Math.sin(angle) * kickPower;
+        }
     }
-  </script>
+
+    draw() {
+        // رسم جسم اللاعب
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.closePath();
+
+        // رسم شريط الطاقة فوق اللاعب (Stamina Bar)
+        ctx.fillStyle = "#555";
+        ctx.fillRect(this.x - 15, this.y - 25, 30, 4);
+        ctx.fillStyle = this.stamina > 30 ? "#00ff00" : "#ff0000";
+        ctx.fillRect(this.x - 15, this.y - 25, (this.stamina / this.maxStamina) * 30, 4);
+    }
+}
+
+// --- إنشاء الأجسام ---
+const player = new Player(200, 250, '#ff4d4d');
+const ai = new Player(600, 250, '#4da6ff', true);
+const keys = {};
+
+// --- إدارة المدخلات (Events) ---
+window.addEventListener('keydown', (e) => {
+    keys[e.key] = true;
+    if (e.key === ' ') player.kickBall(); // زر التسديد
+});
+window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+function resetPositions() {
+    ball.x = canvas.width / 2;
+    ball.y = canvas.height / 2;
+    ball.vx = 0;
+    ball.vy = 0;
+    player.x = 200; player.y = 250;
+    ai.x = 600; ai.y = 250;
+}
+
+// --- رسم الملعب (Pitch Drawing) ---
+function drawPitch() {
+    ctx.fillStyle = "#2e8b57";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.lineWidth = 3;
+
+    // الحدود الخارجية
+    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+    // خط المنتصف والدائرة
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 10);
+    ctx.lineTo(canvas.width / 2, canvas.height - 10);
+    ctx.arc(canvas.width / 2, canvas.height / 2, 60, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // المرمى الأيسر والأيمن
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.fillRect(0, 180, 10, 140);
+    ctx.fillRect(canvas.width - 10, 180, 10, 140);
+}
+
+// --- حلقة اللعبة الأساسية (Game Loop) ---
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawPitch();
+
+    // تحديث الفيزياء والأوضاع
+    player.update(keys);
+    ai.update(keys);
+    ball.update();
+
+    // الرسم
+    player.draw();
+    ai.draw();
+    ball.draw();
+
+    requestAnimationFrame(gameLoop);
+}
+
+// تشغيل المحرك
+gameLoop();
+</script>
+
 </body>
 </html>
