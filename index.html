@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة كرة القدم للموبايل - Mobile Football HTML5</title>
+    <title>لعبة كرة القدم المحترفة للموبايل - Realistic Graphics Mobile Football</title>
     <style>
         * {
             margin: 0;
@@ -18,71 +18,102 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #050505;
+            background-color: #030712;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
         }
 
-        /* شاشة البداية */
+        /* شاشة البداية الاحترافية */
         #startScreen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #111827 0%, #064e3b 100%);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(6, 78, 59, 0.95)), 
+                        radial-gradient(circle at center, #1e3a8a 0%, #030712 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+        .match-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .player-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .player-preview svg {
+            width: 70px;
+            height: 70px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+        }
+        .vs-badge {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #f59e0b;
+            font-style: italic;
         }
         #startScreen h1 {
             font-size: 2.2rem;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
             color: #10b981;
-        }
-        #startScreen p {
-            font-size: 1rem;
-            margin-bottom: 25px;
-            color: #d1d5db;
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
         }
         .play-btn {
-            padding: 16px 45px;
+            padding: 16px 50px;
             font-size: 1.3rem;
             font-weight: bold;
             color: #fff;
-            background: #10b981;
+            background: linear-gradient(90deg, #10b981, #059669);
             border: none;
             border-radius: 50px;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .play-btn:active {
+            transform: scale(0.95);
         }
 
-        /* لوحة النتائج والوقت */
+        /* لوحة النتيجة */
         #scoreboard {
             position: absolute;
-            top: 10px;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
             gap: 15px;
-            background: rgba(15, 23, 42, 0.85);
-            padding: 6px 20px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 8px 24px;
             border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             font-weight: bold;
             font-size: 1rem;
             z-index: 10;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
         }
-        .team-name { color: #f87171; }
-        .team-name.ai { color: #60a5fa; }
-        .score { font-size: 1.2rem; color: #fbbf24; }
-        .timer { color: #9ca3af; font-size: 0.9rem; }
+        .team-badge { display: flex; align-items: center; gap: 8px; }
+        .team-badge.player { color: #f87171; }
+        .team-badge.ai { color: #60a5fa; }
+        .score { font-size: 1.3rem; color: #fbbf24; }
+        .timer { color: #9ca3af; font-size: 0.9rem; border-right: 1px solid #374151; padding-right: 10px; }
 
-        /* أزرار التحكّم باللمس (Touch UI) */
+        /* أدوات التحكم باللمس */
         #touchControls {
             position: absolute;
             top: 0;
@@ -93,36 +124,33 @@
             z-index: 20;
             display: none;
         }
-
-        /* الجويستيك الافتراضي */
         #joystickZone {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: 25px;
+            left: 25px;
             width: 130px;
             height: 130px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px dashed rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.25);
             border-radius: 50%;
             pointer-events: auto;
+            backdrop-filter: blur(4px);
         }
         #joystickKnob {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.6);
+            width: 52px;
+            height: 52px;
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(200,200,200,0.7) 100%);
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
-
-        /* أزرار الإجراءات على اليمين */
         #actionButtons {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 25px;
+            right: 25px;
             display: flex;
             gap: 15px;
             align-items: flex-end;
@@ -132,28 +160,27 @@
             width: 65px;
             height: 65px;
             border-radius: 50%;
-            border: none;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: #fff;
             font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            font-size: 0.95rem;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
+            backdrop-filter: blur(4px);
         }
-        #btnPass { background: #3b82f6; }
-        #btnShoot { background: #ef4444; }
-        #btnSprint { background: #eab308; width: 55px; height: 55px; }
+        #btnPass { background: rgba(59, 130, 246, 0.85); }
+        #btnShoot { background: rgba(239, 68, 68, 0.85); }
+        #btnSprint { background: rgba(234, 179, 8, 0.85); width: 55px; height: 55px; }
 
-        /* شريط قوة التسديد */
         #powerBarContainer {
             position: absolute;
-            bottom: 100px;
-            right: 20px;
+            bottom: 105px;
+            right: 25px;
             width: 140px;
             height: 12px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.8);
             border: 1px solid #fff;
             border-radius: 6px;
             overflow: hidden;
@@ -174,34 +201,61 @@
 </head>
 <body>
 
-    <!-- شاشة البداية -->
+    <!-- شاشة البداية والتعريف بالأطقم -->
     <div id="startScreen">
-        <h1>كرة القدم للهواتف الذكية</h1>
-        <p>العب ضد الذكاء الاصطناعي بالتحكم الكامل باللمس</p>
-        <button class="play-btn" onclick="startGame()">إلعب الآن</button>
+        <h1>مباراة كرة القدم المحترفة</h1>
+        <p>العب بكريستيانو رونالدو بالتحكم الكامل باللمس</p>
+        
+        <div class="match-card">
+            <div class="player-preview">
+                <!-- SVG قميص وسراويل اللاعب (رونالدو - رقم 7) -->
+                <svg viewBox="0 0 100 100">
+                    <path d="M 30,30 L 40,20 L 60,20 L 70,30 L 80,40 L 70,50 L 65,45 L 65,70 L 35,70 L 35,45 L 30,50 Z" fill="#dc2626" />
+                    <text x="50" y="52" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+                    <rect x="35" y="70" width="30" height="20" fill="#1e3a8a" />
+                    <circle cx="50" cy="15" r="10" fill="#fca5a5" />
+                </svg>
+                <span style="color:#f87171; font-weight:bold;">رونالدو (7)</span>
+            </div>
+            
+            <span class="vs-badge">VS</span>
+            
+            <div class="player-preview">
+                <svg viewBox="0 0 100 100">
+                    <path d="M 30,30 L 40,20 L 60,20 L 70,30 L 80,40 L 70,50 L 65,45 L 65,70 L 35,70 L 35,45 L 30,50 Z" fill="#2563eb" />
+                    <text x="50" y="52" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">10</text>
+                    <rect x="35" y="70" width="30" height="20" fill="#ffffff" />
+                    <circle cx="50" cy="15" r="10" fill="#fde047" />
+                </svg>
+                <span style="color:#60a5fa; font-weight:bold;">منافس (10)</span>
+            </div>
+        </div>
+
+        <button class="play-btn" onclick="startGame()">ابدأ المباراة الآن</button>
     </div>
 
-    <!-- لوحة النتيجة -->
+    <!-- لوحة النتيجة والوقت -->
     <div id="scoreboard">
-        <span class="team-name">رونالدو (أنت)</span>
-        <span class="score" id="scoreText">0 - 0</span>
-        <span class="team-name ai">(الكمبيوتر)</span>
         <span class="timer" id="timeText">00:00</span>
+        <div class="team-badge player">
+            <span>رونالدو</span>
+        </div>
+        <span class="score" id="scoreText">0 - 0</span>
+        <div class="team-badge ai">
+            <span>الخصم</span>
+        </div>
     </div>
 
-    <!-- واجهة أزرار اللمس -->
+    <!-- واجهة اللمس -->
     <div id="touchControls">
-        <!-- منطقة الجويستيك -->
         <div id="joystickZone">
             <div id="joystickKnob"></div>
         </div>
 
-        <!-- شريط الطاقة -->
         <div id="powerBarContainer">
             <div id="powerBarFill"></div>
         </div>
 
-        <!-- أزرار الإجراءات -->
         <div id="actionButtons">
             <button class="action-btn" id="btnSprint">جري</button>
             <button class="action-btn" id="btnPass">تمرير</button>
@@ -209,12 +263,54 @@
         </div>
     </div>
 
-    <!-- اللوحة الرئيسية -->
     <canvas id="gameCanvas"></canvas>
 
 <script>
 // ==========================================
-// 1. الإعدادات والتهيئـة العامة
+// 1. إعداد الـ SVG Sprites المباشرة للاعبين
+// ==========================================
+function createPlayerSVG(jerseyColor, shortsColor, numberStr, skinColor, hairColor) {
+    const svgString = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60">
+        <!-- الظل السفلي -->
+        <ellipse cx="50" cy="88" rx="28" ry="8" fill="rgba(0,0,0,0.35)" />
+        
+        <!-- القدمين والحذاء -->
+        <rect x="36" y="72" width="10" height="15" rx="3" fill="${skinColor}" />
+        <rect x="54" y="72" width="10" height="15" rx="3" fill="${skinColor}" />
+        <ellipse cx="41" cy="85" rx="7" ry="4" fill="#111827" />
+        <ellipse cx="59" cy="85" rx="7" ry="4" fill="#111827" />
+
+        <!-- السروال -->
+        <path d="M 32,54 L 68,54 L 66,74 L 52,74 L 50,60 L 48,60 L 46,74 L 34,74 Z" fill="${shortsColor}" />
+
+        <!-- القميص والأذرع -->
+        <path d="M 22,28 L 36,18 L 64,18 L 78,28 L 84,42 L 72,48 L 68,40 L 68,56 L 32,56 L 32,40 L 28,48 L 16,42 Z" fill="${jerseyColor}" />
+        
+        <!-- الذراعان (بشرة) -->
+        <circle cx="21" cy="45" r="5" fill="${skinColor}" />
+        <circle cx="79" cy="45" r="5" fill="${skinColor}" />
+
+        <!-- الرقم على القميص -->
+        <text x="50" y="44" font-size="19" font-family="Arial, sans-serif" font-weight="900" fill="#ffffff" text-anchor="middle">${numberStr}</text>
+
+        <!-- الرأس والوجه والشعر -->
+        <circle cx="50" cy="15" r="10" fill="${skinColor}" />
+        <!-- الشعر -->
+        <path d="M 40,12 C 42,4 58,4 60,12 C 55,8 45,8 40,12 Z" fill="${hairColor}" />
+    </svg>`;
+
+    const img = new Image();
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+    return img;
+}
+
+// تحميل صور اللاعبين الحقيقية
+const ronaldoSprite = createPlayerSVG('#dc2626', '#1e3a8a', '7', '#fca5a5', '#271c19'); // رونالدو
+const aiSprite = createPlayerSVG('#2563eb', '#ffffff', '10', '#fde047', '#451a03'); // المنافس
+
+// ==========================================
+// 2. إعداد الملعب والكاميرا والفيزياء
 // ==========================================
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -227,11 +323,11 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 const PITCH = {
-    width: 1200,
-    height: 750,
-    border: 60,
-    goalWidth: 150,
-    goalDepth: 35
+    width: 1400,
+    height: 850,
+    border: 90, // مساحة للجمهور والمدرجات حول الملعب
+    goalWidth: 160,
+    goalDepth: 45
 };
 
 let gameRunning = false;
@@ -240,9 +336,6 @@ let scoreAI = 0;
 let gameTimeSeconds = 0;
 let timerInterval = null;
 
-// ==========================================
-// 2. الكاميرا السلسة (Camera)
-// ==========================================
 class Camera {
     constructor() {
         this.x = 0;
@@ -259,17 +352,18 @@ class Camera {
 const camera = new Camera();
 
 // ==========================================
-// 3. كائن الكرة والفيزياء (Ball Physics)
+// 3. الكرة والفيزياء
 // ==========================================
 class Ball {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.radius = 9;
+        this.radius = 10;
         this.vx = 0;
         this.vy = 0;
-        this.friction = 0.98;
-        this.bounce = 0.7;
+        this.friction = 0.981;
+        this.bounce = 0.75;
+        this.rotation = 0;
     }
 
     update() {
@@ -281,6 +375,7 @@ class Ball {
 
         this.x += this.vx;
         this.y += this.vy;
+        this.rotation += Math.hypot(this.vx, this.vy) * 0.1;
 
         this.handleCollisions();
     }
@@ -293,7 +388,7 @@ class Ball {
         const goalTop = PITCH.border + (PITCH.height / 2) - (PITCH.goalWidth / 2);
         const goalBottom = PITCH.border + (PITCH.height / 2) + (PITCH.goalWidth / 2);
 
-        // التماس الأعلى والأسفل
+        // التماس العلوي والسفلي
         if (this.y - this.radius < topY) {
             this.y = topY + this.radius;
             this.vy *= -this.bounce;
@@ -303,17 +398,14 @@ class Ball {
             this.vy *= -this.bounce;
         }
 
-        // المرمى الأيسر والأيمن
+        // المرمى والأهداف
         if (this.x - this.radius < leftX) {
             if (this.y > goalTop && this.y < goalBottom) {
                 if (this.x < leftX - PITCH.goalDepth + this.radius) {
                     this.x = leftX - PITCH.goalDepth + this.radius;
                     this.vx *= -this.bounce;
                 }
-                // هدف للذكاء الاصطناعي
-                if (this.x < leftX - 10) {
-                    onGoalScored('AI');
-                }
+                if (this.x < leftX - 15) onGoalScored('AI');
             } else {
                 this.x = leftX + this.radius;
                 this.vx *= -this.bounce;
@@ -326,10 +418,7 @@ class Ball {
                     this.x = rightX + PITCH.goalDepth - this.radius;
                     this.vx *= -this.bounce;
                 }
-                // هدف للاعب
-                if (this.x > rightX + 10) {
-                    onGoalScored('PLAYER');
-                }
+                if (this.x > rightX + 15) onGoalScored('PLAYER');
             } else {
                 this.x = rightX - this.radius;
                 this.vx *= -this.bounce;
@@ -338,56 +427,64 @@ class Ball {
     }
 
     draw(ctx) {
-        // الظل
+        // ظل الكرة
         ctx.beginPath();
-        ctx.ellipse(this.x, this.y + 4, this.radius, this.radius * 0.5, 0, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.ellipse(this.x, this.y + 6, this.radius, this.radius * 0.5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
         ctx.fill();
 
-        // جسم الكرة
+        // جسم الكرة مع خطوط سداسية
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = "#000000";
         ctx.stroke();
+
+        // نقش كرة القدم
+        ctx.fillStyle = "#000000";
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
     }
 }
 const ball = new Ball(PITCH.border + PITCH.width / 2, PITCH.border + PITCH.height / 2);
 
 // ==========================================
-// 4. كائن اللاعب والخصم (Players Logic)
+// 4. كائن اللاعب (باستخدام الرسومات الحقيقية - NO CIRCLES)
 // ==========================================
 class Player {
-    constructor(x, y, color, name, isAI = false) {
+    constructor(x, y, spriteImg, name) {
         this.x = x;
         this.y = y;
-        this.radius = 16;
-        this.color = color;
+        this.width = 44;
+        this.height = 44;
+        this.sprite = spriteImg;
         this.name = name;
-        this.isAI = isAI;
 
-        // الطاقات الإحصائية
-        this.speed = 3.8;
-        this.sprintSpeed = 5.8;
-        this.shotPower = 14;
+        this.speed = 4.0;
+        this.sprintSpeed = 6.2;
+        this.shotPower = 16;
         this.stamina = 100;
-        this.maxStamina = 100;
 
         this.vx = 0;
         this.vy = 0;
+        this.angle = 0;
         this.isSprinting = false;
-        this.hasBall = false;
     }
 
     update() {
-        // إدارة طاقة الجري
         if (this.isSprinting && (this.vx !== 0 || this.vy !== 0)) {
-            this.stamina = Math.max(0, this.stamina - 0.35);
+            this.stamina = Math.max(0, this.stamina - 0.4);
             if (this.stamina === 0) this.isSprinting = false;
         } else {
-            this.stamina = Math.min(this.maxStamina, this.stamina + 0.15);
+            this.stamina = Math.min(100, this.stamina + 0.2);
         }
 
         const currentSpeed = (this.isSprinting && this.stamina > 5) ? this.sprintSpeed : this.speed;
@@ -395,75 +492,80 @@ class Player {
         this.x += this.vx * currentSpeed;
         this.y += this.vy * currentSpeed;
 
-        // حدود الملعب للاعبين
-        this.x = Math.max(PITCH.border + this.radius, Math.min(PITCH.border + PITCH.width - this.radius, this.x));
-        this.y = Math.max(PITCH.border + this.radius, Math.min(PITCH.border + PITCH.height - this.radius, this.y));
+        if (this.vx !== 0 || this.vy !== 0) {
+            this.angle = Math.atan2(this.vy, this.vx);
+        }
 
-        // احتكاك اللاعب بالكرة (المراوغة)
+        // الحدود
+        this.x = Math.max(PITCH.border + 20, Math.min(PITCH.border + PITCH.width - 20, this.x));
+        this.y = Math.max(PITCH.border + 20, Math.min(PITCH.border + PITCH.height - 20, this.y));
+
+        // احتكاك اللاعب بالكرة
         const distToBall = Math.hypot(ball.x - this.x, ball.y - this.y);
-        if (distToBall < this.radius + ball.radius + 2) {
-            this.hasBall = true;
-            // دفع الكرة للأمام
-            const angle = Math.atan2(ball.y - this.y, ball.x - this.x);
-            const pushForce = 0.8;
-            ball.vx = Math.cos(angle) * pushForce + this.vx * 0.5;
-            ball.vy = Math.sin(angle) * pushForce + this.vy * 0.5;
-        } else {
-            this.hasBall = false;
+        if (distToBall < 26) {
+            const pushAngle = Math.atan2(ball.y - this.y, ball.x - this.x);
+            ball.vx = Math.cos(pushAngle) * 1.2 + this.vx * 0.6;
+            ball.vy = Math.sin(pushAngle) * 1.2 + this.vy * 0.6;
         }
     }
 
     draw(ctx) {
-        // شريط التحمل (Stamina Bar)
-        ctx.fillStyle = "rgba(0,0,0,0.5)";
-        ctx.fillRect(this.x - 15, this.y - this.radius - 12, 30, 4);
-        ctx.fillStyle = this.stamina > 30 ? "#22c55e" : "#ef4444";
-        ctx.fillRect(this.x - 15, this.y - this.radius - 12, (this.stamina / this.maxStamina) * 30, 4);
+        ctx.save();
+        ctx.translate(this.x, this.y);
 
-        // جسم اللاعب
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
+        // شريط طاقة التحمل
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(-18, -this.height / 2 - 18, 36, 5);
+        ctx.fillStyle = this.stamina > 30 ? "#22c55e" : "#ef4444";
+        ctx.fillRect(-18, -this.height / 2 - 18, (this.stamina / 100) * 36, 5);
+
+        // رسم مؤشر التوجيه تحت جسم اللاعب
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(0, 0, 24, this.angle - 0.5, this.angle + 0.5);
         ctx.stroke();
 
-        // اسم اللاعب
+        // رسم جسم اللاعب الحقيقي عبر الـ Sprite
+        ctx.drawImage(this.sprite, -this.width / 2, -this.height / 2, this.width, this.height);
+
+        // اسم اللاعب فوق رأسه
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 11px sans-serif";
+        ctx.font = "bold 12px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(this.name, this.x, this.y - this.radius - 16);
+        ctx.shadowColor = "#000000";
+        ctx.shadowBlur = 4;
+        ctx.fillText(this.name, 0, -this.height / 2 - 22);
+
+        ctx.restore();
     }
 }
 
-const player = new Player(PITCH.border + 200, PITCH.border + PITCH.height / 2, '#ef4444', 'رونالدو');
-const aiPlayer = new Player(PITCH.border + PITCH.width - 200, PITCH.border + PITCH.height / 2, '#3b82f6', 'منافس (AI)', true);
+const player = new Player(PITCH.border + 220, PITCH.border + PITCH.height / 2, ronaldoSprite, 'رونالدو');
+const aiPlayer = new Player(PITCH.border + PITCH.width - 220, PITCH.border + PITCH.height / 2, aiSprite, 'الخصم');
 
 // ==========================================
-// 5. الذكاء الاصطناعي للمنافس (AI Logic)
+// 5. الذكاء الاصطناعي
 // ==========================================
 function updateAI() {
     const distToBall = Math.hypot(ball.x - aiPlayer.x, ball.y - aiPlayer.y);
-
-    // تتبع الكرة والتحرك نحوها
     const angle = Math.atan2(ball.y - aiPlayer.y, ball.x - aiPlayer.x);
+
     aiPlayer.vx = Math.cos(angle);
     aiPlayer.vy = Math.sin(angle);
 
-    // التسديد فور الوصول للمرمى أو الكرة
-    if (distToBall < aiPlayer.radius + ball.radius + 5) {
+    if (distToBall < 28) {
         const goalTargetY = PITCH.border + PITCH.height / 2;
-        const goalTargetX = PITCH.border; // المرمى الأيسر
+        const goalTargetX = PITCH.border;
         const shootAngle = Math.atan2(goalTargetY - ball.y, goalTargetX - ball.x);
 
-        ball.vx = Math.cos(shootAngle) * (aiPlayer.shotPower * 0.8);
-        ball.vy = Math.sin(shootAngle) * (aiPlayer.shotPower * 0.8);
+        ball.vx = Math.cos(shootAngle) * (aiPlayer.shotPower * 0.85);
+        ball.vy = Math.sin(shootAngle) * (aiPlayer.shotPower * 0.85);
     }
 }
 
 // ==========================================
-// 6. نظام تحكم اللمس (Mobile Touch Controls)
+// 6. تحكم اللمس للموبايل
 // ==========================================
 const joystickZone = document.getElementById('joystickZone');
 const joystickKnob = document.getElementById('joystickKnob');
@@ -492,7 +594,7 @@ window.addEventListener('touchmove', (e) => {
             const dx = touch.clientX - joystickCenter.x;
             const dy = touch.clientY - joystickCenter.y;
             const dist = Math.hypot(dx, dy);
-            const maxRadius = 40;
+            const maxRadius = 42;
 
             const angle = Math.atan2(dy, dx);
             const moveDist = Math.min(dist, maxRadius);
@@ -502,7 +604,6 @@ window.addEventListener('touchmove', (e) => {
 
             joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
 
-            // توجيه حركة اللاعب
             player.vx = Math.cos(angle) * (moveDist / maxRadius);
             player.vy = Math.sin(angle) * (moveDist / maxRadius);
         }
@@ -524,7 +625,7 @@ const stopJoystick = (e) => {
 window.addEventListener('touchend', stopJoystick);
 window.addEventListener('touchcancel', stopJoystick);
 
-// أزرار الإجراءات (تسديد، تمرير، جري)
+// أزرار التسديد والجري والتمرير
 const btnSprint = document.getElementById('btnSprint');
 const btnPass = document.getElementById('btnPass');
 const btnShoot = document.getElementById('btnShoot');
@@ -534,29 +635,26 @@ const powerBarFill = document.getElementById('powerBarFill');
 let shootPowerValue = 0;
 let shootPowerInterval = null;
 
-// زر الجري
 btnSprint.addEventListener('touchstart', (e) => { e.preventDefault(); player.isSprinting = true; });
 btnSprint.addEventListener('touchend', (e) => { e.preventDefault(); player.isSprinting = false; });
 
-// زر التمرير
 btnPass.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    const angle = Math.atan2(player.vy, player.vx) || 0;
-    const passPower = 7;
-    ball.vx = Math.cos(angle) * passPower;
-    ball.vy = Math.sin(angle) * passPower;
+    const passAngle = player.angle || 0;
+    const passPower = 8.5;
+    ball.vx = Math.cos(passAngle) * passPower;
+    ball.vy = Math.sin(passAngle) * passPower;
 });
 
-// زر التسديد وشريط شحن القوة
 btnShoot.addEventListener('touchstart', (e) => {
     e.preventDefault();
     shootPowerValue = 0;
     powerBarContainer.style.display = 'block';
 
     shootPowerInterval = setInterval(() => {
-        shootPowerValue = Math.min(100, shootPowerValue + 5);
+        shootPowerValue = Math.min(100, shootPowerValue + 6);
         powerBarFill.style.width = shootPowerValue + '%';
-    }, 30);
+    }, 25);
 });
 
 btnShoot.addEventListener('touchend', (e) => {
@@ -564,36 +662,48 @@ btnShoot.addEventListener('touchend', (e) => {
     clearInterval(shootPowerInterval);
     powerBarContainer.style.display = 'none';
 
-    // التسديد باتجاه المرمى الأيمن
     const targetY = PITCH.border + PITCH.height / 2;
     const targetX = PITCH.border + PITCH.width;
-    const angle = Math.atan2(targetY - player.y, targetX - player.x);
+    const shootAngle = Math.atan2(targetY - player.y, targetX - player.x);
 
-    const calculatedPower = 5 + (shootPowerValue / 100) * player.shotPower;
-    ball.vx = Math.cos(angle) * calculatedPower;
-    ball.vy = Math.sin(angle) * calculatedPower;
+    const calculatedPower = 6 + (shootPowerValue / 100) * player.shotPower;
+    ball.vx = Math.cos(shootAngle) * calculatedPower;
+    ball.vy = Math.sin(shootAngle) * calculatedPower;
 
     shootPowerValue = 0;
 });
 
 // ==========================================
-// 7. رسم الملعب (Pitch Graphics)
+// 7. رسم الملعب والمدرجات والجمهور الشامل
 // ==========================================
 function drawPitch() {
+    // 1. المدرجات والجمهور المحيط بالملعب
+    ctx.fillStyle = "#1e1b4b"; // لون كراسي المدرجات
+    ctx.fillRect(0, 0, PITCH.width + PITCH.border * 2, PITCH.height + PITCH.border * 2);
+
+    // نقاط ملونة صغيرة تمثل الجمهور
+    ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+    for (let i = 10; i < PITCH.width + PITCH.border * 2; i += 25) {
+        for (let j = 10; j < PITCH.border - 15; j += 15) {
+            ctx.fillRect(i, j, 4, 4);
+            ctx.fillRect(i, PITCH.height + PITCH.border + j, 4, 4);
+        }
+    }
+
     const startX = PITCH.border;
     const startY = PITCH.border;
     const goalTop = startY + (PITCH.height / 2) - (PITCH.goalWidth / 2);
 
-    // العشب المقلم
-    const stripeWidth = 70;
+    // 2. العشب المقلم عالي الدقة
+    const stripeWidth = 80;
     for (let x = startX; x < startX + PITCH.width; x += stripeWidth) {
-        ctx.fillStyle = ((x / stripeWidth) % 2 === 0) ? '#15803d' : '#166534';
+        ctx.fillStyle = ((x / stripeWidth) % 2 === 0) ? '#166534' : '#15803d';
         ctx.fillRect(x, startY, Math.min(stripeWidth, startX + PITCH.width - x), PITCH.height);
     }
 
-    // خطوط الملعب
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-    ctx.lineWidth = 4;
+    // 3. الخطوط الرسمية
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.lineWidth = 5;
     ctx.strokeRect(startX, startY, PITCH.width, PITCH.height);
 
     // خط المنتصف والدائرة
@@ -603,24 +713,49 @@ function drawPitch() {
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.arc(startX + PITCH.width / 2, startY + PITCH.height / 2, 80, 0, Math.PI * 2);
+    ctx.arc(startX + PITCH.width / 2, startY + PITCH.height / 2, 95, 0, Math.PI * 2);
     ctx.stroke();
 
+    // نقطة المنتصف
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(startX + PITCH.width / 2, startY + PITCH.height / 2, 6, 0, Math.PI * 2);
+    ctx.fill();
+
     // مناطق الجزاء
-    ctx.strokeRect(startX, startY + PITCH.height / 2 - 150, 180, 300);
-    ctx.strokeRect(startX + PITCH.width - 180, startY + PITCH.height / 2 - 150, 180, 300);
+    ctx.strokeRect(startX, startY + PITCH.height / 2 - 170, 200, 340);
+    ctx.strokeRect(startX + PITCH.width - 200, startY + PITCH.height / 2 - 170, 200, 340);
 
-    // الشباك
-    ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-    ctx.fillRect(startX - PITCH.goalDepth, goalTop, PITCH.goalDepth, PITCH.goalWidth);
-    ctx.strokeRect(startX - PITCH.goalDepth, goalTop, PITCH.goalDepth, PITCH.goalWidth);
+    // 4. الشباك والعمودان والعارضة
+    // المرمى الأيسر
+    drawGoalMesh(startX - PITCH.goalDepth, goalTop, PITCH.goalDepth, PITCH.goalWidth);
+    // المرمى الأيمن
+    drawGoalMesh(startX + PITCH.width, goalTop, PITCH.goalDepth, PITCH.goalWidth);
+}
 
-    ctx.fillRect(startX + PITCH.width, goalTop, PITCH.goalDepth, PITCH.goalWidth);
-    ctx.strokeRect(startX + PITCH.width, goalTop, PITCH.goalDepth, PITCH.goalWidth);
+function drawGoalMesh(x, y, w, h) {
+    // خلفية الشبكة
+    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.fillRect(x, y, w, h);
+
+    // شبكة مربعات التفاعلية
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 1;
+    for (let gx = x; gx <= x + w; gx += 8) {
+        ctx.beginPath(); ctx.moveTo(gx, y); ctx.lineTo(gx, y + h); ctx.stroke();
+    }
+    for (let gy = y; gy <= y + h; gy += 8) {
+        ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x + w, gy); ctx.stroke();
+    }
+
+    // إطار المرمى والقائمين
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(x, y, w, h);
 }
 
 // ==========================================
-// 8. إدارة المباراة والأهداف
+// 8. إدارة المباراة والأهداف والوقت
 // ==========================================
 function onGoalScored(scorer) {
     if (scorer === 'PLAYER') scorePlayer++;
@@ -628,15 +763,14 @@ function onGoalScored(scorer) {
 
     document.getElementById('scoreText').innerText = `${scorePlayer} - ${scoreAI}`;
 
-    // إعادة ضبط الكرة واللاعبين
     ball.x = PITCH.border + PITCH.width / 2;
     ball.y = PITCH.border + PITCH.height / 2;
     ball.vx = 0; ball.vy = 0;
 
-    player.x = PITCH.border + 200;
+    player.x = PITCH.border + 220;
     player.y = PITCH.border + PITCH.height / 2;
 
-    aiPlayer.x = PITCH.border + PITCH.width - 200;
+    aiPlayer.x = PITCH.border + PITCH.width - 220;
     aiPlayer.y = PITCH.border + PITCH.height / 2;
 }
 
@@ -657,7 +791,7 @@ function startGame() {
 }
 
 // ==========================================
-// 9. حلقة اللعبة الرئيسية (Game Loop)
+// 9. حلقة اللعبة
 // ==========================================
 function gameLoop() {
     if (gameRunning) {
