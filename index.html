@@ -3,293 +3,888 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المحقق - قضية مقتل القصر</title>
+    <title>لعبة كرة القدم الإركيد - Arcade Soccer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, 'Segoe UI', Tahoma, monospace; user-select: none; }
-        body, html { width: 100%; height: 100%; background-color: #0b0d12; color: #e2e8f0; overflow: hidden; display: flex; flex-direction: column; }
-
-        /* شريط العنوان علوي */
-        #top-bar {
-            background: #111827;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #f59e0b;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-        }
-        .title-badge { font-weight: bold; color: #f59e0b; font-size: 14px; }
-        .energy-box { background: #1f2937; padding: 4px 10px; border-radius: 6px; border: 1px solid #374151; font-size: 12px; }
-
-        /* الشاشة الرئيسية للعبة */
-        #game-container {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 650px;
-            margin: 0 auto;
-            width: 100%;
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap');
+        
+        * {
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
-        /* كروت التفاصيل والمعاينة */
-        .case-card {
-            background: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .card-header { font-size: 14px; font-weight: bold; color: #38bdf8; margin-bottom: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 5px; }
-        .card-body { font-size: 12px; line-height: 1.6; color: #cbd5e1; }
-
-        /* قائمة التفاعل (الأدلة، المشتبه فيهم) */
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            overflow: hidden;
         }
 
-        .action-btn {
-            background: #1f2937;
-            border: 1px solid #374151;
-            color: #f8fafc;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-        }
-        .action-btn:hover { background: #374151; border-color: #f59e0b; }
-
-        /* شريط التنقل السفلي */
-        #bottom-nav {
-            background: #111827;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px;
-            border-top: 2px solid #1f2937;
-        }
-        .nav-btn {
-            background: #1f2937;
-            color: #9ca3af;
-            border: 1px solid #374151;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .nav-btn.active, .nav-btn:hover { background: #f59e0b; color: #000; border-color: #f59e0b; }
-
-        /* قائمة الحوار والنصوص */
-        .dialogue-box {
-            background: #000;
-            border: 1px solid #f59e0b;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #22c55e;
+        .touch-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.1s ease;
         }
 
-        /* نافذة الاتهام النهائي */
-        .suspect-select {
-            width: 100%;
-            padding: 10px;
-            background: #1f2937;
-            color: white;
-            border: 1px solid #374151;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 12px;
+        .touch-btn:active {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0.95);
         }
-        .accuse-btn {
-            width: 100%;
-            background: #dc2626;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            margin-top: 10px;
-            cursor: pointer;
-            font-size: 13px;
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .accuse-btn:hover { background: #b91c1c; }
+
+        canvas {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
-<body>
+<body class="h-screen w-screen flex flex-col items-center justify-between p-2 md:p-4 text-white overflow-hidden select-none">
 
-    <!-- شريط العلوي -->
-    <div id="top-bar">
-        <div class="title-badge">🕵️ ملف القضية #104</div>
-        <div class="energy-box">⏳ نقاط التحقيق: <span id="points" style="color:#f59e0b">5</span></div>
-    </div>
-
-    <!-- محتوى اللعبة -->
-    <div id="game-container">
-        
-        <!-- تفاصيل القصة -->
-        <div class="case-card">
-            <div class="card-header">📂 تفاصيل الحادثة</div>
-            <div class="card-body">
-                تم العثور على رجل الأعمال الشهير **مراد الألفي** مقتولاً داخل مكتبه الخاص في القصر عند الساعة 9:00 مساءً. جثة الضحية كانت مطعونة بدبوس زينة فضي حاد، وتوجد كاسات عصير وساعة حائط مكسورة تشير للساعة 8:15.
+    <!-- Top Bar / Scoreboard -->
+    <header id="scoreboard" class="w-full max-w-4xl flex justify-between items-center bg-slate-900/80 px-4 py-2 rounded-2xl border border-slate-700/50 backdrop-blur-md shadow-lg z-10 my-1">
+        <!-- Player 1 Info -->
+        <div class="flex items-center gap-3 w-1/3">
+            <div class="w-10 h-10 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center font-bold text-xl shadow">1</div>
+            <div>
+                <div id="p1-name" class="font-bold text-sm md:text-base text-blue-400">اللاعب 1</div>
+                <div class="w-24 bg-slate-700 rounded-full h-2 overflow-hidden border border-slate-600 mt-1">
+                    <div id="p1-power" class="bg-gradient-to-r from-blue-500 to-cyan-300 h-full w-0 transition-all"></div>
+                </div>
             </div>
         </div>
 
-        <!-- المنطقة الديناميكية التي تتغير حسب التبويب -->
-        <div id="dynamic-view"></div>
+        <!-- Score & Timer -->
+        <div class="flex flex-col items-center justify-center w-1/3">
+            <div class="text-xs text-slate-400 font-semibold tracking-wider">الوقت المتبقي</div>
+            <div id="game-timer" class="text-2xl md:text-3xl font-black text-yellow-400 my-0 tracking-widest font-mono">02:00</div>
+            <div class="flex items-center gap-3 text-2xl md:text-4xl font-black bg-slate-950/60 px-4 py-1 rounded-xl border border-slate-800">
+                <span id="score-p1" class="text-blue-400">0</span>
+                <span class="text-slate-500 text-lg">:</span>
+                <span id="score-p2" class="text-red-400">0</span>
+            </div>
+        </div>
 
-    </div>
+        <!-- Player 2 / AI Info -->
+        <div class="flex items-center justify-end gap-3 w-1/3 text-left">
+            <div>
+                <div id="p2-name" class="font-bold text-sm md:text-base text-red-400">الكمبيوتر</div>
+                <div class="w-24 bg-slate-700 rounded-full h-2 overflow-hidden border border-slate-600 mt-1 mr-auto">
+                    <div id="p2-power" class="bg-gradient-to-r from-red-500 to-orange-400 h-full w-0 transition-all"></div>
+                </div>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-red-600 border-2 border-white flex items-center justify-center font-bold text-xl shadow">2</div>
+        </div>
+    </header>
 
-    <!-- شريط التنقل -->
-    <div id="bottom-nav">
-        <button class="nav-btn active" id="btn-scene" onclick="switchView('scene')">🔍 مسرح الجريمة</button>
-        <button class="nav-btn" id="btn-suspects" onclick="switchView('suspects')">👥 المشتبه فيهم</button>
-        <button class="nav-btn" id="btn-clues" onclick="switchView('clues')">📁 دفتر الأدلة</button>
-        <button class="nav-btn" id="btn-accuse" onclick="switchView('accuse')">⚖️ الاتهام والقبض</button>
-    </div>
+    <!-- Game Canvas Container -->
+    <main class="relative w-full max-w-4xl flex-1 flex items-center justify-center my-1 overflow-hidden rounded-2xl">
+        <canvas id="gameCanvas" class="w-full h-full object-contain rounded-2xl border-2 border-emerald-500/30"></canvas>
+
+        <!-- Dynamic Overlay Message (GOAL / Pause / Countdown) -->
+        <div id="overlay-msg" class="absolute inset-0 flex items-center justify-center pointer-events-none hidden z-20">
+            <h1 id="msg-text" class="text-6xl md:text-8xl font-black text-yellow-400 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-bounce text-center">
+                هدف! ⚽
+            </h1>
+        </div>
+
+        <!-- Start / Main Menu Modal -->
+        <div id="main-menu" class="absolute inset-0 glass-panel rounded-2xl flex flex-col items-center justify-center p-6 text-center z-30">
+            <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mb-3 shadow-lg shadow-emerald-500/50 animate-pulse">
+                <i class="fa-solid fa-futbol text-3xl text-slate-950"></i>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+                كرة القدم الإركيد
+            </h1>
+            <p class="text-slate-300 text-sm md:text-base mb-6 max-w-md">تحدَّ الذكاء الاصطناعي أو صديقك في مباراة فيزيائية مليئة بالإثارة والسرعة!</p>
+
+            <div class="w-full max-w-xs space-y-4">
+                <!-- Mode Selection -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">نمط اللعب</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-mode-ai" onclick="setGameMode('ai')" class="py-2 px-3 rounded-xl border border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold text-sm hover:bg-emerald-500/30 transition">
+                            <i class="fa-solid fa-robot ml-1"></i> ضد الكمبيوتر
+                        </button>
+                        <button id="btn-mode-2p" onclick="setGameMode('2p')" class="py-2 px-3 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-bold text-sm hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-users ml-1"></i> 2 لاعبين
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI Difficulty (Visible only in AI mode) -->
+                <div id="difficulty-option">
+                    <label class="block text-xs font-bold text-slate-400 mb-1">مستوى الصعوبة</label>
+                    <select id="select-difficulty" class="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 px-3 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
+                        <option value="easy">سهل 🟢</option>
+                        <option value="medium" selected>متوسط 🟡</option>
+                        <option value="hard">صعب 🔥</option>
+                    </select>
+                </div>
+
+                <!-- Match Time -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">مدة المباراة</label>
+                    <select id="select-time" class="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 px-3 text-sm font-bold text-white focus:outline-none focus:border-emerald-500">
+                        <option value="60">دقيقة واحدة (1m)</option>
+                        <option value="120" selected>دقيقتان (2m)</option>
+                        <option value="180">ثلاث دقائق (3m)</option>
+                    </select>
+                </div>
+
+                <!-- Start Game Button -->
+                <button onclick="startGame()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 font-black text-slate-950 text-lg rounded-xl shadow-lg shadow-emerald-500/30 transform hover:-translate-y-0.5 active:translate-y-0 transition">
+                    ابدأ المباراة الآن <i class="fa-solid fa-play mr-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="game-over-menu" class="absolute inset-0 glass-panel rounded-2xl flex flex-col items-center justify-center p-6 text-center z-30 hidden">
+            <h2 id="winner-title" class="text-4xl md:text-6xl font-black mb-2 text-yellow-400">انتهت المباراة!</h2>
+            <p id="final-score" class="text-2xl font-bold text-slate-300 mb-6">0 - 0</p>
+            <button onclick="resetToMenu()" class="py-3 px-8 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-lg rounded-xl shadow-lg shadow-emerald-500/40 transition">
+                القائمة الرئيسية <i class="fa-solid fa-rotate-right mr-2"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Touch Controls Container (Mobile Only) -->
+    <footer id="mobile-controls" class="w-full max-w-4xl flex justify-between items-center gap-2 py-1 md:hidden z-10">
+        <!-- Player 1 Joystick / D-Pad Buttons -->
+        <div class="flex gap-2">
+            <div class="grid grid-cols-3 gap-1 w-32 h-28">
+                <div></div>
+                <button id="btn-up" class="touch-btn rounded-lg flex items-center justify-center text-xl text-white active:bg-white/40"><i class="fa-solid fa-arrow-up"></i></button>
+                <div></div>
+                <button id="btn-left" class="touch-btn rounded-lg flex items-center justify-center text-xl text-white active:bg-white/40"><i class="fa-solid fa-arrow-right"></i></button> <!-- RTL right arrow for left movement -->
+                <button id="btn-down" class="touch-btn rounded-lg flex items-center justify-center text-xl text-white active:bg-white/40"><i class="fa-solid fa-arrow-down"></i></button>
+                <button id="btn-right" class="touch-btn rounded-lg flex items-center justify-center text-xl text-white active:bg-white/40"><i class="fa-solid fa-arrow-left"></i></button>
+            </div>
+        </div>
+
+        <!-- Kick / Action Buttons -->
+        <div class="flex gap-2">
+            <button id="btn-kick" class="touch-btn w-16 h-16 rounded-full bg-emerald-600/60 border-2 border-emerald-400 flex flex-col items-center justify-center font-bold text-xs active:scale-95 shadow-lg">
+                <i class="fa-solid fa-shoe-prints text-lg mb-1"></i> ركل
+            </button>
+            <button id="btn-super" class="touch-btn w-16 h-16 rounded-full bg-amber-500/60 border-2 border-amber-300 flex flex-col items-center justify-center font-bold text-xs active:scale-95 shadow-lg">
+                <i class="fa-solid fa-bolt text-lg mb-1"></i> سوبر
+            </button>
+        </div>
+    </footer>
 
     <script>
-        let points = 5;
-        let cluesFound = [];
-        let currentView = 'scene';
+        /* --- Audio Synthesizer (Web Audio API) --- */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
 
-        const cluesData = {
-            desk: { name: "رسالة تهديد", text: "تم العثور في المكتوب على خط يد يطالب مراد بدفع ديون قديمة قبل نهاية الأسبوع." },
-            clock: { name: "ساعة الحائط المكسورة", text: "الساعة توقفت عند 8:15 مساءً إثر مشاجرة وتكسير في المكتب." },
-            glass: { name: "كأس عصير محتوي على منوم", text: "الكأس الثاني يحتوي على بقايا مادة مهدئة ومسكنة." },
-            safe: { name: "الخزنة المفتوحة", text: "الخزنة مفتوحة ومسروق منها الأوراق المالية فقط، بينما المجوهرات سليمة." }
-        };
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
 
-        const suspectsData = {
-            s1: { name: "خالد (الشريك التجاري)", dialogue: "كنت في المنزل عند الساعة 8:00 مساءً! مراد كان مدين لي بالمال ولكني لم أقتله." },
-            s2: { name: "مريم (الزوجة)", dialogue: "كنت في الحديقة أتناول العصير معه عند 7:30، ثم صعدت لغرفتي ولم أسمع شيئاً." },
-            s3: { name: "سعيد (الخادم الخاص)", dialogue: "حضرت له العصير بناءً على طلب الزوجة مريم، وخرجت لمطبخ القصر فوراً." }
-        };
+            playKick(isSuper = false) {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = isSuper ? 'sawtooth' : 'sine';
+                osc.frequency.setValueAtTime(isSuper ? 300 : 180, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + (isSuper ? 0.3 : 0.15));
+                gain.gain.setValueAtTime(isSuper ? 0.6 : 0.4, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + (isSuper ? 0.3 : 0.15));
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + (isSuper ? 0.3 : 0.15));
+            }
+
+            playWhistle() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+                osc.frequency.setValueAtTime(1600, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.5);
+            }
+
+            playGoal() {
+                if (!this.ctx) return;
+                // Goal Cheer synth approximation
+                const dur = 1.2;
+                const bufferSize = this.ctx.sampleRate * dur;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+                filter.Q.setValueAtTime(3, this.ctx.currentTime);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+            }
+        }
+
+        const audio = new SoundFX();
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game Configuration & State
+        let gameMode = 'ai'; // 'ai' or '2p'
+        let difficulty = 'medium';
+        let matchDuration = 120;
+        let timeRemaining = 120;
+        let timerInterval = null;
+        let isGameRunning = false;
+        let isGoalScored = false;
+
+        let scoreP1 = 0;
+        let scoreP2 = 0;
+
+        // Key states
+        const keys = {};
+
+        // Field Dimensions (Internal Rendering Resolution)
+        const FIELD_WIDTH = 1000;
+        const FIELD_HEIGHT = 600;
+        const GOAL_HEIGHT = 180;
+        const GOAL_DEPTH = 50;
+
+        canvas.width = FIELD_WIDTH;
+        canvas.height = FIELD_HEIGHT;
+
+        class Ball {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.radius = 14;
+                this.friction = 0.985;
+                this.bounce = 0.75;
+                this.rotation = 0;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+
+                this.rotation += (this.vx + this.vy) * 0.05;
+
+                // Pitch Top/Bottom Collisions
+                if (this.y - this.radius < 25) {
+                    this.y = 25 + this.radius;
+                    this.vy *= -this.bounce;
+                }
+                if (this.y + this.radius > FIELD_HEIGHT - 25) {
+                    this.y = FIELD_HEIGHT - 25 - this.radius;
+                    this.vy *= -this.bounce;
+                }
+
+                // Field Side Walls (Outside Goals)
+                const goalTop = (FIELD_HEIGHT - GOAL_HEIGHT) / 2;
+                const goalBottom = goalTop + GOAL_HEIGHT;
+
+                // Left Side Wall
+                if (this.x - this.radius < 30) {
+                    if (this.y < goalTop || this.y > goalBottom) {
+                        this.x = 30 + this.radius;
+                        this.vx *= -this.bounce;
+                    } else if (this.x - this.radius < 30 - GOAL_DEPTH) { // Back of Left Goal
+                        this.x = 30 - GOAL_DEPTH + this.radius;
+                        this.vx *= -this.bounce;
+                    }
+                }
+
+                // Right Side Wall
+                if (this.x + this.radius > FIELD_WIDTH - 30) {
+                    if (this.y < goalTop || this.y > goalBottom) {
+                        this.x = FIELD_WIDTH - 30 - this.radius;
+                        this.vx *= -this.bounce;
+                    } else if (this.x + this.radius > FIELD_WIDTH - 30 + GOAL_DEPTH) { // Back of Right Goal
+                        this.x = FIELD_WIDTH - 30 + GOAL_DEPTH - this.radius;
+                        this.vx *= -this.bounce;
+                    }
+                }
+
+                // Goal Posts Collisions (Posts physics)
+                const posts = [
+                    {x: 30, y: goalTop}, {x: 30, y: goalBottom},
+                    {x: FIELD_WIDTH - 30, y: goalTop}, {x: FIELD_WIDTH - 30, y: goalBottom}
+                ];
+
+                posts.forEach(post => {
+                    const dx = this.x - post.x;
+                    const dy = this.y - post.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < this.radius + 8) { // Post radius = 8
+                        const angle = Math.atan2(dy, dx);
+                        const speed = Math.hypot(this.vx, this.vy) * 0.8;
+                        this.vx = Math.cos(angle) * (speed + 2);
+                        this.vy = Math.sin(angle) * (speed + 2);
+                        this.x = post.x + Math.cos(angle) * (this.radius + 8);
+                        this.y = post.y + Math.sin(angle) * (this.radius + 8);
+                    }
+                });
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+
+                // Ball Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(0, this.radius - 2, this.radius, this.radius * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ball Outer Circle
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Ball Pattern (Pentagon / Lines)
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * Math.PI * 2) / 5;
+                    const px = Math.cos(angle) * (this.radius * 0.5);
+                    const py = Math.sin(angle) * (this.radius * 0.5);
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        class Player {
+            constructor(x, y, color, isAI = false) {
+                this.startX = x;
+                this.startY = y;
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.radius = 22;
+                this.speed = 5.5;
+                this.color = color;
+                this.isAI = isAI;
+                this.power = 0; // Super Shot Charge
+                this.kickCooldown = 0;
+                this.facingAngle = 0;
+            }
+
+            reset() {
+                this.x = this.startX;
+                this.y = this.startY;
+                this.vx = 0;
+                this.vy = 0;
+            }
+
+            update(ball, opponent) {
+                // Charge super power passively
+                if (this.power < 100) this.power += 0.08;
+
+                if (this.kickCooldown > 0) this.kickCooldown--;
+
+                if (this.isAI) {
+                    this.updateAI(ball);
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.85;
+                this.vy *= 0.85;
+
+                // Boundary Constraints
+                this.x = Math.max(30 + this.radius, Math.min(FIELD_WIDTH - 30 - this.radius, this.x));
+                this.y = Math.max(25 + this.radius, Math.min(FIELD_HEIGHT - 25 - this.radius, this.y));
+
+                // Ball Interaction & Kick Physics
+                const dx = ball.x - this.x;
+                const dy = ball.y - this.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist > 0) {
+                    this.facingAngle = Math.atan2(dy, dx);
+                }
+
+                // Physical Push/Collision with Ball
+                if (dist < this.radius + ball.radius) {
+                    const overlap = (this.radius + ball.radius) - dist;
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+
+                    ball.x += nx * overlap;
+                    ball.y += ny * overlap;
+
+                    ball.vx += nx * 2 + this.vx * 0.5;
+                    ball.vy += ny * 2 + this.vy * 0.5;
+                }
+            }
+
+            updateAI(ball) {
+                let targetX = ball.x;
+                let targetY = ball.y;
+
+                // Simple AI state machine based on difficulty
+                const goalX = 30;
+                const ownGoalX = FIELD_WIDTH - 30;
+
+                let reactionSpeed = 0.8;
+                if (difficulty === 'easy') reactionSpeed = 0.5;
+                if (difficulty === 'hard') reactionSpeed = 0.95;
+
+                // Defensive Positioning if ball is in own half
+                if (ball.x > FIELD_WIDTH * 0.5) {
+                    // Attack / Intercept Ball
+                    targetX = ball.x;
+                    targetY = ball.y;
+                } else {
+                    // Cover Goal
+                    targetX = FIELD_WIDTH * 0.75;
+                    targetY = FIELD_HEIGHT / 2 + (ball.y - FIELD_HEIGHT / 2) * 0.6;
+                }
+
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist > 10) {
+                    this.vx += (dx / dist) * this.speed * 0.25 * reactionSpeed;
+                    this.vy += (dy / dist) * this.speed * 0.25 * reactionSpeed;
+                }
+
+                // AI Kick Decision
+                const ballDist = Math.hypot(ball.x - this.x, ball.y - this.y);
+                if (ballDist < this.radius + ball.radius + 15 && this.kickCooldown === 0) {
+                    // Kick towards player 1 goal
+                    const angleToGoal = Math.atan2((FIELD_HEIGHT / 2) - this.y, goalX - this.x);
+                    const isSuper = this.power >= 100 && Math.random() < 0.5;
+                    this.performKick(ball, angleToGoal, isSuper);
+                }
+            }
+
+            performKick(ball, angle, isSuper = false) {
+                const dist = Math.hypot(ball.x - this.x, ball.y - this.y);
+                if (dist <= this.radius + ball.radius + 20) {
+                    const force = isSuper ? 22 : 13;
+                    ball.vx = Math.cos(angle) * force;
+                    ball.vy = Math.sin(angle) * force;
+
+                    createKickParticles(ball.x, ball.y, isSuper ? '#fbbf24' : '#ffffff');
+                    audio.playKick(isSuper);
+
+                    if (isSuper) this.power = 0;
+                    this.kickCooldown = 15;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(0, this.radius - 2, this.radius, this.radius * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Player Body Gradient
+                const grad = ctx.createRadialGradient(-5, -5, 2, 0, 0, this.radius);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.3, this.color);
+                grad.addColorStop(1, '#0f172a');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                // Direction Indicator / Shoe
+                ctx.rotate(this.facingAngle);
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(this.radius * 0.7, 0, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        let particles = [];
+        function createKickParticles(x, y, color) {
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    radius: Math.random() * 4 + 2,
+                    color: color,
+                    life: 1.0
+                });
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.04;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        // Initialize Entities
+        const ball = new Ball(FIELD_WIDTH / 2, FIELD_HEIGHT / 2);
+        const player1 = new Player(180, FIELD_HEIGHT / 2, '#2563eb');
+        const player2 = new Player(FIELD_WIDTH - 180, FIELD_HEIGHT / 2, '#dc2626', true);
+
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            audio.init();
+        });
+        window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+        // Touch Controls Hookup
+        function setupTouchBtn(id, keyCode) {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyCode] = true; audio.init(); });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyCode] = false; });
+        }
+
+        setupTouchBtn('btn-up', 'KeyW');
+        setupTouchBtn('btn-down', 'KeyS');
+        setupTouchBtn('btn-left', 'KeyA');
+        setupTouchBtn('btn-right', 'KeyD');
+        setupTouchBtn('btn-kick', 'Space');
+        setupTouchBtn('btn-super', 'ShiftLeft');
+
+        function processInputs() {
+            // Player 1 Controls (WASD / Arrows)
+            if (keys['KeyW'] || keys['ArrowUp']) player1.vy -= player1.speed * 0.3;
+            if (keys['KeyS'] || keys['ArrowDown']) player1.vy += player1.speed * 0.3;
+            if (keys['KeyA'] || keys['ArrowLeft']) player1.vx -= player1.speed * 0.3;
+            if (keys['KeyD'] || keys['ArrowRight']) player1.vx += player1.speed * 0.3;
+
+            // Player 1 Kick Action
+            if (keys['Space'] && player1.kickCooldown === 0) {
+                const angle = player1.facingAngle;
+                player1.performKick(ball, angle, false);
+            }
+            if (keys['ShiftLeft'] && player1.power >= 100) {
+                const angle = player1.facingAngle;
+                player1.performKick(ball, angle, true);
+            }
+
+            // Player 2 Controls (Only in 2 Players Mode)
+            if (gameMode === '2p') {
+                if (keys['Numpad8'] || keys['KeyI']) player2.vy -= player2.speed * 0.3;
+                if (keys['Numpad5'] || keys['KeyK']) player2.vy += player2.speed * 0.3;
+                if (keys['Numpad4'] || keys['KeyJ']) player2.vx -= player2.speed * 0.3;
+                if (keys['Numpad6'] || keys['KeyL']) player2.vx += player2.speed * 0.3;
+
+                if (keys['Enter'] && player2.kickCooldown === 0) {
+                    const angle = player2.facingAngle;
+                    player2.performKick(ball, angle, false);
+                }
+                if (keys['Numpad0'] && player2.power >= 100) {
+                    const angle = player2.facingAngle;
+                    player2.performKick(ball, angle, true);
+                }
+            }
+        }
+
+        function checkGoals() {
+            if (isGoalScored) return;
+
+            const goalTop = (FIELD_HEIGHT - GOAL_HEIGHT) / 2;
+            const goalBottom = goalTop + GOAL_HEIGHT;
+
+            // Ball inside Right Goal (Goal for Player 1)
+            if (ball.x + ball.radius > FIELD_WIDTH - 30 && ball.y > goalTop && ball.y < goalBottom) {
+                scoreP1++;
+                handleGoal('هدف للاعب 1! 🎉', 'p1');
+            }
+
+            // Ball inside Left Goal (Goal for Player 2 / AI)
+            if (ball.x - ball.radius < 30 && ball.y > goalTop && ball.y < goalBottom) {
+                scoreP2++;
+                handleGoal(gameMode === 'ai' ? 'هدف للكمبيوتر! 🤖' : 'هدف للاعب 2! 🎉', 'p2');
+            }
+        }
+
+        function handleGoal(text, winnerKey) {
+            isGoalScored = true;
+            audio.playGoal();
+            updateUI();
+
+            // Show Animated Goal Overlay Message
+            const overlay = document.getElementById('overlay-msg');
+            const msgText = document.getElementById('msg-text');
+            msgText.innerText = text;
+            overlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                resetPositions();
+                isGoalScored = false;
+            }, 2000);
+        }
+
+        function resetPositions() {
+            ball.x = FIELD_WIDTH / 2;
+            ball.y = FIELD_HEIGHT / 2;
+            ball.vx = 0;
+            ball.vy = 0;
+            player1.reset();
+            player2.reset();
+        }
+
+        function drawPitch() {
+            // Grass Green Gradient Background
+            const pitchGrad = ctx.createLinearGradient(0, 0, 0, FIELD_HEIGHT);
+            pitchGrad.addColorStop(0, '#15803d');
+            pitchGrad.addColorStop(1, '#166534');
+            ctx.fillStyle = pitchGrad;
+            ctx.fillRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT);
+
+            // Pitch Lines Styling
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 4;
+
+            // Outer Boundary Line
+            ctx.strokeRect(30, 25, FIELD_WIDTH - 60, FIELD_HEIGHT - 50);
+
+            // Halfway Line
+            ctx.beginPath();
+            ctx.moveTo(FIELD_WIDTH / 2, 25);
+            ctx.lineTo(FIELD_WIDTH / 2, FIELD_HEIGHT - 25);
+            ctx.stroke();
+
+            // Center Circle & Spot
+            ctx.beginPath();
+            ctx.arc(FIELD_WIDTH / 2, FIELD_HEIGHT / 2, 70, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(FIELD_WIDTH / 2, FIELD_HEIGHT / 2, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Goal Areas
+            const goalTop = (FIELD_HEIGHT - GOAL_HEIGHT) / 2;
+
+            // Left Penalty Area
+            ctx.strokeRect(30, goalTop - 30, 120, GOAL_HEIGHT + 60);
+            // Right Penalty Area
+            ctx.strokeRect(FIELD_WIDTH - 150, goalTop - 30, 120, GOAL_HEIGHT + 60);
+
+            // Draw Goal Posts & Nets
+            // Left Goal Net
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(30 - GOAL_DEPTH, goalTop, GOAL_DEPTH, GOAL_HEIGHT);
+            ctx.strokeRect(30 - GOAL_DEPTH, goalTop, GOAL_DEPTH, GOAL_HEIGHT);
+
+            // Right Goal Net
+            ctx.fillRect(FIELD_WIDTH - 30, goalTop, GOAL_DEPTH, GOAL_HEIGHT);
+            ctx.strokeRect(FIELD_WIDTH - 30, goalTop, GOAL_DEPTH, GOAL_HEIGHT);
+
+            // Goal Posts (Poles)
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(30, goalTop, 8, 0, Math.PI * 2);
+            ctx.arc(30, goalTop + GOAL_HEIGHT, 8, 0, Math.PI * 2);
+            ctx.arc(FIELD_WIDTH - 30, goalTop, 8, 0, Math.PI * 2);
+            ctx.arc(FIELD_WIDTH - 30, goalTop + GOAL_HEIGHT, 8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            const btnAi = document.getElementById('btn-mode-ai');
+            const btn2p = document.getElementById('btn-mode-2p');
+            const diffOpt = document.getElementById('difficulty-option');
+            const p2Name = document.getElementById('p2-name');
+
+            if (mode === 'ai') {
+                btnAi.className = 'py-2 px-3 rounded-xl border border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold text-sm';
+                btn2p.className = 'py-2 px-3 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-bold text-sm';
+                diffOpt.classList.remove('hidden');
+                p2Name.innerText = 'الكمبيوتر';
+                player2.isAI = true;
+            } else {
+                btn2p.className = 'py-2 px-3 rounded-xl border border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold text-sm';
+                btnAi.className = 'py-2 px-3 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-bold text-sm';
+                diffOpt.classList.add('hidden');
+                p2Name.innerText = 'اللاعب 2';
+                player2.isAI = false;
+            }
+        }
+
+        function startGame() {
+            audio.init();
+            audio.playWhistle();
+
+            difficulty = document.getElementById('select-difficulty').value;
+            matchDuration = parseInt(document.getElementById('select-time').value);
+            timeRemaining = matchDuration;
+
+            scoreP1 = 0;
+            scoreP2 = 0;
+            updateUI();
+
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('game-over-menu').classList.add('hidden');
+
+            resetPositions();
+            isGameRunning = true;
+
+            // Start Timer
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (isGameRunning && timeRemaining > 0) {
+                    timeRemaining--;
+                    updateTimerDisplay();
+                    if (timeRemaining <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+            const secs = (timeRemaining % 60).toString().padStart(2, '0');
+            document.getElementById('game-timer').innerText = `${mins}:${secs}`;
+        }
 
         function updateUI() {
-            document.getElementById('points').innerText = points;
+            document.getElementById('score-p1').innerText = scoreP1;
+            document.getElementById('score-p2').innerText = scoreP2;
+            document.getElementById('p1-power').style.width = `${player1.power}%`;
+            document.getElementById('p2-power').style.width = `${player2.power}%`;
         }
 
-        function switchView(view) {
-            currentView = view;
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${view}`).classList.add('active');
+        function endGame() {
+            isGameRunning = false;
+            clearInterval(timerInterval);
+            audio.playWhistle();
 
-            const container = document.getElementById('dynamic-view');
+            const gameOverMenu = document.getElementById('game-over-menu');
+            const winnerTitle = document.getElementById('winner-title');
+            const finalScore = document.getElementById('final-score');
 
-            if (view === 'scene') {
-                container.innerHTML = `
-                    <div class="case-card">
-                        <div class="card-header">🔍 معاينة مسرح الجريمة (اختر مكاناً لتفتيشه)</div>
-                        <div class="action-grid" style="margin-top: 10px;">
-                            <button class="action-btn" onclick="inspect('desk')">📑 تفتيش المكتب</button>
-                            <button class="action-btn" onclick="inspect('clock')">🕰️ معاينة الساعة</button>
-                            <button class="action-btn" onclick="inspect('glass')">🍷 فحص الكؤوس</button>
-                            <button class="action-btn" onclick="inspect('safe')">🔓 فتح الخزنة</button>
-                        </div>
-                    </div>
-                    <div id="dialogue-target"></div>
-                `;
-            } else if (view === 'suspects') {
-                container.innerHTML = `
-                    <div class="case-card">
-                        <div class="card-header">👥 استجواب المشتبه فيهم</div>
-                        <div class="action-grid" style="margin-top: 10px;">
-                            <button class="action-btn" onclick="interrogate('s1')">🤵 خالد (الشريك)</button>
-                            <button class="action-btn" onclick="interrogate('s2')">💃 مريم (الزوجة)</button>
-                            <button class="action-btn" onclick="interrogate('s3')">👨‍🍳 سعيد (الخادم)</button>
-                        </div>
-                    </div>
-                    <div id="dialogue-target"></div>
-                `;
-            } else if (view === 'clues') {
-                let cluesHtml = cluesFound.map(c => `
-                    <div style="background:#1f2937; padding:8px; border-radius:4px; margin-bottom:6px; border-right:3px solid #f59e0b;">
-                        <b style="color:#f59e0b; font-size:12px;">${c.name}</b>
-                        <p style="font-size:11px; color:#cbd5e1; margin-top:2px;">${c.text}</p>
-                    </div>
-                `).join('');
+            finalScore.innerText = `${scoreP1} - ${scoreP2}`;
 
-                container.innerHTML = `
-                    <div class="case-card">
-                        <div class="card-header">📁 الأدلة المسجلة (${cluesFound.length}/4)</div>
-                        <div class="card-body" style="margin-top:10px;">
-                            ${cluesFound.length === 0 ? "لم تجمع أي أدلة بعد. قم بتفتيش مسرح الجريمة!" : cluesHtml}
-                        </div>
-                    </div>
-                `;
-            } else if (view === 'accuse') {
-                container.innerHTML = `
-                    <div class="case-card">
-                        <div class="card-header">⚖️ إصدار أمر القبض والإدانة</div>
-                        <div class="card-body">
-                            بناءً على الأدلة والتحقيقات، حدد القاتل الحقيقي المرتكب للجريمة:
-                            <select id="suspect-select" class="suspect-select">
-                                <option value="s1">خالد (الشريك التجاري)</option>
-                                <option value="s2">مريم (الزوجة)</option>
-                                <option value="s3">سعيد (الخادم)</option>
-                            </select>
-                            <button class="accuse-btn" onclick="makeAccusation()">🚨 إغلاق القضية والقبض على الجاني</button>
-                        </div>
-                    </div>
-                `;
+            if (scoreP1 > scoreP2) {
+                winnerTitle.innerText = 'اللاعب 1 فاز باللقب! 🏆';
+                winnerTitle.className = 'text-4xl md:text-6xl font-black mb-2 text-blue-400';
+            } else if (scoreP2 > scoreP1) {
+                winnerTitle.innerText = gameMode === 'ai' ? 'الكمبيوتر كسب المباراة! 🤖' : 'اللاعب 2 فاز باللقب! 🏆';
+                winnerTitle.className = 'text-4xl md:text-6xl font-black mb-2 text-red-400';
+            } else {
+                winnerTitle.innerText = 'تعادل متعادل! 🤝';
+                winnerTitle.className = 'text-4xl md:text-6xl font-black mb-2 text-yellow-400';
             }
+
+            gameOverMenu.classList.remove('hidden');
         }
 
-        function inspect(key) {
-            if (points <= 0) {
-                alert("نفذت نقاط التحقيق المتاحة لدي اليوم!");
-                return;
-            }
-            const clue = cluesData[key];
-            if (!cluesFound.some(c => c.name === clue.name)) {
-                cluesFound.push(clue);
-                points--;
+        function resetToMenu() {
+            document.getElementById('game-over-menu').classList.add('hidden');
+            document.getElementById('main-menu').classList.remove('hidden');
+        }
+
+        function gameLoop() {
+            if (isGameRunning) {
+                processInputs();
+
+                player1.update(ball, player2);
+                player2.update(ball, player1);
+                ball.update();
+
+                checkGoals();
+                updateParticles();
                 updateUI();
             }
-            document.getElementById('dialogue-target').innerHTML = `
-                <div class="dialogue-box">
-                    <b>🔍 نتيجة المعاينة:</b><br>${clue.text}
-                </div>
-            `;
+
+            // Render
+            ctx.clearRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT);
+            drawPitch();
+            drawParticles();
+            player1.draw();
+            player2.draw();
+            ball.draw();
+
+            requestAnimationFrame(gameLoop);
         }
 
-        function interrogate(key) {
-            if (points <= 0) {
-                alert("نفذت نقاط التحقيق!");
-                return;
-            }
-            const s = suspectsData[key];
-            points--;
-            updateUI();
-            document.getElementById('dialogue-target').innerHTML = `
-                <div class="dialogue-box">
-                    <b>🗣️ أقوال ${s.name}:</b><br>"${s.dialogue}"
-                </div>
-            `;
-        }
-
-        function makeAccusation() {
-            const selected = document.getElementById('suspect-select').value;
-            if (selected === 's2') {
-                alert("🎉 مبروك يا سيادة المحقق! إجابة صحيحة 100%!\n\nالجاني هي الزوجة (مريم)؛ حيث وضعت المنوم في الكأس واستخدمت دبوس الزينة الخاص بها لإخفاء معالم السرقات والديون.");
-            } else {
-                alert("❌ اتهام خاطئ! الجاني الحقيقي استغل عدم تركيزك وربح القضية وفَر هارباً.");
-            }
-        }
-
-        // تشغيل البداية
-        switchView('scene');
-        updateUI();
+        // Start Loop on Window Load
+        window.onload = function() {
+            gameLoop();
+        };
     </script>
 </body>
-</html>
+    </html>
