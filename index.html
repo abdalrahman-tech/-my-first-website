@@ -3,604 +3,976 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة البقاء في المحيط - Ocean Survival Canvas Game</title>
+    <title>لعبة البقاء في المحيط ثلاثية الأبعاد - 3D Ocean Raft Survival</title>
+    
+    <!-- Tailwind CSS & FontAwesome Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        
         * {
-            box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body, html {
             margin: 0;
             padding: 0;
-        }
-        body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #0b1d3a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
+            background-color: #030a16;
+            color: #ffffff;
         }
-        #game-container {
-            position: relative;
+
+        #canvas-container {
             width: 100vw;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, #1a3c40, #071e22);
-        }
-        /* UI Overlay */
-        .ui-panel {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(10, 25, 47, 0.85);
-            border: 2px solid #00adb5;
-            border-radius: 12px;
-            padding: 12px 18px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            min-width: 220px;
-            pointer-events: none;
-        }
-        .stat-bar {
-            margin-bottom: 8px;
-        }
-        .stat-bar:last-child {
-            margin-bottom: 0;
-        }
-        .stat-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 3px;
-            color: #e3e3e3;
-        }
-        .bar-outer {
-            width: 100%;
-            height: 10px;
-            background: #222831;
-            border-radius: 5px;
-            overflow: hidden;
-            border: 1px solid #393e46;
-        }
-        .bar-inner {
-            height: 100%;
-            width: 100%;
-            transition: width 0.2s ease;
-        }
-        #health-bar { background: linear-gradient(90deg, #ff4b4b, #ff6b6b); }
-        #hunger-bar { background: linear-gradient(90deg, #f0a500, #ffc93c); }
-        #thirst-bar { background: linear-gradient(90deg, #00adb5, #00fff5); }
-
-        .inventory-panel {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(10, 25, 47, 0.85);
-            border: 2px solid #00adb5;
-            border-radius: 12px;
-            padding: 10px 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            pointer-events: none;
-            display: flex;
-            gap: 12px;
-            font-size: 14px;
-        }
-        .inv-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
 
-        /* Controls */
-        .controls-container {
-            position: absolute;
-            bottom: 25px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 30px;
-            box-sizing: border-box;
-            pointer-events: none;
+        /* Glassmorphism UI Style */
+        .glass-panel {
+            background: rgba(10, 25, 47, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
-        .touch-btn {
-            pointer-events: auto;
-            background: radial-gradient(circle, rgba(0, 173, 181, 0.8) 0%, rgba(15, 76, 92, 0.9) 100%);
-            border: 2px solid #00fff5;
-            border-radius: 50%;
-            color: #fff;
-            width: 65px;
-            height: 65px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 20px;
-            box-shadow: 0 4px 15px rgba(0, 255, 245, 0.3);
-            cursor: pointer;
-            touch-action: manipulation;
+
+        .glass-btn {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(79, 172, 254, 0.4));
+            border: 1px solid rgba(0, 242, 254, 0.5);
+            backdrop-filter: blur(8px);
+            transition: all 0.15s ease-in-out;
         }
-        .touch-btn:active {
+
+        .glass-btn:active {
             transform: scale(0.92);
-            background: #00fff5;
-            color: #000;
-        }
-        .action-btns {
-            display: flex;
-            gap: 12px;
-        }
-        .action-btn {
-            border-radius: 12px;
-            width: auto;
-            padding: 0 20px;
-            height: 55px;
-            font-size: 15px;
-            background: linear-gradient(135deg, #ff5722, #e64a19);
-            border-color: #ff8a65;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.6), rgba(79, 172, 254, 0.8));
         }
 
-        /* Game Over Modal */
-        #game-over-modal {
+        /* Animated Progress Bars */
+        .progress-fill {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom Scrollbar for Inventory */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.4);
+            border-radius: 4px;
+        }
+
+        .floating-text {
+            animation: floatUp 1.2s ease-out forwards;
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
+            pointer-events: none;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0,0,0,0.8);
+            z-index: 50;
         }
-        #game-over-modal h1 {
-            color: #ff4b4b;
-            font-size: 36px;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(255, 75, 75, 0.5);
-        }
-        #restart-btn {
-            margin-top: 20px;
-            padding: 12px 30px;
-            font-size: 18px;
-            background: #00adb5;
-            border: none;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 173, 181, 0.5);
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.2); }
         }
     </style>
 </head>
-<body>
+<body class="select-none overflow-hidden bg-slate-950 text-white">
 
-<div id="game-container">
-    <canvas id="gameCanvas"></canvas>
+<!-- 3D Canvas Container -->
+<div id="canvas-container"></div>
 
-    <!-- Stats Panel -->
-    <div class="ui-panel">
-        <div class="stat-bar">
-            <div class="stat-label"><span>الصحة</span><span id="health-val">100%</span></div>
-            <div class="bar-outer"><div id="health-bar" class="bar-inner"></div></div>
+<!-- HUD Interface Layer -->
+<div id="ui-layer" class="relative z-10 w-full h-full pointer-events-none flex flex-col justify-between p-4 md:p-6">
+    
+    <!-- Top Bar: Stats & Inventory -->
+    <div class="flex flex-col md:flex-row justify-between items-start gap-4 w-full">
+        
+        <!-- Left Side: Player Status Bars -->
+        <div class="glass-panel rounded-2xl p-4 w-72 pointer-events-auto flex flex-col gap-2.5">
+            <div class="flex items-center justify-between text-xs font-bold mb-1 border-b border-cyan-500/20 pb-1">
+                <span class="text-cyan-400"><i class="fa-solid fa-heart-pulse ml-1"></i> المؤشرات الحيوية</span>
+                <span id="day-night-indicator" class="text-amber-400"><i class="fa-solid fa-sun ml-1"></i> النهار</span>
+            </div>
+
+            <!-- Health Bar -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-red-400"><i class="fa-solid fa-heart ml-1"></i> الصحة</span>
+                    <span id="val-health">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-red-500/30">
+                    <div id="bar-health" class="progress-fill h-full bg-gradient-to-r from-red-600 to-rose-400 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Hunger Bar -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-amber-400"><i class="fa-solid fa-drumstick-bite ml-1"></i> الجوع</span>
+                    <span id="val-hunger">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-amber-500/30">
+                    <div id="bar-hunger" class="progress-fill h-full bg-gradient-to-r from-amber-600 to-yellow-400 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Thirst Bar -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-cyan-400"><i class="fa-solid fa-droplet ml-1"></i> العطش</span>
+                    <span id="val-thirst">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-cyan-500/30">
+                    <div id="bar-thirst" class="progress-fill h-full bg-gradient-to-r from-cyan-600 to-sky-400 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Raft Durability -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-emerald-400"><i class="fa-solid fa-shield-halved ml-1"></i> صلابة القارب</span>
+                    <span id="val-raft">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-emerald-500/30">
+                    <div id="bar-raft" class="progress-fill h-full bg-gradient-to-r from-emerald-600 to-teal-400 w-full"></div>
+                </div>
+            </div>
         </div>
-        <div class="stat-bar">
-            <div class="stat-label"><span>الجوع</span><span id="hunger-val">100%</span></div>
-            <div class="bar-outer"><div id="hunger-bar" class="bar-inner"></div></div>
-        </div>
-        <div class="stat-bar">
-            <div class="stat-label"><span>العطش</span><span id="thirst-val">100%</span></div>
-            <div class="bar-outer"><div id="thirst-bar" class="bar-inner"></div></div>
+
+        <!-- Right Side: Resources Inventory HUD -->
+        <div class="glass-panel rounded-2xl p-3.5 pointer-events-auto flex gap-4 items-center">
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-amber-800/40">
+                <i class="fa-solid fa-tree text-amber-600 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">خشب</div>
+                    <div id="inv-wood" class="font-bold text-sm text-amber-200">0</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-rose-800/40">
+                <i class="fa-solid fa-fish text-rose-500 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">طعام</div>
+                    <div id="inv-food" class="font-bold text-sm text-rose-200">2</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-sky-800/40">
+                <i class="fa-solid fa-bottle-water text-sky-400 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">ماء</div>
+                    <div id="inv-water" class="font-bold text-sm text-sky-200">2</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-700">
+                <i class="fa-solid fa-cubes-stacked text-slate-400 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">خردة</div>
+                    <div id="inv-scrap" class="font-bold text-sm text-slate-200">0</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Inventory Panel -->
-    <div class="inventory-panel">
-        <div class="inv-item">🪵 <span id="wood-cnt">0</span></div>
-        <div class="inv-item">🥩 <span id="food-cnt">2</span></div>
-        <div class="inv-item">💧 <span id="water-cnt">2</span></div>
-        <div class="inv-item">⏱️ <span id="time-cnt">0s</span></div>
-    </div>
-
-    <!-- Controls -->
-    <div class="controls-container">
-        <div style="display: flex; gap: 10px;">
-            <div class="touch-btn" id="btn-left">◄</div>
-            <div class="touch-btn" id="btn-right">►</div>
-        </div>
-        <div class="action-btns">
-            <div class="touch-btn action-btn" id="btn-eat">أكل 🥩</div>
-            <div class="touch-btn action-btn" id="btn-drink" style="background: linear-gradient(135deg, #0288d1, #01579b); border-color: #4fc3f7;">شرب 💧</div>
+    <!-- Notification / Warning Center -->
+    <div class="w-full flex justify-center pointer-events-none">
+        <div id="warning-toast" class="opacity-0 transition-opacity duration-300 glass-panel border-red-500 text-red-400 px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+            <span id="warning-msg">قرش يقترب من القارب!</span>
         </div>
     </div>
 
-    <!-- Game Over Screen -->
-    <div id="game-over-modal">
-        <h1>انتهت اللعبة!</h1>
-        <p id="death-reason" style="color: #ccc; font-size: 18px;"></p>
-        <p style="margin-top: 10px; font-size: 16px;">الصمود: <span id="final-time">0</span> ثانية</p>
-        <button id="restart-btn" onclick="resetGame()">إعادة المحاولة</button>
+    <!-- Bottom Controls Section -->
+    <div class="flex justify-between items-end w-full pb-2">
+        
+        <!-- Virtual Movement Joystick / Buttons -->
+        <div class="pointer-events-auto flex flex-col items-center gap-1">
+            <button id="btn-up" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-up"></i></button>
+            <div class="flex gap-2">
+                <button id="btn-left" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-right"></i></button>
+                <button id="btn-down" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-down"></i></button>
+                <button id="btn-right" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-left"></i></button>
+            </div>
+        </div>
+
+        <!-- Survival Action Buttons -->
+        <div class="pointer-events-auto flex flex-wrap max-w-xs md:max-w-none gap-2.5 justify-end">
+            <!-- Hook Action -->
+            <button id="btn-hook" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-cyan-300 font-bold text-sm shadow-xl border-cyan-400/40 active:scale-95">
+                <i class="fa-solid fa-anchor text-lg"></i>
+                <span>خطاف الصيد</span>
+            </button>
+
+            <!-- Eat Food -->
+            <button id="btn-eat" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-amber-300 font-bold text-sm shadow-xl border-amber-400/40 active:scale-95">
+                <i class="fa-solid fa-utensils text-lg"></i>
+                <span>أكل</span>
+            </button>
+
+            <!-- Drink Water -->
+            <button id="btn-drink" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-sky-300 font-bold text-sm shadow-xl border-sky-400/40 active:scale-95">
+                <i class="fa-solid fa-glass-water text-lg"></i>
+                <span>شرب</span>
+            </button>
+
+            <!-- Repair/Expand Raft -->
+            <button id="btn-repair" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-emerald-300 font-bold text-sm shadow-xl border-emerald-400/40 active:scale-95">
+                <i class="fa-solid fa-hammer text-lg"></i>
+                <span>إصلاح القارب</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Game Over Modal -->
+<div id="game-over-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex-col items-center justify-center p-6 text-center">
+    <div class="glass-panel border-red-500/50 p-8 rounded-3xl max-w-md w-full flex flex-col items-center gap-5 shadow-2xl">
+        <div class="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center text-red-500 text-4xl animate-pulse">
+            <i class="fa-solid fa-skull"></i>
+        </div>
+        <h1 class="text-3xl font-black text-red-500">انتهت اللعبة!</h1>
+        <p id="death-cause" class="text-gray-300 text-sm leading-relaxed">لم تتمكن من البقاء على قيد الحياة في المحيط.</p>
+        <div class="bg-slate-900/80 p-4 rounded-xl w-full flex justify-around border border-slate-800">
+            <div>
+                <div class="text-xs text-gray-400">مدة الصمود</div>
+                <div id="stat-survival-time" class="text-xl font-bold text-cyan-400">00:00</div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-400">الموارد المجمعة</div>
+                <div id="stat-collected" class="text-xl font-bold text-emerald-400">0</div>
+            </div>
+        </div>
+        <button id="btn-restart" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black rounded-xl text-lg shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+            <i class="fa-solid fa-rotate-right ml-2"></i> المحاولة مجدداً
+        </button>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Canvas Resize
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+/* Audio Synthesizer Class (Standalone - No External Audio Files) */
+class SoundEffects {
+    constructor() {
+        this.ctx = null;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
 
-    // Audio Synthesizer (Web Audio API - Standalone)
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    playCollect() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        if (type === 'collect') {
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-        } else if (type === 'eat') {
-            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-        } else if (type === 'hurt') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-        }
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
     }
 
-    // Game State
-    let gameOver = false;
-    let timeSurvived = 0;
-    let timerInterval = null;
+    playEat() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(320, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+    }
 
-    const player = {
-        x: canvas.width / 2,
-        y: canvas.height * 0.65,
-        width: 90,
-        height: 45,
-        speed: 6,
-        dx: 0,
-        health: 100,
-        hunger: 100,
-        thirst: 100,
-        wood: 0,
-        food: 2,
-        water: 2
+    playDrink() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+    }
+
+    playSharkAttack() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.4);
+    }
+
+    playRepair() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.setValueAtTime(450, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.18);
+    }
+}
+
+const sfx = new SoundEffects();
+</script>
+
+<script>
+// Global Game State
+const state = {
+    health: 100,
+    hunger: 100,
+    thirst: 100,
+    raftDurability: 100,
+    wood: 5,
+    food: 3,
+    water: 3,
+    scrap: 2,
+    timeSurvived: 0,
+    totalCollected: 0,
+    gameOver: false,
+    dayTime: 0 // 0 to 1 cycle
+};
+
+// Movement Controls
+const move = { forward: 0, right: 0 };
+
+// 3D Scene Variables
+let scene, camera, renderer;
+let oceanMesh, raftGroup, sharkGroup;
+let sunLight, ambientLight;
+let itemsInSea = [];
+let particleSystem;
+const clock = new THREE.Clock();
+
+// Initialize Three.js Engine
+function initEngine() {
+    const container = document.getElementById('canvas-container');
+
+    // Scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a192f);
+    scene.fog = new THREE.FogExp2(0x0a192f, 0.015);
+
+    // Camera
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 8, 14);
+    camera.lookAt(0, 0, 0);
+
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    ambientLight = new THREE.AmbientLight(0x7ac1ff, 0.6);
+    scene.add(ambientLight);
+
+    sunLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+    sunLight.position.set(30, 50, 20);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 150;
+    const d = 20;
+    sunLight.shadow.camera.left = -d;
+    sunLight.shadow.camera.right = d;
+    sunLight.shadow.camera.top = d;
+    sunLight.shadow.camera.bottom = -d;
+    scene.add(sunLight);
+
+    // Create World Objects
+    createOcean();
+    createRaft();
+    createShark();
+    createParticles();
+
+    // Resize Handler
+    window.addEventListener('resize', onWindowResize);
+}
+
+// Custom Animated Water Plane
+function createOcean() {
+    const geo = new THREE.PlaneGeometry(300, 300, 64, 64);
+    geo.rotateX(-Math.PI / 2);
+
+    const mat = new THREE.MeshStandardMaterial({
+        color: 0x006688,
+        roughness: 0.1,
+        metalness: 0.8,
+        flatShading: true
+    });
+
+    oceanMesh = new THREE.Mesh(geo, mat);
+    oceanMesh.receiveShadow = true;
+    scene.add(oceanMesh);
+}
+
+// Get wave height at specific (x, z) coordinates
+function getWaveHeight(x, z, time) {
+    return Math.sin(x * 0.2 + time * 2) * 0.4 + Math.cos(z * 0.15 + time * 1.5) * 0.3;
+}
+
+// Procedural Wooden Raft Creation
+function createRaft() {
+    raftGroup = new THREE.Group();
+
+    // Wood Logs Texture Material
+    const logMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.8 });
+    const ropeMat = new THREE.MeshStandardMaterial({ color: 0xD2B48C, roughness: 0.9 });
+
+    // Create Raft Planks Grid (3x3 logs)
+    const logGeo = new THREE.CylinderGeometry(0.35, 0.35, 5, 8);
+    for (let i = -2; i <= 2; i += 1) {
+        const log = new THREE.Mesh(logGeo, logMat);
+        log.rotation.z = Math.PI / 2;
+        log.position.z = i * 0.9;
+        log.castShadow = true;
+        log.receiveShadow = true;
+        raftGroup.add(log);
+    }
+
+    // Cross Support Logs
+    for (let i = -1.5; i <= 1.5; i += 3) {
+        const crossLog = new THREE.Mesh(logGeo, logMat);
+        crossLog.rotation.x = Math.PI / 2;
+        crossLog.position.x = i;
+        crossLog.position.y = 0.2;
+        crossLog.scale.set(0.8, 0.9, 0.8);
+        crossLog.castShadow = true;
+        raftGroup.add(crossLog);
+    }
+
+    // Wooden Shelter Frame / Flagpole
+    const poleGeo = new THREE.CylinderGeometry(0.1, 0.1, 3, 8);
+    const pole = new THREE.Mesh(poleGeo, logMat);
+    pole.position.set(-1.8, 1.5, -1.8);
+    pole.castShadow = true;
+    raftGroup.add(pole);
+
+    // Sail / Cloth
+    const sailGeo = new THREE.BufferGeometry();
+    const vertices = new Float32Array([
+        -1.8, 2.8, -1.8,
+        -1.8, 1.6, -1.8,
+        -0.2, 2.2, -1.8
+    ]);
+    sailGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    sailGeo.computeVertexNormals();
+    const sailMat = new THREE.MeshStandardMaterial({ color: 0xF5F5DC, side: THREE.DoubleSide });
+    const sail = new THREE.Mesh(sailGeo, sailMat);
+    sail.castShadow = true;
+    raftGroup.add(sail);
+
+    // Survivor Character Silhouette
+    const survivorMat = new THREE.MeshStandardMaterial({ color: 0xe0a96d });
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), survivorMat);
+    head.position.set(0, 1.3, 0);
+    head.castShadow = true;
+    raftGroup.add(head);
+
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.9, 8), new THREE.MeshStandardMaterial({ color: 0x225588 }));
+    body.position.set(0, 0.65, 0);
+    body.castShadow = true;
+    raftGroup.add(body);
+
+    scene.add(raftGroup);
+}
+
+// Procedural 3D Shark Creation
+function createShark() {
+    sharkGroup = new THREE.Group();
+    const sharkMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.4 });
+
+    // Shark Fin
+    const finShape = new THREE.Shape();
+    finShape.moveTo(0, 0);
+    finShape.lineTo(0.8, 1.2);
+    finShape.lineTo(1.4, 0);
+    finShape.closePath();
+
+    const extrudeSettings = { depth: 0.15, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.05, bevelThickness: 0.05 };
+    const finGeo = new THREE.ExtrudeGeometry(finShape, extrudeSettings);
+    const fin = new THREE.Mesh(finGeo, sharkMat);
+    fin.rotation.y = Math.PI / 2;
+    fin.position.set(0, -0.2, -0.6);
+    fin.castShadow = true;
+    sharkGroup.add(fin);
+
+    // Body (Underwater Silhouette)
+    const bodyGeo = new THREE.ConeGeometry(0.8, 3.5, 8);
+    const body = new THREE.Mesh(bodyGeo, sharkMat);
+    body.rotation.x = Math.PI / 2;
+    body.position.set(0, -0.8, 0);
+    sharkGroup.add(body);
+
+    sharkGroup.position.set(20, 0, 20);
+    scene.add(sharkGroup);
+}
+
+// Atmosphere Particles
+function createParticles() {
+    const count = 150;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+
+    for (let i = 0; i < count * 3; i += 3) {
+        pos[i] = (Math.random() - 0.5) * 80;
+        pos[i + 1] = Math.random() * 15;
+        pos[i + 2] = (Math.random() - 0.5) * 80;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.15, color: 0x00ffff, transparent: true, opacity: 0.5 });
+    particleSystem = new THREE.Points(geo, mat);
+    scene.add(particleSystem);
+}
+
+// Spawn Floating Collectibles in Sea
+function spawnSeaItem() {
+    if (itemsInSea.length > 12 || state.gameOver) return;
+
+    const types = ['wood', 'food', 'water', 'scrap'];
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    const itemGroup = new THREE.Group();
+    let mat, geo;
+
+    if (type === 'wood') {
+        // Crate
+        geo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+        mat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.7 });
+    } else if (type === 'water') {
+        // Water Jug
+        geo = new THREE.CylinderGeometry(0.3, 0.3, 0.8, 12);
+        mat = new THREE.MeshStandardMaterial({ color: 0x00bfff, roughness: 0.2, transparent: true, opacity: 0.8 });
+    } else if (type === 'food') {
+        // Barrel
+        geo = new THREE.CylinderGeometry(0.4, 0.4, 0.9, 12);
+        mat = new THREE.MeshStandardMaterial({ color: 0xa52a2a, roughness: 0.6 });
+    } else {
+        // Scrap Metal
+        geo = new THREE.DodecahedronGeometry(0.4);
+        mat = new THREE.MeshStandardMaterial({ color: 0x708090, metalness: 0.9, roughness: 0.3 });
+    }
+
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    itemGroup.add(mesh);
+
+    // Random Angle Spawn around player
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 25 + Math.random() * 15;
+    itemGroup.position.x = raftGroup.position.x + Math.cos(angle) * distance;
+    itemGroup.position.z = raftGroup.position.z + Math.sin(angle) * distance;
+
+    itemGroup.userData = {
+        type: type,
+        spawnTime: clock.getElapsedTime(),
+        driftSpeed: 0.03 + Math.random() * 0.02
     };
 
-    let items = [];
-    let sharks = [];
-    let waves = [];
+    scene.add(itemGroup);
+    itemsInSea.push(itemGroup);
+}
 
-    // Wave Background Particles
-    for (let i = 0; i < 25; i++) {
-        waves.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            length: Math.random() * 80 + 40,
-            speed: Math.random() * 1.5 + 0.5
-        });
-    }
+// User Actions & Inputs
+function setupInputs() {
+    // Buttons Touch & Mouse Listeners
+    const bindBtn = (id, onStart, onEnd) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        
+        const start = (e) => {
+            e.preventDefault();
+            sfx.init();
+            onStart();
+        };
+        const end = (e) => {
+            e.preventDefault();
+            if (onEnd) onEnd();
+        };
 
-    // Controls Handling
-    const keys = {};
-    window.addEventListener('keydown', (e) => keys[e.code] = true);
-    window.addEventListener('keyup', (e) => keys[e.code] = false);
-
-    // Touch Buttons
-    const btnLeft = document.getElementById('btn-left');
-    const btnRight = document.getElementById('btn-right');
-    const btnEat = document.getElementById('btn-eat');
-    const btnDrink = document.getElementById('btn-drink');
-
-    const setupTouch = (elem, onStart, onEnd) => {
-        elem.addEventListener('touchstart', (e) => { e.preventDefault(); onStart(); });
-        elem.addEventListener('touchend', (e) => { e.preventDefault(); onEnd(); });
-        elem.addEventListener('mousedown', onStart);
-        elem.addEventListener('mouseup', onEnd);
+        el.addEventListener('touchstart', start);
+        el.addEventListener('touchend', end);
+        el.addEventListener('mousedown', start);
+        el.addEventListener('mouseup', end);
     };
 
-    setupTouch(btnLeft, () => player.dx = -player.speed, () => player.dx = 0);
-    setupTouch(btnRight, () => player.dx = player.speed, () => player.dx = 0);
+    bindBtn('btn-up', () => move.forward = 1, () => move.forward = 0);
+    bindBtn('btn-down', () => move.forward = -1, () => move.forward = 0);
+    bindBtn('btn-left', () => move.right = -1, () => move.right = 0);
+    bindBtn('btn-right', () => move.right = 1, () => move.right = 0);
+
+    // Keyboard Navigation
+    window.addEventListener('keydown', (e) => {
+        sfx.init();
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') move.forward = 1;
+        if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') move.forward = -1;
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move.right = -1;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move.right = 1;
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (['ArrowUp', 'w', 'W', 'ArrowDown', 's', 'S'].includes(e.key)) move.forward = 0;
+        if (['ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D'].includes(e.key)) move.right = 0;
+    });
+
+    // Action Buttons
+    document.getElementById('btn-hook').addEventListener('click', useHook);
+    document.getElementById('btn-eat').addEventListener('click', eatFood);
+    document.getElementById('btn-drink').addEventListener('click', drinkWater);
+    document.getElementById('btn-repair').addEventListener('click', repairRaft);
+    document.getElementById('btn-restart').addEventListener('click', restartGame);
+}
+
+// Hook Action: Grab nearby items
+function useHook() {
+    if (state.gameOver) return;
     
-    btnEat.addEventListener('click', eatFood);
-    btnEat.addEventListener('touchstart', (e) => { e.preventDefault(); eatFood(); });
-    
-    btnDrink.addEventListener('click', drinkWater);
-    btnDrink.addEventListener('touchstart', (e) => { e.preventDefault(); drinkWater(); });
+    let caught = false;
+    for (let i = itemsInSea.length - 1; i >= 0; i--) {
+        const item = itemsInSea[i];
+        const dist = raftGroup.position.distanceTo(item.position);
 
-    function eatFood() {
-        if (player.food > 0 && player.hunger < 100) {
-            player.food--;
-            player.hunger = Math.min(100, player.hunger + 30);
-            playSound('eat');
-            updateUI();
+        if (dist < 9) { // Hook reach radius
+            // Collect Resource
+            const type = item.userData.type;
+            if (type === 'wood') state.wood += 2;
+            if (type === 'food') state.food += 1;
+            if (type === 'water') state.water += 1;
+            if (type === 'scrap') state.scrap += 1;
+
+            state.totalCollected++;
+            sfx.playCollect();
+            showFloatingText(`+1 ${getItemName(type)}`, item.position);
+
+            scene.remove(item);
+            itemsInSea.splice(i, 1);
+            caught = true;
+            break;
         }
     }
 
-    function drinkWater() {
-        if (player.water > 0 && player.thirst < 100) {
-            player.water--;
-            player.thirst = Math.min(100, player.thirst + 35);
-            playSound('eat');
-            updateUI();
-        }
+    if (!caught) {
+        showToast("لا توجد موارد قريبة من الخطاف!");
     }
-
-    // Spawners
-    function spawnItem() {
-        if (gameOver) return;
-        const types = ['wood', 'food', 'water'];
-        const type = types[Math.floor(Math.random() * types.length)];
-        items.push({
-            x: Math.random() * (canvas.width - 40) + 20,
-            y: -30,
-            type: type,
-            size: 25,
-            speed: Math.random() * 1.5 + 1.5
-        });
-    }
-
-    function spawnShark() {
-        if (gameOver) return;
-        sharks.push({
-            x: Math.random() < 0.5 ? -60 : canvas.width + 60,
-            y: canvas.height * 0.65 + (Math.random() * 60 - 30),
-            speed: (Math.random() * 2 + 2) * (Math.random() < 0.5 ? 1 : -1),
-            size: 40
-        });
-    }
-
-    setInterval(spawnItem, 2000);
-    setInterval(spawnShark, 6000);
-
-    // Survival Decay Timer
-    function startTimers() {
-        timerInterval = setInterval(() => {
-            if (gameOver) return;
-            timeSurvived++;
-            player.hunger = Math.max(0, player.hunger - 1.5);
-            player.thirst = Math.max(0, player.thirst - 2.5);
-
-            if (player.hunger === 0 || player.thirst === 0) {
-                player.health = Math.max(0, player.health - 5);
-                playSound('hurt');
-            }
-
-            if (player.health <= 0) {
-                endGame(player.hunger === 0 ? "مت بسبب الجوع!" : (player.thirst === 0 ? "مت بسبب العطش!" : "لقد تم القضاء عليك!"));
-            }
-
-            updateUI();
-        }, 1000);
-    }
-
-    function updateUI() {
-        document.getElementById('health-bar').style.width = player.health + '%';
-        document.getElementById('health-val').innerText = Math.round(player.health) + '%';
-        
-        document.getElementById('hunger-bar').style.width = player.hunger + '%';
-        document.getElementById('hunger-val').innerText = Math.round(player.hunger) + '%';
-        
-        document.getElementById('thirst-bar').style.width = player.thirst + '%';
-        document.getElementById('thirst-val').innerText = Math.round(player.thirst) + '%';
-
-        document.getElementById('wood-cnt').innerText = player.wood;
-        document.getElementById('food-cnt').innerText = player.food;
-        document.getElementById('water-cnt').innerText = player.water;
-        document.getElementById('time-cnt').innerText = timeSurvived + 's';
-    }
-
-    // Main Game Loop
-    let waveOffset = 0;
-    function loop() {
-        if (!gameOver) {
-            update();
-            render();
-            requestAnimationFrame(loop);
-        }
-    }
-
-    function update() {
-        // Keyboard Controls
-        if (keys['ArrowLeft'] || keys['KeyA']) player.x -= player.speed;
-        if (keys['ArrowRight'] || keys['KeyD']) player.x += player.speed;
-
-        // Touch Control Movement
-        player.x += player.dx;
-
-        // Boundaries
-        player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
-
-        // Update Waves
-        waveOffset += 0.05;
-        waves.forEach(w => {
-            w.x -= w.speed;
-            if (w.x + w.length < 0) w.x = canvas.width;
-        });
-
-        // Items Logic
-        for (let i = items.length - 1; i >= 0; i--) {
-            let it = items[i];
-            it.y += it.speed;
-
-            // Collision with Raft
-            let dist = Math.hypot(it.x - player.x, it.y - player.y);
-            if (dist < player.width / 2 + it.size) {
-                if (it.type === 'wood') player.wood++;
-                if (it.type === 'food') player.food++;
-                if (it.type === 'water') player.water++;
-                playSound('collect');
-                items.splice(i, 1);
-                updateUI();
-                continue;
-            }
-
-            // Remove out of bounds
-            if (it.y > canvas.height) items.splice(i, 1);
-        }
-
-        // Sharks Logic
-        for (let i = sharks.length - 1; i >= 0; i--) {
-            let s = sharks[i];
-            s.x += s.speed;
-
-            // Collision with Raft
-            let dist = Math.hypot(s.x - player.x, s.y - player.y);
-            if (dist < player.width / 2 + s.size / 2) {
-                player.health = Math.max(0, player.health - 25);
-                playSound('hurt');
-                sharks.splice(i, 1);
-                updateUI();
-                if (player.health <= 0) endGame("هاجمك ألك القرش القاتل!");
-                continue;
-            }
-
-            // Remove out of bounds
-            if (s.x < -100 || s.x > canvas.width + 100) sharks.splice(i, 1);
-        }
-    }
-
-    function render() {
-        // Clear Sky & Ocean
-        ctx.fillStyle = '#0b1d3a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Water Gradient
-        let oceanGrad = ctx.createLinearGradient(0, canvas.height * 0.4, 0, canvas.height);
-        oceanGrad.addColorStop(0, '#005c53');
-        oceanGrad.addColorStop(0.5, '#042940');
-        oceanGrad.addColorStop(1, '#001c30');
-        ctx.fillStyle = oceanGrad;
-        ctx.fillRect(0, canvas.height * 0.4, canvas.width, canvas.height * 0.6);
-
-        // Dynamic Wave Lines
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-        ctx.lineWidth = 2;
-        waves.forEach(w => {
-            ctx.beginPath();
-            ctx.moveTo(w.x, w.y);
-            ctx.lineTo(w.x + w.length, w.y + Math.sin(waveOffset + w.x) * 5);
-            ctx.stroke();
-        });
-
-        // Draw Raft
-        ctx.save();
-        ctx.translate(player.x, player.y + Math.sin(waveOffset * 2) * 4);
-        
-        // Raft Wooden Planks
-        ctx.fillStyle = '#8d5524';
-        ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
-        ctx.strokeStyle = '#5c3a21';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-
-        // Raft details (Logs separation)
-        ctx.beginPath();
-        ctx.moveTo(-player.width / 2, 0); ctx.lineTo(player.width / 2, 0);
-        ctx.moveTo(-player.width / 2, -player.height / 4); ctx.lineTo(player.width / 2, -player.height / 4);
-        ctx.moveTo(-player.width / 2, player.height / 4); ctx.lineTo(player.width / 2, player.height / 4);
-        ctx.stroke();
-
-        // Player Stick Figure / Survivor
-        ctx.fillStyle = '#ffdbac';
-        ctx.beginPath(); // Head
-        ctx.arc(0, -15, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = '#e0a96d';
-        ctx.lineWidth = 4;
-        ctx.beginPath(); // Body
-        ctx.moveTo(0, -7); ctx.lineTo(0, 10);
-        ctx.stroke();
-
-        ctx.restore();
-
-        // Draw Floating Items
-        items.forEach(it => {
-            ctx.save();
-            ctx.translate(it.x, it.y + Math.sin(waveOffset * 3 + it.x) * 3);
-            ctx.font = '24px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            let icon = '🪵';
-            if (it.type === 'food') icon = '🥩';
-            if (it.type === 'water') icon = '💧';
-
-            ctx.fillText(icon, 0, 0);
-            ctx.restore();
-        });
-
-        // Draw Sharks
-        sharks.forEach(s => {
-            ctx.save();
-            ctx.translate(s.x, s.y);
-            ctx.fillStyle = '#4a5568';
-
-            // Fin Drawing
-            ctx.beginPath();
-            ctx.moveTo(0, -20);
-            ctx.lineTo(15, 15);
-            ctx.lineTo(-15, 15);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.restore();
-        });
-    }
-
-    function endGame(reason) {
-        gameOver = true;
-        clearInterval(timerInterval);
-        document.getElementById('death-reason').innerText = reason;
-        document.getElementById('final-time').innerText = timeSurvived;
-        document.getElementById('game-over-modal').style.display = 'flex';
-    }
-
-    function resetGame() {
-        gameOver = false;
-        timeSurvived = 0;
-        player.health = 100;
-        player.hunger = 100;
-        player.thirst = 100;
-        player.wood = 0;
-        player.food = 2;
-        player.water = 2;
-        player.x = canvas.width / 2;
-        items = [];
-        sharks = [];
-        document.getElementById('game-over-modal').style.display = 'none';
-        updateUI();
-        startTimers();
-        loop();
-    }
-
-    // Start Game
     updateUI();
-    startTimers();
-    loop();
+}
+
+function getItemName(type) {
+    if (type === 'wood') return 'خشب';
+    if (type === 'food') return 'طعام';
+    if (type === 'water') return 'ماء';
+    return 'خردة';
+}
+
+function eatFood() {
+    if (state.food > 0 && state.hunger < 100) {
+        state.food--;
+        state.hunger = Math.min(100, state.hunger + 30);
+        sfx.playEat();
+        showToast("قم بتبديل طاقتك بالطعام (+30 جوع)");
+        updateUI();
+    } else if (state.food <= 0) {
+        showToast("ليس لديك طعام!");
+    }
+}
+
+function drinkWater() {
+    if (state.water > 0 && state.thirst < 100) {
+        state.water--;
+        state.thirst = Math.min(100, state.thirst + 35);
+        sfx.playDrink();
+        showToast("ارتويت بالماء النقي (+35 عطش)");
+        updateUI();
+    } else if (state.water <= 0) {
+        showToast("ليس لديك ماء!");
+    }
+}
+
+function repairRaft() {
+    if (state.wood >= 2 && state.scrap >= 1 && state.raftDurability < 100) {
+        state.wood -= 2;
+        state.scrap -= 1;
+        state.raftDurability = Math.min(100, state.raftDurability + 25);
+        sfx.playRepair();
+        showToast("تم إصلاح وتدعيم القارب (+25% صلابة)");
+        updateUI();
+    } else if (state.raftDurability >= 100) {
+        showToast("القارب في حالة ممتازة بالفعل!");
+    } else {
+        showToast("يلزمك: 2 خشب و 1 خردة للإصلاح!");
+    }
+}
+
+// Notification Toast
+function showToast(msg) {
+    const toast = document.getElementById('warning-toast');
+    document.getElementById('warning-msg').innerText = msg;
+    toast.classList.remove('opacity-0');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+    }, 2500);
+}
+
+// 3D Floating Score Text
+function showFloatingText(text, pos3D) {
+    const el = document.createElement('div');
+    el.className = 'floating-text text-amber-300 text-lg';
+    el.innerText = text;
+
+    // Convert 3D position to Screen Coordinates
+    const vector = pos3D.clone();
+    vector.project(camera);
+    const x = (vector.x * .5 + .5) * window.innerWidth;
+    const y = (-(vector.y * .5) + .5) * window.innerHeight;
+
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    document.body.appendChild(el);
+
+    setTimeout(() => el.remove(), 1200);
+}
+
+// Update UI Numbers & Progress Bars
+function updateUI() {
+    document.getElementById('inv-wood').innerText = state.wood;
+    document.getElementById('inv-food').innerText = state.food;
+    document.getElementById('inv-water').innerText = state.water;
+    document.getElementById('inv-scrap').innerText = state.scrap;
+
+    document.getElementById('val-health').innerText = `${Math.round(state.health)}%`;
+    document.getElementById('bar-health').style.width = `${state.health}%`;
+
+    document.getElementById('val-hunger').innerText = `${Math.round(state.hunger)}%`;
+    document.getElementById('bar-hunger').style.width = `${state.hunger}%`;
+
+    document.getElementById('val-thirst').innerText = `${Math.round(state.thirst)}%`;
+    document.getElementById('bar-thirst').style.width = `${state.thirst}%`;
+
+    document.getElementById('val-raft').innerText = `${Math.round(state.raftDurability)}%`;
+    document.getElementById('bar-raft').style.width = `${state.raftDurability}%`;
+}
+
+// Main Game Loop & Physics Update
+let sharkAngle = 0;
+let lastSharkAttack = 0;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    if (state.gameOver) return;
+
+    const time = clock.getElapsedTime();
+
+    // 1. Ocean Wave Animation & Vertex Deformation
+    const pos = oceanMesh.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+        const u = pos.getX(i);
+        const v = pos.getZ(i);
+        pos.setY(i, getWaveHeight(u, v, time));
+    }
+    pos.needsUpdate = true;
+
+    // 2. Raft Movement & Water Physics Floating
+    const raftX = raftGroup.position.x;
+    const raftZ = raftGroup.position.z;
+
+    // Steering Controls
+    const speed = 0.08;
+    raftGroup.position.x += move.right * speed;
+    raftGroup.position.z -= move.forward * speed;
+
+    // Bobbing and Tilting with Waves
+    const waveH = getWaveHeight(raftX, raftZ, time);
+    raftGroup.position.y = waveH + 0.2;
+    raftGroup.rotation.z = Math.sin(time * 1.5) * 0.05;
+    raftGroup.rotation.x = Math.cos(time * 1.2) * 0.05;
+
+    // Smooth Third-Person Camera Follow
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, raftGroup.position.x, 0.05);
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, raftGroup.position.z + 14, 0.05);
+    camera.lookAt(raftGroup.position.x, raftGroup.position.y + 1, raftGroup.position.z);
+
+    // 3. Floating Items Logic & Drift
+    itemsInSea.forEach((item, idx) => {
+        // Drift items towards raft gradually
+        const dir = new THREE.Vector3().subVectors(raftGroup.position, item.position).normalize();
+        item.position.x += dir.x * item.userData.driftSpeed;
+        item.position.z += dir.z * item.userData.driftSpeed;
+
+        // Item Float on Waves
+        item.position.y = getWaveHeight(item.position.x, item.position.z, time) + 0.3;
+        item.rotation.y += 0.01;
+    });
+
+    // 4. Shark AI Swimming & Attack Logic
+    sharkAngle += 0.015;
+    const sharkDist = 12 + Math.sin(time) * 4;
+    sharkGroup.position.x = raftGroup.position.x + Math.cos(sharkAngle) * sharkDist;
+    sharkGroup.position.z = raftGroup.position.z + Math.sin(sharkAngle) * sharkDist;
+    sharkGroup.position.y = getWaveHeight(sharkGroup.position.x, sharkGroup.position.z, time);
+    sharkGroup.rotation.y = -sharkAngle + Math.PI / 2;
+
+    // Periodic Shark Attack
+    if (time - lastSharkAttack > 18) {
+        lastSharkAttack = time;
+        sfx.playSharkAttack();
+        showToast("⚠️ أقرش يحاول تدمير أخشاب القارب!");
+        state.raftDurability = Math.max(0, state.raftDurability - 20);
+        updateUI();
+
+        if (state.raftDurability <= 0) {
+            triggerGameOver("دمر القرش قاربك وسقطت في الأعماق!");
+        }
+    }
+
+    // 5. Day / Night Cycle Simulation
+    state.dayTime = (time * 0.02) % 1;
+    const sunAngle = state.dayTime * Math.PI * 2;
+    sunLight.position.x = Math.cos(sunAngle) * 60;
+    sunLight.position.y = Math.sin(sunAngle) * 60;
+
+    const dayIndicator = document.getElementById('day-night-indicator');
+    if (sunLight.position.y > 0) {
+        scene.background.setHSL(0.6, 0.5, 0.2);
+        scene.fog.color.setHSL(0.6, 0.5, 0.2);
+        dayIndicator.innerHTML = '<i class="fa-solid fa-sun ml-1 text-amber-400"></i> النهار';
+    } else {
+        scene.background.setHSL(0.6, 0.8, 0.03);
+        scene.fog.color.setHSL(0.6, 0.8, 0.03);
+        dayIndicator.innerHTML = '<i class="fa-solid fa-moon ml-1 text-indigo-300"></i> الليل';
+    }
+
+    // Render 3D Scene
+    renderer.render(scene, camera);
+}
+
+// Survival Decay Timers (Hunger, Thirst, Survival Time)
+setInterval(() => {
+    if (state.gameOver) return;
+
+    state.timeSurvived++;
+    state.hunger = Math.max(0, state.hunger - 0.8);
+    state.thirst = Math.max(0, state.thirst - 1.2);
+
+    // Starvation / Dehydration Penalty
+    if (state.hunger <= 0 || state.thirst <= 0) {
+        state.health = Math.max(0, state.health - 4);
+        sfx.playSharkAttack();
+    }
+
+    if (state.health <= 0) {
+        triggerGameOver(state.hunger <= 0 ? "مت بسبب الموت جوعاً!" : "مت بسبب الجفاف العديد!");
+    }
+
+    updateUI();
+}, 1000);
+
+// Spawners Interval
+setInterval(spawnSeaItem, 3500);
+
+// Window Resize
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function triggerGameOver(reason) {
+    state.gameOver = true;
+    document.getElementById('death-cause').innerText = reason;
+    
+    const mins = Math.floor(state.timeSurvived / 60).toString().padStart(2, '0');
+    const secs = (state.timeSurvived % 60).toString().padStart(2, '0');
+    document.getElementById('stat-survival-time').innerText = `${mins}:${secs}`;
+    document.getElementById('stat-collected').innerText = state.totalCollected;
+
+    document.getElementById('game-over-modal').classList.remove('hidden');
+    document.getElementById('game-over-modal').classList.add('flex');
+}
+
+function restartGame() {
+    state.health = 100;
+    state.hunger = 100;
+    state.thirst = 100;
+    state.raftDurability = 100;
+    state.wood = 5;
+    state.food = 3;
+    state.water = 3;
+    state.scrap = 2;
+    state.timeSurvived = 0;
+    state.totalCollected = 0;
+    state.gameOver = false;
+
+    // Clear Sea Items
+    itemsInSea.forEach(item => scene.remove(item));
+    itemsInSea = [];
+
+    raftGroup.position.set(0, 0, 0);
+
+    document.getElementById('game-over-modal').classList.add('hidden');
+    document.getElementById('game-over-modal').classList.remove('flex');
+
+    updateUI();
+}
+
+// Start Game Engine on Window Load
+window.onload = () => {
+    initEngine();
+    setupInputs();
+    updateUI();
+    animate();
+};
 </script>
 </body>
-</html>
+    </html>
