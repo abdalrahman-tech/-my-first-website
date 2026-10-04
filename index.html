@@ -3,747 +3,604 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة كرة القدم الجانبية - Arcade Side Soccer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>لعبة البقاء في المحيط - Ocean Survival Canvas Game</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800;900&display=swap');
-        
         * {
-            font-family: 'Cairo', sans-serif;
+            box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0b1d3a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #1a3c40, #071e22);
+        }
+        /* UI Overlay */
+        .ui-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(10, 25, 47, 0.85);
+            border: 2px solid #00adb5;
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            min-width: 220px;
+            pointer-events: none;
+        }
+        .stat-bar {
+            margin-bottom: 8px;
+        }
+        .stat-bar:last-child {
+            margin-bottom: 0;
+        }
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 3px;
+            color: #e3e3e3;
+        }
+        .bar-outer {
+            width: 100%;
+            height: 10px;
+            background: #222831;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #393e46;
+        }
+        .bar-inner {
+            height: 100%;
+            width: 100%;
+            transition: width 0.2s ease;
+        }
+        #health-bar { background: linear-gradient(90deg, #ff4b4b, #ff6b6b); }
+        #hunger-bar { background: linear-gradient(90deg, #f0a500, #ffc93c); }
+        #thirst-bar { background: linear-gradient(90deg, #00adb5, #00fff5); }
+
+        .inventory-panel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(10, 25, 47, 0.85);
+            border: 2px solid #00adb5;
+            border-radius: 12px;
+            padding: 10px 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+            display: flex;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .inv-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Controls */
+        .controls-container {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+        .touch-btn {
+            pointer-events: auto;
+            background: radial-gradient(circle, rgba(0, 173, 181, 0.8) 0%, rgba(15, 76, 92, 0.9) 100%);
+            border: 2px solid #00fff5;
+            border-radius: 50%;
+            color: #fff;
+            width: 65px;
+            height: 65px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0, 255, 245, 0.3);
+            cursor: pointer;
             touch-action: manipulation;
         }
-
-        body {
-            background: #090d16;
-            overflow: hidden;
-        }
-
-        .glass-card {
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .touch-btn {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(8px);
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            transition: transform 0.08s ease, background-color 0.08s ease;
-        }
-
         .touch-btn:active {
             transform: scale(0.92);
-            background: rgba(16, 185, 129, 0.4);
-            border-color: #10b981;
+            background: #00fff5;
+            color: #000;
+        }
+        .action-btns {
+            display: flex;
+            gap: 12px;
+        }
+        .action-btn {
+            border-radius: 12px;
+            width: auto;
+            padding: 0 20px;
+            height: 55px;
+            font-size: 15px;
+            background: linear-gradient(135deg, #ff5722, #e64a19);
+            border-color: #ff8a65;
         }
 
-        /* Goal shake effect */
-        .shake-screen {
-            animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+        /* Game Over Modal */
+        #game-over-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
         }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-3px, 0, 0); }
-            20%, 80% { transform: translate3d(5px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-            40%, 60% { transform: translate3d(6px, 0, 0); }
+        #game-over-modal h1 {
+            color: #ff4b4b;
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 75, 75, 0.5);
+        }
+        #restart-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 18px;
+            background: #00adb5;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 173, 181, 0.5);
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-between p-2 md:p-4 text-white overflow-hidden">
+<body>
 
-    <!-- Top Scoreboard -->
-    <header class="w-full max-w-4xl flex justify-between items-center glass-card px-4 py-2 rounded-2xl shadow-xl z-10 border border-emerald-500/30">
-        <!-- Player 1 Score -->
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 border-2 border-white flex items-center justify-center font-black text-lg shadow-md">1</div>
-            <div>
-                <div class="text-xs md:text-sm font-extrabold text-cyan-400">اللاعب 1</div>
-                <div class="text-xs text-slate-400">أنت</div>
-            </div>
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Stats Panel -->
+    <div class="ui-panel">
+        <div class="stat-bar">
+            <div class="stat-label"><span>الصحة</span><span id="health-val">100%</span></div>
+            <div class="bar-outer"><div id="health-bar" class="bar-inner"></div></div>
         </div>
-
-        <!-- Timer & Score -->
-        <div class="flex flex-col items-center">
-            <div id="match-timer" class="text-lg md:text-xl font-mono font-black text-amber-400 bg-slate-900/80 px-3 py-0.5 rounded-full border border-amber-500/30">01:30</div>
-            <div class="flex items-center gap-3 text-2xl md:text-4xl font-black mt-1">
-                <span id="p1-score" class="text-cyan-400">0</span>
-                <span class="text-slate-500">:</span>
-                <span id="p2-score" class="text-rose-500">0</span>
-            </div>
+        <div class="stat-bar">
+            <div class="stat-label"><span>الجوع</span><span id="hunger-val">100%</span></div>
+            <div class="bar-outer"><div id="hunger-bar" class="bar-inner"></div></div>
         </div>
-
-        <!-- Player 2 / AI Score -->
-        <div class="flex items-center gap-3 text-left">
-            <div>
-                <div class="text-xs md:text-sm font-extrabold text-rose-400">الكمبيوتر</div>
-                <div class="text-xs text-slate-400">منافس</div>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-600 to-amber-400 border-2 border-white flex items-center justify-center font-black text-lg shadow-md">2</div>
+        <div class="stat-bar">
+            <div class="stat-label"><span>العطش</span><span id="thirst-val">100%</span></div>
+            <div class="bar-outer"><div id="thirst-bar" class="bar-inner"></div></div>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Game Canvas Container -->
-    <main id="game-wrapper" class="relative w-full max-w-4xl flex-1 flex items-center justify-center my-2 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-2xl bg-slate-950">
-        <canvas id="gameCanvas" class="w-full h-full object-contain"></canvas>
+    <!-- Inventory Panel -->
+    <div class="inventory-panel">
+        <div class="inv-item">🪵 <span id="wood-cnt">0</span></div>
+        <div class="inv-item">🥩 <span id="food-cnt">2</span></div>
+        <div class="inv-item">💧 <span id="water-cnt">2</span></div>
+        <div class="inv-item">⏱️ <span id="time-cnt">0s</span></div>
+    </div>
 
-        <!-- Goal Overlay Banner -->
-        <div id="goal-banner" class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden z-20">
-            <h1 id="goal-text" class="text-5xl md:text-8xl font-black text-amber-400 drop-shadow-[0_10px_20px_rgba(0,0,0,0.9)] animate-bounce">
-                هدف! ⚽
-            </h1>
+    <!-- Controls -->
+    <div class="controls-container">
+        <div style="display: flex; gap: 10px;">
+            <div class="touch-btn" id="btn-left">◄</div>
+            <div class="touch-btn" id="btn-right">►</div>
         </div>
-
-        <!-- Start Game Overlay Menu -->
-        <div id="start-menu" class="absolute inset-0 glass-card flex flex-col items-center justify-center p-6 text-center z-30">
-            <div class="w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30">
-                <i class="fa-solid fa-futbol text-4xl text-slate-950"></i>
-            </div>
-            <h1 class="text-3xl md:text-5xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-200 to-cyan-400">
-                كرة القدم الجانبية
-            </h1>
-            <p class="text-slate-300 text-xs md:text-sm mb-6 max-w-md">لعبة إركيد جانبية حقيقية بجرافيك مميز وفيزياء واقعية خفيفة للغاية!</p>
-
-            <button onclick="startGame()" class="py-3.5 px-10 bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 font-black text-lg rounded-xl shadow-lg shadow-emerald-500/40 hover:scale-105 active:scale-95 transition">
-                ابدأ المباراة <i class="fa-solid fa-play mr-2"></i>
-            </button>
+        <div class="action-btns">
+            <div class="touch-btn action-btn" id="btn-eat">أكل 🥩</div>
+            <div class="touch-btn action-btn" id="btn-drink" style="background: linear-gradient(135deg, #0288d1, #01579b); border-color: #4fc3f7;">شرب 💧</div>
         </div>
+    </div>
 
-        <!-- Game Over Menu -->
-        <div id="game-over-menu" class="absolute inset-0 glass-card flex flex-col items-center justify-center p-6 text-center z-30 hidden">
-            <h2 id="winner-text" class="text-3xl md:text-5xl font-black mb-2 text-amber-300">انتهت المباراة!</h2>
-            <p id="final-score-text" class="text-2xl md:text-3xl font-mono font-black text-white mb-6">0 - 0</p>
-            <button onclick="startGame()" class="py-3 px-8 bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-black text-lg rounded-xl shadow-lg hover:scale-105 transition">
-                إعادة اللعب <i class="fa-solid fa-rotate-right mr-2"></i>
-            </button>
-        </div>
-    </main>
+    <!-- Game Over Screen -->
+    <div id="game-over-modal">
+        <h1>انتهت اللعبة!</h1>
+        <p id="death-reason" style="color: #ccc; font-size: 18px;"></p>
+        <p style="margin-top: 10px; font-size: 16px;">الصمود: <span id="final-time">0</span> ثانية</p>
+        <button id="restart-btn" onclick="resetGame()">إعادة المحاولة</button>
+    </div>
+</div>
 
-    <!-- Mobile Controls -->
-    <footer class="w-full max-w-4xl flex justify-between items-center gap-4 py-1 z-10 md:hidden">
-        <!-- Direction Buttons -->
-        <div class="flex gap-2">
-            <button id="btn-left" class="touch-btn w-16 h-16 rounded-2xl flex items-center justify-center text-2xl text-cyan-400">
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <button id="btn-right" class="touch-btn w-16 h-16 rounded-2xl flex items-center justify-center text-2xl text-cyan-400">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-        </div>
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-        <!-- Action Buttons -->
-        <div class="flex gap-3">
-            <button id="btn-jump" class="touch-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-amber-400 font-bold text-xs">
-                <i class="fa-solid fa-arrow-up text-xl mb-0.5"></i> قفز
-            </button>
-            <button id="btn-kick" class="touch-btn w-16 h-16 rounded-2xl bg-emerald-500/20 border-emerald-400 flex flex-col items-center justify-center text-emerald-300 font-bold text-xs">
-                <i class="fa-solid fa-shoe-prints text-xl mb-0.5"></i> تسديد
-            </button>
-        </div>
-    </footer>
+    // Canvas Resize
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    <script>
-        /* --- Audio Synthesizer (Web Audio API) --- */
-        class GameAudio {
-            constructor() {
-                this.ctx = null;
-            }
+    // Audio Synthesizer (Web Audio API - Standalone)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
 
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
-
-            playKick() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(220, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.15);
-            }
-
-            playWhistle() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
-                osc.frequency.setValueAtTime(1600, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.5);
-            }
-
-            playGoalSound() {
-                if (!this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 1.2;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
-                filter.Q.setValueAtTime(1.2, this.ctx.currentTime);
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.2);
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-                noise.start();
-            }
+        if (type === 'collect') {
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        } else if (type === 'eat') {
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'hurt') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
+    }
 
-        const audio = new GameAudio();
+    // Game State
+    let gameOver = false;
+    let timeSurvived = 0;
+    let timerInterval = null;
 
-        /* --- Game Physics and Constants --- */
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+    const player = {
+        x: canvas.width / 2,
+        y: canvas.height * 0.65,
+        width: 90,
+        height: 45,
+        speed: 6,
+        dx: 0,
+        health: 100,
+        hunger: 100,
+        thirst: 100,
+        wood: 0,
+        food: 2,
+        water: 2
+    };
 
-        const CANVAS_WIDTH = 900;
-        const CANVAS_HEIGHT = 500;
-        const GROUND_Y = 410;
-        const GRAVITY = 0.48;
+    let items = [];
+    let sharks = [];
+    let waves = [];
 
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
+    // Wave Background Particles
+    for (let i = 0; i < 25; i++) {
+        waves.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            length: Math.random() * 80 + 40,
+            speed: Math.random() * 1.5 + 0.5
+        });
+    }
 
-        let gameRunning = false;
-        let matchTime = 90;
-        let timerInterval = null;
-        let p1Score = 0;
-        let p2Score = 0;
-        let isGoalPaused = false;
+    // Controls Handling
+    const keys = {};
+    window.addEventListener('keydown', (e) => keys[e.code] = true);
+    window.addEventListener('keyup', (e) => keys[e.code] = false);
 
-        const keys = { left: false, right: false, jump: false, kick: false };
+    // Touch Buttons
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnEat = document.getElementById('btn-eat');
+    const btnDrink = document.getElementById('btn-drink');
 
-        /* --- Entities Classes --- */
-        class Player {
-            constructor(x, color, isAI = false) {
-                this.startX = x;
-                this.x = x;
-                this.y = GROUND_Y - 75;
-                this.vx = 0;
-                this.vy = 0;
-                this.width = 45;
-                this.height = 75;
-                this.color = color;
-                this.isAI = isAI;
-                this.isGrounded = false;
-                this.legAngle = 0;
-                this.isKicking = false;
-                this.kickTimer = 0;
-            }
+    const setupTouch = (elem, onStart, onEnd) => {
+        elem.addEventListener('touchstart', (e) => { e.preventDefault(); onStart(); });
+        elem.addEventListener('touchend', (e) => { e.preventDefault(); onEnd(); });
+        elem.addEventListener('mousedown', onStart);
+        elem.addEventListener('mouseup', onEnd);
+    };
 
-            reset() {
-                this.x = this.startX;
-                this.y = GROUND_Y - this.height;
-                this.vx = 0;
-                this.vy = 0;
-                this.isGrounded = true;
-            }
+    setupTouch(btnLeft, () => player.dx = -player.speed, () => player.dx = 0);
+    setupTouch(btnRight, () => player.dx = player.speed, () => player.dx = 0);
+    
+    btnEat.addEventListener('click', eatFood);
+    btnEat.addEventListener('touchstart', (e) => { e.preventDefault(); eatFood(); });
+    
+    btnDrink.addEventListener('click', drinkWater);
+    btnDrink.addEventListener('touchstart', (e) => { e.preventDefault(); drinkWater(); });
 
-            update(ball) {
-                if (this.isAI) {
-                    this.updateAI(ball);
-                }
-
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += GRAVITY;
-
-                // Ground Collision
-                if (this.y + this.height >= GROUND_Y) {
-                    this.y = GROUND_Y - this.height;
-                    this.vy = 0;
-                    this.isGrounded = true;
-                }
-
-                // Field Boundaries
-                this.x = Math.max(10, Math.min(CANVAS_WIDTH - this.width - 10, this.x));
-
-                // Kick animation cooldown
-                if (this.isKicking) {
-                    this.kickTimer++;
-                    if (this.kickTimer > 10) {
-                        this.isKicking = false;
-                        this.kickTimer = 0;
-                    }
-                }
-            }
-
-            updateAI(ball) {
-                const centerP2 = this.x + this.width / 2;
-                
-                // Defender AI behavior
-                if (ball.x > CANVAS_WIDTH * 0.4) {
-                    if (centerP2 < ball.x - 15) this.vx = 3.6;
-                    else if (centerP2 > ball.x + 35) this.vx = -3.6;
-                    else this.vx = 0;
-
-                    if (ball.y < this.y - 10 && Math.random() < 0.04 && this.isGrounded) {
-                        this.vy = -10.5;
-                        this.isGrounded = false;
-                    }
-
-                    if (Math.hypot(ball.x - centerP2, ball.y - this.y) < 70) {
-                        this.kick(ball);
-                    }
-                } else {
-                    // Fallback to defense post
-                    if (this.x < 680) this.vx = 3;
-                    else if (this.x > 710) this.vx = -3;
-                    else this.vx = 0;
-                }
-            }
-
-            kick(ball) {
-                this.isKicking = true;
-                const dir = this.isAI ? -1 : 1;
-                const dist = Math.hypot(ball.x - (this.x + this.width/2), ball.y - (this.y + this.height/2));
-
-                if (dist < 75) {
-                    ball.vx = dir * 13;
-                    ball.vy = -8.5;
-                    audio.playKick();
-                }
-            }
-
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-
-                // Body Shadow
-                ctx.fillStyle = 'rgba(0,0,0,0.3)';
-                ctx.beginPath();
-                ctx.ellipse(this.width/2, this.height + 2, 20, 6, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Legs / Boots
-                ctx.fillStyle = '#ffffff';
-                const kickOffset = this.isKicking ? (this.isAI ? -18 : 18) : 0;
-                
-                // Back leg
-                ctx.fillRect(10, 50, 10, 22);
-                // Front Leg (Kick leg)
-                ctx.fillRect(24 + kickOffset, 50, 10, 22);
-
-                // Boots
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(6, 68, 14, 8);
-                ctx.fillRect(20 + kickOffset, 68, 14, 8);
-
-                // Player Jersey
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.roundRect(5, 22, 35, 30, 8);
-                ctx.fill();
-
-                // Jersey Number
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 14px Cairo';
-                ctx.textAlign = 'center';
-                ctx.fillText(this.isAI ? '2' : '1', 22, 42);
-
-                // Head
-                ctx.fillStyle = '#f87171';
-                ctx.beginPath();
-                ctx.arc(22, 14, 15, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Eye / Direction
-                ctx.fillStyle = '#000000';
-                const eyeX = this.isAI ? 14 : 30;
-                ctx.beginPath();
-                ctx.arc(eyeX, 12, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.restore();
-            }
+    function eatFood() {
+        if (player.food > 0 && player.hunger < 100) {
+            player.food--;
+            player.hunger = Math.min(100, player.hunger + 30);
+            playSound('eat');
+            updateUI();
         }
+    }
 
-        class Ball {
-            constructor() {
-                this.x = CANVAS_WIDTH / 2;
-                this.y = 180;
-                this.vx = 0;
-                this.vy = 0;
-                this.radius = 13;
-                this.bounce = 0.72;
-                this.rotation = 0;
-            }
-
-            reset() {
-                this.x = CANVAS_WIDTH / 2;
-                this.y = 180;
-                this.vx = 0;
-                this.vy = 0;
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += GRAVITY * 0.85;
-                this.vx *= 0.988; // Air Resistance
-
-                this.rotation += this.vx * 0.08;
-
-                // Ground Bouncing
-                if (this.y + this.radius >= GROUND_Y) {
-                    this.y = GROUND_Y - this.radius;
-                    this.vy = -this.vy * this.bounce;
-                    if (Math.abs(this.vy) < 1) this.vy = 0;
-                }
-
-                // Walls Bouncing
-                if (this.x - this.radius <= 0) {
-                    this.x = this.radius;
-                    this.vx = -this.vx * this.bounce;
-                }
-                if (this.x + this.radius >= CANVAS_WIDTH) {
-                    this.x = CANVAS_WIDTH - this.radius;
-                    this.vx = -this.vx * this.bounce;
-                }
-
-                // Crossbar Bouncing (Goal posts)
-                const leftBar = { x: 70, y: GROUND_Y - 125 };
-                const rightBar = { x: CANVAS_WIDTH - 70, y: GROUND_Y - 125 };
-
-                [leftBar, rightBar].forEach(post => {
-                    const dist = Math.hypot(this.x - post.x, this.y - post.y);
-                    if (dist < this.radius + 6) {
-                        this.vx = -this.vx * 0.85 + (this.x < post.x ? -2 : 2);
-                        this.vy = -Math.abs(this.vy) * 0.85 - 2;
-                    }
-                });
-            }
-
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-
-                // Shadow
-                ctx.fillStyle = 'rgba(0,0,0,0.3)';
-                ctx.beginPath();
-                ctx.ellipse(0, GROUND_Y - this.y + 2, this.radius, 4, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.rotate(this.rotation);
-
-                // Ball Outer Body
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#020617';
-                ctx.lineWidth = 1.8;
-                ctx.stroke();
-
-                // Soccer Pentagon pattern
-                ctx.fillStyle = '#0f172a';
-                ctx.beginPath();
-                ctx.arc(0, 0, 5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.restore();
-            }
+    function drinkWater() {
+        if (player.water > 0 && player.thirst < 100) {
+            player.water--;
+            player.thirst = Math.min(100, player.thirst + 35);
+            playSound('eat');
+            updateUI();
         }
+    }
 
-        /* --- Game Setup --- */
-        const player1 = new Player(180, '#06b6d4', false);
-        const player2 = new Player(CANVAS_WIDTH - 225, '#f43f5e', true);
-        const ball = new Ball();
+    // Spawners
+    function spawnItem() {
+        if (gameOver) return;
+        const types = ['wood', 'food', 'water'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        items.push({
+            x: Math.random() * (canvas.width - 40) + 20,
+            y: -30,
+            type: type,
+            size: 25,
+            speed: Math.random() * 1.5 + 1.5
+        });
+    }
 
-        /* --- Render Stadium Background --- */
-        function drawStadium() {
-            // Sky & Floodlights Gradient
-            const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
-            skyGrad.addColorStop(0, '#0a0f1d');
-            skyGrad.addColorStop(1, '#1e293b');
-            ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    function spawnShark() {
+        if (gameOver) return;
+        sharks.push({
+            x: Math.random() < 0.5 ? -60 : canvas.width + 60,
+            y: canvas.height * 0.65 + (Math.random() * 60 - 30),
+            speed: (Math.random() * 2 + 2) * (Math.random() < 0.5 ? 1 : -1),
+            size: 40
+        });
+    }
 
-            // Crowd Stand
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(0, 160, CANVAS_WIDTH, 100);
+    setInterval(spawnItem, 2000);
+    setInterval(spawnShark, 6000);
 
-            // Crowd Dots Animation / Pattern
-            for (let x = 15; x < CANVAS_WIDTH; x += 22) {
-                for (let y = 170; y < 250; y += 16) {
-                    ctx.fillStyle = (x + y) % 3 === 0 ? '#f43f5e' : ((x * y) % 2 === 0 ? '#38bdf8' : '#fbbf24');
-                    ctx.fillRect(x, y, 7, 7);
-                }
+    // Survival Decay Timer
+    function startTimers() {
+        timerInterval = setInterval(() => {
+            if (gameOver) return;
+            timeSurvived++;
+            player.hunger = Math.max(0, player.hunger - 1.5);
+            player.thirst = Math.max(0, player.thirst - 2.5);
+
+            if (player.hunger === 0 || player.thirst === 0) {
+                player.health = Math.max(0, player.health - 5);
+                playSound('hurt');
             }
 
-            // Spotlight Rays
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.beginPath();
-            ctx.moveTo(120, 0); ctx.lineTo(0, GROUND_Y); ctx.lineTo(350, GROUND_Y);
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.moveTo(CANVAS_WIDTH - 120, 0); ctx.lineTo(CANVAS_WIDTH - 350, GROUND_Y); ctx.lineTo(CANVAS_WIDTH, GROUND_Y);
-            ctx.fill();
-
-            // Grass Field
-            ctx.fillStyle = '#15803d';
-            ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, CANVAS_HEIGHT - GROUND_Y);
-
-            // Grass Vertical Stripes
-            ctx.fillStyle = '#166534';
-            for (let x = 0; x < CANVAS_WIDTH; x += 80) {
-                ctx.fillRect(x, GROUND_Y, 40, CANVAS_HEIGHT - GROUND_Y);
+            if (player.health <= 0) {
+                endGame(player.hunger === 0 ? "مت بسبب الجوع!" : (player.thirst === 0 ? "مت بسبب العطش!" : "لقد تم القضاء عليك!"));
             }
 
-            // White Pitch Lines
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.lineWidth = 4;
+            updateUI();
+        }, 1000);
+    }
 
-            // Touchline & Halfway Line
-            ctx.beginPath();
-            ctx.moveTo(0, GROUND_Y); ctx.lineTo(CANVAS_WIDTH, GROUND_Y);
-            ctx.moveTo(CANVAS_WIDTH / 2, GROUND_Y); ctx.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT);
-            ctx.stroke();
+    function updateUI() {
+        document.getElementById('health-bar').style.width = player.health + '%';
+        document.getElementById('health-val').innerText = Math.round(player.health) + '%';
+        
+        document.getElementById('hunger-bar').style.width = player.hunger + '%';
+        document.getElementById('hunger-val').innerText = Math.round(player.hunger) + '%';
+        
+        document.getElementById('thirst-bar').style.width = player.thirst + '%';
+        document.getElementById('thirst-val').innerText = Math.round(player.thirst) + '%';
 
-            // Goals Rendering
-            drawGoal(0, true);
-            drawGoal(CANVAS_WIDTH - 70, false);
+        document.getElementById('wood-cnt').innerText = player.wood;
+        document.getElementById('food-cnt').innerText = player.food;
+        document.getElementById('water-cnt').innerText = player.water;
+        document.getElementById('time-cnt').innerText = timeSurvived + 's';
+    }
+
+    // Main Game Loop
+    let waveOffset = 0;
+    function loop() {
+        if (!gameOver) {
+            update();
+            render();
+            requestAnimationFrame(loop);
         }
+    }
 
-        function drawGoal(x, isLeft) {
-            const goalHeight = 125;
-            const goalWidth = 70;
-            const topY = GROUND_Y - goalHeight;
+    function update() {
+        // Keyboard Controls
+        if (keys['ArrowLeft'] || keys['KeyA']) player.x -= player.speed;
+        if (keys['ArrowRight'] || keys['KeyD']) player.x += player.speed;
 
-            // Net Mesh Gradient
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-            ctx.fillRect(x, topY, goalWidth, goalHeight);
+        // Touch Control Movement
+        player.x += player.dx;
 
-            // Net Grid Lines
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
+        // Boundaries
+        player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
 
-            for (let gx = x; gx <= x + goalWidth; gx += 10) {
-                ctx.moveTo(gx, topY); ctx.lineTo(gx, GROUND_Y);
-            }
-            for (let gy = topY; gy <= GROUND_Y; gy += 10) {
-                ctx.moveTo(x, gy); ctx.lineTo(x + goalWidth, gy);
-            }
-            ctx.stroke();
+        // Update Waves
+        waveOffset += 0.05;
+        waves.forEach(w => {
+            w.x -= w.speed;
+            if (w.x + w.length < 0) w.x = canvas.width;
+        });
 
-            // Solid Goal Posts & Crossbar
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            if (isLeft) {
-                ctx.moveTo(0, topY);
-                ctx.lineTo(goalWidth, topY);
-                ctx.lineTo(goalWidth, GROUND_Y);
-            } else {
-                ctx.moveTo(CANVAS_WIDTH, topY);
-                ctx.lineTo(x, topY);
-                ctx.lineTo(x, GROUND_Y);
-            }
-            ctx.stroke();
-        }
+        // Items Logic
+        for (let i = items.length - 1; i >= 0; i--) {
+            let it = items[i];
+            it.y += it.speed;
 
-        /* --- Collision & Game Logic --- */
-        function handleCollisions() {
-            // Player and Ball Collision
-            [player1, player2].forEach(p => {
-                const px = p.x + p.width / 2;
-                const py = p.y + p.height / 2;
-                const dx = ball.x - px;
-                const dy = ball.y - py;
-                const dist = Math.hypot(dx, dy);
-
-                if (dist < ball.radius + 30) {
-                    const angle = Math.atan2(dy, dx);
-                    const force = 8.5;
-                    ball.vx = Math.cos(angle) * force + p.vx * 0.5;
-                    ball.vy = Math.sin(angle) * force;
-                }
-            });
-
-            // Check Goal Scoring
-            if (isGoalPaused) return;
-
-            const goalTop = GROUND_Y - 125;
-            if (ball.y > goalTop && ball.y < GROUND_Y) {
-                if (ball.x < 65) {
-                    p2Score++;
-                    triggerGoal('هدف للكمبيوتر! 🤖');
-                } else if (ball.x > CANVAS_WIDTH - 65) {
-                    p1Score++;
-                    triggerGoal('هدف للاعب 1! ⚽');
-                }
-            }
-        }
-
-        function triggerGoal(text) {
-            isGoalPaused = true;
-            audio.playGoalSound();
-
-            const wrapper = document.getElementById('game-wrapper');
-            wrapper.classList.add('shake-screen');
-            setTimeout(() => wrapper.classList.remove('shake-screen'), 400);
-
-            const banner = document.getElementById('goal-banner');
-            document.getElementById('goal-text').innerText = text;
-            banner.classList.remove('hidden');
-
-            setTimeout(() => {
-                banner.classList.add('hidden');
-                player1.reset();
-                player2.reset();
-                ball.reset();
-                isGoalPaused = false;
-            }, 2000);
-        }
-
-        function updateInputs() {
-            if (!gameRunning || isGoalPaused) return;
-
-            // Player 1 Input Handling
-            if (keys.left) player1.vx = -4.8;
-            else if (keys.right) player1.vx = 4.8;
-            else player1.vx = 0;
-
-            if (keys.jump && player1.isGrounded) {
-                player1.vy = -11.5;
-                player1.isGrounded = false;
-            }
-
-            if (keys.kick) {
-                player1.kick(ball);
-            }
-        }
-
-        function updateUI() {
-            document.getElementById('p1-score').innerText = p1Score;
-            document.getElementById('p2-score').innerText = p2Score;
-        }
-
-        /* --- Main Loop --- */
-        function gameLoop() {
-            if (gameRunning) {
-                updateInputs();
-                player1.update(ball);
-                player2.update(ball);
-                ball.update();
-                handleCollisions();
+            // Collision with Raft
+            let dist = Math.hypot(it.x - player.x, it.y - player.y);
+            if (dist < player.width / 2 + it.size) {
+                if (it.type === 'wood') player.wood++;
+                if (it.type === 'food') player.food++;
+                if (it.type === 'water') player.water++;
+                playSound('collect');
+                items.splice(i, 1);
                 updateUI();
+                continue;
             }
 
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            drawStadium();
-            player1.draw();
-            player2.draw();
-            ball.draw();
-
-            requestAnimationFrame(gameLoop);
+            // Remove out of bounds
+            if (it.y > canvas.height) items.splice(i, 1);
         }
 
-        /* --- Controls Bindings --- */
-        function bindTouch(id, keyName) {
-            const btn = document.getElementById(id);
-            if (!btn) return;
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; audio.init(); });
-            btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
-            btn.addEventListener('mousedown', () => { keys[keyName] = true; audio.init(); });
-            btn.addEventListener('mouseup', () => keys[keyName] = false);
+        // Sharks Logic
+        for (let i = sharks.length - 1; i >= 0; i--) {
+            let s = sharks[i];
+            s.x += s.speed;
+
+            // Collision with Raft
+            let dist = Math.hypot(s.x - player.x, s.y - player.y);
+            if (dist < player.width / 2 + s.size / 2) {
+                player.health = Math.max(0, player.health - 25);
+                playSound('hurt');
+                sharks.splice(i, 1);
+                updateUI();
+                if (player.health <= 0) endGame("هاجمك ألك القرش القاتل!");
+                continue;
+            }
+
+            // Remove out of bounds
+            if (s.x < -100 || s.x > canvas.width + 100) sharks.splice(i, 1);
         }
+    }
 
-        bindTouch('btn-left', 'left');
-        bindTouch('btn-right', 'right');
-        bindTouch('btn-jump', 'jump');
-        bindTouch('btn-kick', 'kick');
+    function render() {
+        // Clear Sky & Ocean
+        ctx.fillStyle = '#0b1d3a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        window.addEventListener('keydown', (e) => {
-            audio.init();
-            if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
-            if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
-            if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.jump = true;
-            if (e.code === 'Space' || e.code === 'KeyK') keys.kick = true;
+        // Water Gradient
+        let oceanGrad = ctx.createLinearGradient(0, canvas.height * 0.4, 0, canvas.height);
+        oceanGrad.addColorStop(0, '#005c53');
+        oceanGrad.addColorStop(0.5, '#042940');
+        oceanGrad.addColorStop(1, '#001c30');
+        ctx.fillStyle = oceanGrad;
+        ctx.fillRect(0, canvas.height * 0.4, canvas.width, canvas.height * 0.6);
+
+        // Dynamic Wave Lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 2;
+        waves.forEach(w => {
+            ctx.beginPath();
+            ctx.moveTo(w.x, w.y);
+            ctx.lineTo(w.x + w.length, w.y + Math.sin(waveOffset + w.x) * 5);
+            ctx.stroke();
         });
 
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
-            if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
-            if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.jump = false;
-            if (e.code === 'Space' || e.code === 'KeyK') keys.kick = false;
+        // Draw Raft
+        ctx.save();
+        ctx.translate(player.x, player.y + Math.sin(waveOffset * 2) * 4);
+        
+        // Raft Wooden Planks
+        ctx.fillStyle = '#8d5524';
+        ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
+        ctx.strokeStyle = '#5c3a21';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
+
+        // Raft details (Logs separation)
+        ctx.beginPath();
+        ctx.moveTo(-player.width / 2, 0); ctx.lineTo(player.width / 2, 0);
+        ctx.moveTo(-player.width / 2, -player.height / 4); ctx.lineTo(player.width / 2, -player.height / 4);
+        ctx.moveTo(-player.width / 2, player.height / 4); ctx.lineTo(player.width / 2, player.height / 4);
+        ctx.stroke();
+
+        // Player Stick Figure / Survivor
+        ctx.fillStyle = '#ffdbac';
+        ctx.beginPath(); // Head
+        ctx.arc(0, -15, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#e0a96d';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); // Body
+        ctx.moveTo(0, -7); ctx.lineTo(0, 10);
+        ctx.stroke();
+
+        ctx.restore();
+
+        // Draw Floating Items
+        items.forEach(it => {
+            ctx.save();
+            ctx.translate(it.x, it.y + Math.sin(waveOffset * 3 + it.x) * 3);
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            let icon = '🪵';
+            if (it.type === 'food') icon = '🥩';
+            if (it.type === 'water') icon = '💧';
+
+            ctx.fillText(icon, 0, 0);
+            ctx.restore();
         });
 
-        /* --- Game State Management --- */
-        function startGame() {
-            audio.init();
-            audio.playWhistle();
+        // Draw Sharks
+        sharks.forEach(s => {
+            ctx.save();
+            ctx.translate(s.x, s.y);
+            ctx.fillStyle = '#4a5568';
 
-            p1Score = 0;
-            p2Score = 0;
-            matchTime = 90;
+            // Fin Drawing
+            ctx.beginPath();
+            ctx.moveTo(0, -20);
+            ctx.lineTo(15, 15);
+            ctx.lineTo(-15, 15);
+            ctx.closePath();
+            ctx.fill();
 
-            player1.reset();
-            player2.reset();
-            ball.reset();
+            ctx.restore();
+        });
+    }
 
-            document.getElementById('start-menu').classList.add('hidden');
-            document.getElementById('game-over-menu').classList.add('hidden');
+    function endGame(reason) {
+        gameOver = true;
+        clearInterval(timerInterval);
+        document.getElementById('death-reason').innerText = reason;
+        document.getElementById('final-time').innerText = timeSurvived;
+        document.getElementById('game-over-modal').style.display = 'flex';
+    }
 
-            gameRunning = true;
+    function resetGame() {
+        gameOver = false;
+        timeSurvived = 0;
+        player.health = 100;
+        player.hunger = 100;
+        player.thirst = 100;
+        player.wood = 0;
+        player.food = 2;
+        player.water = 2;
+        player.x = canvas.width / 2;
+        items = [];
+        sharks = [];
+        document.getElementById('game-over-modal').style.display = 'none';
+        updateUI();
+        startTimers();
+        loop();
+    }
 
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (gameRunning && !isGoalPaused) {
-                    matchTime--;
-                    const mins = String(Math.floor(matchTime / 60)).padStart(2, '0');
-                    const secs = String(matchTime % 60).padStart(2, '0');
-                    document.getElementById('match-timer').innerText = `${mins}:${secs}`;
-
-                    if (matchTime <= 0) endGame();
-                }
-            }, 1000);
-        }
-
-        function endGame() {
-            gameRunning = false;
-            clearInterval(timerInterval);
-            audio.playWhistle();
-
-            const overMenu = document.getElementById('game-over-menu');
-            const winnerText = document.getElementById('winner-text');
-            const scoreText = document.getElementById('final-score-text');
-
-            scoreText.innerText = `${p1Score} - ${p2Score}`;
-            if (p1Score > p2Score) winnerText.innerText = 'فزت بالمباراة! 🏆';
-            else if (p2Score > p1Score) winnerText.innerText = 'الكمبيوتر فاز بالمباراة! 🤖';
-            else winnerText.innerText = 'تعادل متعادل! 🤝';
-
-            overMenu.classList.remove('hidden');
-        }
-
-        window.onload = () => {
-            gameLoop();
-        };
-    </script>
+    // Start Game
+    updateUI();
+    startTimers();
+    loop();
+</script>
 </body>
 </html>
