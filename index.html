@@ -1,496 +1,978 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>سباق العربيات</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      width: 100%;
-      height: 100vh;
-      background: #000;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة البقاء في المحيط ثلاثية الأبعاد - 3D Ocean Raft Survival</title>
     
-    .game-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 100%);
-      overflow: hidden;
-    }
+    <!-- Tailwind CSS & FontAwesome Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Tajawal', sans-serif;
+        }
 
-    .ui {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: #000;
-      font-weight: bold;
-      font-size: 18px;
-      z-index: 100;
-    }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030a16;
+            color: #ffffff;
+        }
 
-    .ui div {
-      margin: 10px 0;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 10px 15px;
-      border-radius: 8px;
-    }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
 
-    .winner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.9);
-      color: #ffff00;
-      padding: 30px 50px;
-      border-radius: 15px;
-      font-size: 40px;
-      font-weight: bold;
-      text-align: center;
-      z-index: 200;
-      display: none;
-    }
+        /* Glassmorphism UI Style */
+        .glass-panel {
+            background: rgba(10, 25, 47, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
 
-    .instructions {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      color: #000;
-      font-size: 14px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 15px;
-      border-radius: 8px;
-      max-width: 300px;
-      z-index: 100;
-    }
+        .glass-btn {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(79, 172, 254, 0.4));
+            border: 1px solid rgba(0, 242, 254, 0.5);
+            backdrop-filter: blur(8px);
+            transition: all 0.15s ease-in-out;
+        }
 
-    .instructions strong {
-      color: #d32f2f;
-    }
-  </style>
+        .glass-btn:active {
+            transform: scale(0.92);
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.6), rgba(79, 172, 254, 0.8));
+        }
+
+        /* Animated Progress Bars */
+        .progress-fill {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom Scrollbar for Inventory */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.4);
+            border-radius: 4px;
+        }
+
+        .floating-text {
+            animation: floatUp 1.2s ease-out forwards;
+            position: absolute;
+            pointer-events: none;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0,0,0,0.8);
+            z-index: 50;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.2); }
+        }
+    </style>
 </head>
-<body>
-  <div class="game-container">
-    <canvas id="gameCanvas"></canvas>
+<body class="select-none overflow-hidden bg-slate-950 text-white">
+
+<!-- 3D Canvas Container -->
+<div id="canvas-container"></div>
+
+<!-- HUD Interface Layer -->
+<div id="ui-layer" class="relative z-10 w-full h-full pointer-events-none flex flex-col justify-between p-4 md:p-6">
     
-    <div class="ui">
-      <div>🏁 السرعة - الأحمر: <span id="car1Speed">0</span></div>
-      <div>🏁 السرعة - الأزرق: <span id="car2Speed">0</span></div>
-      <div>📊 المسافة - الأحمر: <span id="car1Dist">0</span>m</div>
-      <div>📊 المسافة - الأزرق: <span id="car2Dist">0</span>m</div>
+    <!-- Top Bar: Stats & Inventory -->
+    <div class="flex flex-col md:flex-row justify-between items-start gap-4 w-full">
+        
+        <!-- Left Side: Player Status Bars -->
+        <div class="glass-panel rounded-2xl p-4 w-72 pointer-events-auto flex flex-col gap-2.5">
+            <div class="flex items-center justify-between text-xs font-bold mb-1 border-b border-cyan-500/20 pb-1">
+                <span class="text-cyan-400"><i class="fa-solid fa-heart-pulse ml-1"></i> المؤشرات الحيوية</span>
+                <span id="day-night-indicator" class="text-amber-400"><i class="fa-solid fa-sun ml-1"></i> النهار</span>
+            </div>
+
+            <!-- Health Bar -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-red-400"><i class="fa-solid fa-heart ml-1"></i> الصحة</span>
+                    <span id="val-health">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-red-500/30">
+                    <div id="bar-health" class="progress-fill h-full bg-gradient-to-r from-red-600 to-rose-400 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Hunger Bar -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-amber-400"><i class="fa-solid fa-drumstick-bite ml-1"></i> الجوع</span>
+                    <span id="val-hunger">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-amber-500/30">
+                    <div id="bar-hunger" class="progress-fill h-full bg-gradient-to-r from-amber-600 to-yellow-400 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Thirst Bar -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-cyan-400"><i class="fa-solid fa-droplet ml-1"></i> العطش</span>
+                    <span id="val-thirst">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-cyan-500/30">
+                    <div id="bar-thirst" class="progress-fill h-full bg-gradient-to-r from-cyan-600 to-sky-400 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Raft Durability -->
+            <div>
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-emerald-400"><i class="fa-solid fa-shield-halved ml-1"></i> صلابة القارب</span>
+                    <span id="val-raft">100%</span>
+                </div>
+                <div class="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-emerald-500/30">
+                    <div id="bar-raft" class="progress-fill h-full bg-gradient-to-r from-emerald-600 to-teal-400 w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Resources Inventory HUD -->
+        <div class="glass-panel rounded-2xl p-3.5 pointer-events-auto flex gap-4 items-center">
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-amber-800/40">
+                <i class="fa-solid fa-tree text-amber-600 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">خشب</div>
+                    <div id="inv-wood" class="font-bold text-sm text-amber-200">0</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-rose-800/40">
+                <i class="fa-solid fa-fish text-rose-500 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">طعام</div>
+                    <div id="inv-food" class="font-bold text-sm text-rose-200">2</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-sky-800/40">
+                <i class="fa-solid fa-bottle-water text-sky-400 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">ماء</div>
+                    <div id="inv-water" class="font-bold text-sm text-sky-200">2</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-700">
+                <i class="fa-solid fa-cubes-stacked text-slate-400 text-lg"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400">خردة</div>
+                    <div id="inv-scrap" class="font-bold text-sm text-slate-200">0</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="instructions">
-      <strong>التحكم - العربية الحمراء:</strong><br>
-      ⬆️ أعلى = تسريع<br>
-      ⬇️ أسفل = إبطاء<br>
-      ⬅️ يسار = انحراف يسار<br>
-      ➡️ يمين = انحراف يمين<br>
-      <br>
-      <strong style="color: #1976d2;">التحكم - العربية الزرقاء:</strong><br>
-      W = تسريع<br>
-      S = إبطاء<br>
-      A = انحراف يسار<br>
-      D = انحراف يمين
-    </strong>
+    <!-- Notification / Warning Center -->
+    <div class="w-full flex justify-center pointer-events-none">
+        <div id="warning-toast" class="opacity-0 transition-opacity duration-300 glass-panel border-red-500 text-red-400 px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+            <span id="warning-msg">قرش يقترب من القارب!</span>
+        </div>
     </div>
 
-    <div class="winner" id="winner"></div>
-  </div>
+    <!-- Bottom Controls Section -->
+    <div class="flex justify-between items-end w-full pb-2">
+        
+        <!-- Virtual Movement Joystick / Buttons -->
+        <div class="pointer-events-auto flex flex-col items-center gap-1">
+            <button id="btn-up" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-up"></i></button>
+            <div class="flex gap-2">
+                <button id="btn-left" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-right"></i></button>
+                <button id="btn-down" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-down"></i></button>
+                <button id="btn-right" class="glass-btn w-14 h-14 rounded-2xl flex items-center justify-center text-cyan-300 text-xl shadow-lg"><i class="fa-solid fa-chevron-left"></i></button>
+            </div>
+        </div>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+        <!-- Survival Action Buttons -->
+        <div class="pointer-events-auto flex flex-wrap max-w-xs md:max-w-none gap-2.5 justify-end">
+            <!-- Hook Action -->
+            <button id="btn-hook" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-cyan-300 font-bold text-sm shadow-xl border-cyan-400/40 active:scale-95">
+                <i class="fa-solid fa-anchor text-lg"></i>
+                <span>خطاف الصيد</span>
+            </button>
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+            <!-- Eat Food -->
+            <button id="btn-eat" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-amber-300 font-bold text-sm shadow-xl border-amber-400/40 active:scale-95">
+                <i class="fa-solid fa-utensils text-lg"></i>
+                <span>أكل</span>
+            </button>
 
-    const ROAD_WIDTH = 200;
-    const ROAD_Y = canvas.height / 2 - ROAD_WIDTH / 2;
-    const FINISH_LINE = 8000;
-    const CAR_WIDTH = 40;
-    const CAR_HEIGHT = 60;
+            <!-- Drink Water -->
+            <button id="btn-drink" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-sky-300 font-bold text-sm shadow-xl border-sky-400/40 active:scale-95">
+                <i class="fa-solid fa-glass-water text-lg"></i>
+                <span>شرب</span>
+            </button>
 
-    // العوامل والعواقب
-    const obstacles = [
-      { x: 800, y: ROAD_Y + 50, w: 60, h: 40, type: 'rock' },
-      { x: 1200, y: ROAD_Y + 120, w: 80, h: 50, type: 'tree' },
-      { x: 1800, y: ROAD_Y + 40, w: 100, h: 60, type: 'car' },
-      { x: 2400, y: ROAD_Y + 100, w: 70, h: 50, type: 'rock' },
-      { x: 3000, y: ROAD_Y + 60, w: 90, h: 70, type: 'tree' },
-      { x: 3600, y: ROAD_Y + 110, w: 80, h: 60, type: 'rock' },
-      { x: 4200, y: ROAD_Y + 50, w: 100, h: 80, type: 'car' },
-      { x: 4800, y: ROAD_Y + 90, w: 70, h: 50, type: 'tree' },
-      { x: 5400, y: ROAD_Y + 40, w: 85, h: 60, type: 'rock' },
-      { x: 6000, y: ROAD_Y + 100, w: 95, h: 70, type: 'car' },
-      { x: 6600, y: ROAD_Y + 60, w: 80, h: 50, type: 'tree' },
-      { x: 7200, y: ROAD_Y + 110, w: 90, h: 60, type: 'rock' },
-      { x: 7800, y: ROAD_Y + 50, w: 100, h: 80, type: 'car' },
-    ];
+            <!-- Repair/Expand Raft -->
+            <button id="btn-repair" class="glass-btn px-4 py-3 rounded-2xl flex items-center gap-2 text-emerald-300 font-bold text-sm shadow-xl border-emerald-400/40 active:scale-95">
+                <i class="fa-solid fa-hammer text-lg"></i>
+                <span>إصلاح القارب</span>
+            </button>
+        </div>
+    </div>
+</div>
 
-    // حفر الطريق
-    const holes = [
-      { x: 2000, y: ROAD_Y + 60, w: 120, h: 80 },
-      { x: 3400, y: ROAD_Y + 80, w: 150, h: 100 },
-      { x: 5000, y: ROAD_Y + 70, w: 110, h: 90 },
-      { x: 6800, y: ROAD_Y + 75, w: 130, h: 85 },
-    ];
+<!-- Game Over Modal -->
+<div id="game-over-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex-col items-center justify-center p-6 text-center">
+    <div class="glass-panel border-red-500/50 p-8 rounded-3xl max-w-md w-full flex flex-col items-center gap-5 shadow-2xl">
+        <div class="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center text-red-500 text-4xl animate-pulse">
+            <i class="fa-solid fa-skull"></i>
+        </div>
+        <h1 class="text-3xl font-black text-red-500">انتهت اللعبة!</h1>
+        <p id="death-cause" class="text-gray-300 text-sm leading-relaxed">لم تتمكن من البقاء على قيد الحياة في المحيط.</p>
+        <div class="bg-slate-900/80 p-4 rounded-xl w-full flex justify-around border border-slate-800">
+            <div>
+                <div class="text-xs text-gray-400">مدة الصمود</div>
+                <div id="stat-survival-time" class="text-xl font-bold text-cyan-400">00:00</div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-400">الموارد المجمعة</div>
+                <div id="stat-collected" class="text-xl font-bold text-emerald-400">0</div>
+            </div>
+        </div>
+        <button id="btn-restart" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black rounded-xl text-lg shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+            <i class="fa-solid fa-rotate-right ml-2"></i> المحاولة مجدداً
+        </button>
+    </div>
+</div>
 
-    class Car {
-      constructor(x, y, color, isPlayer) {
-        this.x = x;
-        this.y = y;
-        this.vx = 0;
-        this.vy = 0;
-        this.speed = 0;
-        this.maxSpeed = 8;
-        this.acceleration = 0.3;
-        this.friction = 0.92;
-        this.color = color;
-        this.isPlayer = isPlayer;
-        this.angle = 0;
-        this.crashed = false;
-        this.crashTime = 0;
-      }
+<script>
+/* Audio Synthesizer Class (Standalone - No External Audio Files) */
+class SoundEffects {
+    constructor() {
+        this.ctx = null;
+    }
 
-      update(keys) {
-        if (this.crashed) {
-          this.crashTime--;
-          if (this.crashTime <= 0) {
-            this.crashed = false;
-          }
-          this.speed *= 0.85;
-        } else {
-          if (this.isPlayer) {
-            if (keys['ArrowUp'] || keys['w'] || keys['W']) this.speed = Math.min(this.maxSpeed, this.speed + this.acceleration);
-            if (keys['ArrowDown'] || keys['s'] || keys['S']) this.speed = Math.max(-2, this.speed - 0.2);
-            if (keys['ArrowLeft'] || keys['a'] || keys['A']) this.vy = Math.max(-3, this.vy - 0.15);
-            if (keys['ArrowRight'] || keys['d'] || keys['D']) this.vy = Math.min(3, this.vy + 0.15);
-          }
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         }
-
-        this.vy *= this.friction;
-        this.speed *= this.friction;
-
-        this.x += this.speed;
-        this.y += this.vy;
-
-        // حدود الطريق
-        const minY = ROAD_Y + 10;
-        const maxY = ROAD_Y + ROAD_WIDTH - CAR_HEIGHT - 10;
-        if (this.y < minY) {
-          this.y = minY;
-          this.vy = 0;
-          this.crashed = true;
-          this.crashTime = 20;
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
         }
-        if (this.y > maxY) {
-          this.y = maxY;
-          this.vy = 0;
-          this.crashed = true;
-          this.crashTime = 20;
-        }
+    }
 
-        // تصادم العوامل
-        obstacles.forEach(obs => {
-          if (this.collidesWith(obs)) {
-            this.crashed = true;
-            this.crashTime = 30;
-            this.speed *= 0.4;
-          }
-        });
+    playCollect() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+    }
 
-        // تصادم الحفر
-        holes.forEach(hole => {
-          if (this.collidesWith(hole)) {
-            this.speed *= 0.5;
-            this.crashed = true;
-            this.crashTime = 35;
-          }
-        });
-      }
+    playEat() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(320, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+    }
 
-      collidesWith(obj) {
-        return !(this.x + CAR_WIDTH < obj.x ||
-                 this.x > obj.x + obj.w ||
-                 this.y + CAR_HEIGHT < obj.y ||
-                 this.y > obj.y + obj.h);
-      }
+    playDrink() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+    }
 
-      draw() {
-        ctx.save();
-        ctx.translate(this.x + CAR_WIDTH / 2, this.y + CAR_HEIGHT / 2);
+    playSharkAttack() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.4);
+    }
 
-        if (this.crashed) {
-          ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
-          ctx.fillRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
-          ctx.strokeStyle = '#ff0000';
-          ctx.lineWidth = 3;
-          ctx.strokeRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+    playRepair() {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.setValueAtTime(450, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.18);
+    }
+}
 
-          ctx.fillStyle = '#ffff00';
-          ctx.font = 'bold 20px Arial';
-          ctx.textAlign = 'center';
-          ctx.fillText('💥', 0, 5);
-        } else {
-          ctx.fillStyle = this.color;
-          ctx.fillRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+const sfx = new SoundEffects();
+</script>
 
-          ctx.fillStyle = '#333';
-          ctx.fillRect(-CAR_WIDTH / 2 + 5, -CAR_HEIGHT / 2 + 5, CAR_WIDTH - 10, 15);
-        }
+<script>
+// Global Game State
+const state = {
+    health: 100,
+    hunger: 100,
+    thirst: 100,
+    raftDurability: 100,
+    wood: 5,
+    food: 3,
+    water: 3,
+    scrap: 2,
+    timeSurvived: 0,
+    totalCollected: 0,
+    gameOver: false,
+    dayTime: 0 // 0 to 1 cycle
+};
 
-        ctx.restore();
-      }
+// Movement Controls
+const move = { forward: 0, right: 0 };
 
-      getDistance() {
-        return Math.floor(this.x);
-      }
+// 3D Scene Variables
+let scene, camera, renderer;
+let oceanMesh, raftGroup, sharkGroup;
+let sunLight, ambientLight;
+let itemsInSea = [];
+let particleSystem;
+const clock = new THREE.Clock();
+
+// Initialize Three.js Engine
+function initEngine() {
+    const container = document.getElementById('canvas-container');
+
+    // Scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a192f);
+    scene.fog = new THREE.FogExp2(0x0a192f, 0.015);
+
+    // Camera
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 8, 14);
+    camera.lookAt(0, 0, 0);
+
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    ambientLight = new THREE.AmbientLight(0x7ac1ff, 0.6);
+    scene.add(ambientLight);
+
+    sunLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+    sunLight.position.set(30, 50, 20);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 150;
+    const d = 20;
+    sunLight.shadow.camera.left = -d;
+    sunLight.shadow.camera.right = d;
+    sunLight.shadow.camera.top = d;
+    sunLight.shadow.camera.bottom = -d;
+    scene.add(sunLight);
+
+    // Create World Objects
+    createOcean();
+    createRaft();
+    createShark();
+    createParticles();
+
+    // Resize Handler
+    window.addEventListener('resize', onWindowResize);
+}
+
+// Custom Animated Water Plane
+function createOcean() {
+    const geo = new THREE.PlaneGeometry(300, 300, 64, 64);
+    geo.rotateX(-Math.PI / 2);
+
+    const mat = new THREE.MeshStandardMaterial({
+        color: 0x006688,
+        roughness: 0.1,
+        metalness: 0.8,
+        flatShading: true
+    });
+
+    oceanMesh = new THREE.Mesh(geo, mat);
+    oceanMesh.receiveShadow = true;
+    scene.add(oceanMesh);
+}
+
+// Get wave height at specific (x, z) coordinates
+function getWaveHeight(x, z, time) {
+    return Math.sin(x * 0.2 + time * 2) * 0.4 + Math.cos(z * 0.15 + time * 1.5) * 0.3;
+}
+
+// Procedural Wooden Raft Creation
+function createRaft() {
+    raftGroup = new THREE.Group();
+
+    // Wood Logs Texture Material
+    const logMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.8 });
+    const ropeMat = new THREE.MeshStandardMaterial({ color: 0xD2B48C, roughness: 0.9 });
+
+    // Create Raft Planks Grid (3x3 logs)
+    const logGeo = new THREE.CylinderGeometry(0.35, 0.35, 5, 8);
+    for (let i = -2; i <= 2; i += 1) {
+        const log = new THREE.Mesh(logGeo, logMat);
+        log.rotation.z = Math.PI / 2;
+        log.position.z = i * 0.9;
+        log.castShadow = true;
+        log.receiveShadow = true;
+        raftGroup.add(log);
+    }
+
+    // Cross Support Logs
+    for (let i = -1.5; i <= 1.5; i += 3) {
+        const crossLog = new THREE.Mesh(logGeo, logMat);
+        crossLog.rotation.x = Math.PI / 2;
+        crossLog.position.x = i;
+        crossLog.position.y = 0.2;
+        crossLog.scale.set(0.8, 0.9, 0.8);
+        crossLog.castShadow = true;
+        raftGroup.add(crossLog);
+    }
+
+    // Wooden Shelter Frame / Flagpole
+    const poleGeo = new THREE.CylinderGeometry(0.1, 0.1, 3, 8);
+    const pole = new THREE.Mesh(poleGeo, logMat);
+    pole.position.set(-1.8, 1.5, -1.8);
+    pole.castShadow = true;
+    raftGroup.add(pole);
+
+    // Sail / Cloth
+    const sailGeo = new THREE.BufferGeometry();
+    const vertices = new Float32Array([
+        -1.8, 2.8, -1.8,
+        -1.8, 1.6, -1.8,
+        -0.2, 2.2, -1.8
+    ]);
+    sailGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    sailGeo.computeVertexNormals();
+    const sailMat = new THREE.MeshStandardMaterial({ color: 0xF5F5DC, side: THREE.DoubleSide });
+    const sail = new THREE.Mesh(sailGeo, sailMat);
+    sail.castShadow = true;
+    raftGroup.add(sail);
+
+    // Survivor Character Silhouette
+    const survivorMat = new THREE.MeshStandardMaterial({ color: 0xe0a96d });
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), survivorMat);
+    head.position.set(0, 1.3, 0);
+    head.castShadow = true;
+    raftGroup.add(head);
+
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.9, 8), new THREE.MeshStandardMaterial({ color: 0x225588 }));
+    body.position.set(0, 0.65, 0);
+    body.castShadow = true;
+    raftGroup.add(body);
+
+    scene.add(raftGroup);
+}
+
+// Procedural 3D Shark Creation
+function createShark() {
+    sharkGroup = new THREE.Group();
+    const sharkMat = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.4 });
+
+    // Shark Fin
+    const finShape = new THREE.Shape();
+    finShape.moveTo(0, 0);
+    finShape.lineTo(0.8, 1.2);
+    finShape.lineTo(1.4, 0);
+    finShape.closePath();
+
+    const extrudeSettings = { depth: 0.15, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.05, bevelThickness: 0.05 };
+    const finGeo = new THREE.ExtrudeGeometry(finShape, extrudeSettings);
+    const fin = new THREE.Mesh(finGeo, sharkMat);
+    fin.rotation.y = Math.PI / 2;
+    fin.position.set(0, -0.2, -0.6);
+    fin.castShadow = true;
+    sharkGroup.add(fin);
+
+    // Body (Underwater Silhouette)
+    const bodyGeo = new THREE.ConeGeometry(0.8, 3.5, 8);
+    const body = new THREE.Mesh(bodyGeo, sharkMat);
+    body.rotation.x = Math.PI / 2;
+    body.position.set(0, -0.8, 0);
+    sharkGroup.add(body);
+
+    sharkGroup.position.set(20, 0, 20);
+    scene.add(sharkGroup);
+}
+
+// Atmosphere Particles
+function createParticles() {
+    const count = 150;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+
+    for (let i = 0; i < count * 3; i += 3) {
+        pos[i] = (Math.random() - 0.5) * 80;
+        pos[i + 1] = Math.random() * 15;
+        pos[i + 2] = (Math.random() - 0.5) * 80;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.15, color: 0x00ffff, transparent: true, opacity: 0.5 });
+    particleSystem = new THREE.Points(geo, mat);
+    scene.add(particleSystem);
+}
+
+// Spawn Floating Collectibles in Sea
+function spawnSeaItem() {
+    if (itemsInSea.length > 12 || state.gameOver) return;
+
+    const types = ['wood', 'food', 'water', 'scrap'];
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    const itemGroup = new THREE.Group();
+    let mat, geo;
+
+    if (type === 'wood') {
+        // Crate
+        geo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+        mat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.7 });
+    } else if (type === 'water') {
+        // Water Jug
+        geo = new THREE.CylinderGeometry(0.3, 0.3, 0.8, 12);
+        mat = new THREE.MeshStandardMaterial({ color: 0x00bfff, roughness: 0.2, transparent: true, opacity: 0.8 });
+    } else if (type === 'food') {
+        // Barrel
+        geo = new THREE.CylinderGeometry(0.4, 0.4, 0.9, 12);
+        mat = new THREE.MeshStandardMaterial({ color: 0xa52a2a, roughness: 0.6 });
+    } else {
+        // Scrap Metal
+        geo = new THREE.DodecahedronGeometry(0.4);
+        mat = new THREE.MeshStandardMaterial({ color: 0x708090, metalness: 0.9, roughness: 0.3 });
+    }
+
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    itemGroup.add(mesh);
+
+    // Random Angle Spawn around player
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 25 + Math.random() * 15;
+    itemGroup.position.x = raftGroup.position.x + Math.cos(angle) * distance;
+    itemGroup.position.z = raftGroup.position.z + Math.sin(angle) * distance;
+
+    itemGroup.userData = {
+        type: type,
+        spawnTime: clock.getElapsedTime(),
+        driftSpeed: 0.03 + Math.random() * 0.02
     };
 
-    class AIController {
-      constructor(car) {
-        this.car = car;
-        this.targetY = car.y;
-      }
+    scene.add(itemGroup);
+    itemsInSea.push(itemGroup);
+}
 
-      update(keys) {
-        const lookahead = 300;
-        const checkX = this.car.x + lookahead;
+// User Actions & Inputs
+function setupInputs() {
+    // Buttons Touch & Mouse Listeners
+    const bindBtn = (id, onStart, onEnd) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        
+        const start = (e) => {
+            e.preventDefault();
+            sfx.init();
+            onStart();
+        };
+        const end = (e) => {
+            e.preventDefault();
+            if (onEnd) onEnd();
+        };
 
-        let safeZones = [];
-        safeZones.push({ y: ROAD_Y + 20, w: 1000 });
-        safeZones.push({ y: ROAD_Y + 100, w: 1000 });
+        el.addEventListener('touchstart', start);
+        el.addEventListener('touchend', end);
+        el.addEventListener('mousedown', start);
+        el.addEventListener('mouseup', end);
+    };
 
-        let bestY = this.car.y;
-        let bestScore = -9999;
+    bindBtn('btn-up', () => move.forward = 1, () => move.forward = 0);
+    bindBtn('btn-down', () => move.forward = -1, () => move.forward = 0);
+    bindBtn('btn-left', () => move.right = -1, () => move.right = 0);
+    bindBtn('btn-right', () => move.right = 1, () => move.right = 0);
 
-        for (let testY = ROAD_Y + 20; testY < ROAD_Y + ROAD_WIDTH - CAR_HEIGHT; testY += 15) {
-          let score = 0;
-
-          // تجنب العوامل
-          let safe = true;
-          obstacles.forEach(obs => {
-            if (obs.x < checkX + 100 && obs.x + obs.w > checkX - 100) {
-              const dist = Math.abs(testY + CAR_HEIGHT / 2 - (obs.y + obs.h / 2));
-              if (dist < 150) {
-                safe = false;
-                score -= (150 - dist);
-              }
-            }
-          });
-
-          if (safe) score += 100;
-
-          // تجنب الحفر
-          holes.forEach(hole => {
-            if (hole.x < checkX + 150 && hole.x + hole.w > checkX - 150) {
-              const dist = Math.abs(testY + CAR_HEIGHT / 2 - (hole.y + hole.h / 2));
-              if (dist < 200) {
-                score -= (200 - dist) * 0.5;
-              }
-            }
-          });
-
-          // تفضيل الوسط
-          const centerDist = Math.abs(testY - (ROAD_Y + ROAD_WIDTH / 2));
-          score -= centerDist * 0.3;
-
-          if (score > bestScore) {
-            bestScore = score;
-            bestY = testY;
-          }
-        }
-
-        this.targetY = bestY;
-
-        // التحكم بالسرعة
-        const obstacleAhead = obstacles.some(obs =>
-          obs.x > this.car.x && obs.x < this.car.x + 400
-        );
-        const holeAhead = holes.some(hole =>
-          hole.x > this.car.x && hole.x < this.car.x + 350
-        );
-
-        if (obstacleAhead || holeAhead) {
-          keys['s'] = true;
-        } else {
-          keys['w'] = true;
-        }
-
-        // الانحراف
-        if (this.targetY < this.car.y - 10) {
-          keys['a'] = true;
-        } else if (this.targetY > this.car.y + 10) {
-          keys['d'] = true;
-        }
-      }
-    }
-
-    const car1 = new Car(100, ROAD_Y + 40, '#d32f2f', true);
-    const car2 = new Car(100, ROAD_Y + 120, '#1976d2', false);
-    const aiController = new AIController(car2);
-
-    const keys = {};
+    // Keyboard Navigation
     window.addEventListener('keydown', (e) => {
-      keys[e.key] = true;
+        sfx.init();
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') move.forward = 1;
+        if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') move.forward = -1;
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move.right = -1;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move.right = 1;
     });
+
     window.addEventListener('keyup', (e) => {
-      keys[e.key] = false;
+        if (['ArrowUp', 'w', 'W', 'ArrowDown', 's', 'S'].includes(e.key)) move.forward = 0;
+        if (['ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D'].includes(e.key)) move.right = 0;
     });
 
-    function drawRoad() {
-      // الطريق
-      ctx.fillStyle = '#444';
-      ctx.fillRect(0, ROAD_Y, canvas.width * 2, ROAD_WIDTH);
+    // Action Buttons
+    document.getElementById('btn-hook').addEventListener('click', useHook);
+    document.getElementById('btn-eat').addEventListener('click', eatFood);
+    document.getElementById('btn-drink').addEventListener('click', drinkWater);
+    document.getElementById('btn-repair').addEventListener('click', repairRaft);
+    document.getElementById('btn-restart').addEventListener('click', restartGame);
+}
 
-      // الخطوط الوسط
-      ctx.strokeStyle = '#ffff00';
-      ctx.lineWidth = 3;
-      ctx.setLineDash([30, 20]);
-      ctx.beginPath();
-      ctx.moveTo(0, ROAD_Y + ROAD_WIDTH / 2);
-      ctx.lineTo(canvas.width * 2, ROAD_Y + ROAD_WIDTH / 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
+// Hook Action: Grab nearby items
+function useHook() {
+    if (state.gameOver) return;
+    
+    let caught = false;
+    for (let i = itemsInSea.length - 1; i >= 0; i--) {
+        const item = itemsInSea[i];
+        const dist = raftGroup.position.distanceTo(item.position);
 
-      // الخطوط الجانبية
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.moveTo(0, ROAD_Y);
-      ctx.lineTo(canvas.width * 2, ROAD_Y);
-      ctx.stroke();
+        if (dist < 9) { // Hook reach radius
+            // Collect Resource
+            const type = item.userData.type;
+            if (type === 'wood') state.wood += 2;
+            if (type === 'food') state.food += 1;
+            if (type === 'water') state.water += 1;
+            if (type === 'scrap') state.scrap += 1;
 
-      ctx.beginPath();
-      ctx.moveTo(0, ROAD_Y + ROAD_WIDTH);
-      ctx.lineTo(canvas.width * 2, ROAD_Y + ROAD_WIDTH);
-      ctx.stroke();
-    }
+            state.totalCollected++;
+            sfx.playCollect();
+            showFloatingText(`+1 ${getItemName(type)}`, item.position);
 
-    function drawObstacles() {
-      obstacles.forEach(obs => {
-        ctx.fillStyle = obs.type === 'rock' ? '#888' : obs.type === 'tree' ? '#228B22' : '#555';
-        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-
-        if (obs.type === 'rock') {
-          ctx.fillStyle = '#666';
-          ctx.fillRect(obs.x + 5, obs.y + 5, obs.w - 10, obs.h - 10);
-        } else if (obs.type === 'tree') {
-          ctx.fillStyle = '#32CD32';
-          ctx.beginPath();
-          ctx.arc(obs.x + obs.w / 2, obs.y + obs.h / 2, obs.w / 2 - 5, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          ctx.fillStyle = '#777';
-          ctx.fillRect(obs.x + 3, obs.y + 3, obs.w - 6, obs.h - 6);
+            scene.remove(item);
+            itemsInSea.splice(i, 1);
+            caught = true;
+            break;
         }
-      });
     }
 
-    function drawHoles() {
-      holes.forEach(hole => {
-        ctx.fillStyle = '#222';
-        ctx.fillRect(hole.x, hole.y, hole.w, hole.h);
-        ctx.strokeStyle = '#444';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(hole.x, hole.y, hole.w, hole.h);
-
-        ctx.fillStyle = '#111';
-        for (let i = 0; i < 3; i++) {
-          ctx.beginPath();
-          ctx.arc(hole.x + 20 + i * 25, hole.y + hole.h / 2, 8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      });
+    if (!caught) {
+        showToast("لا توجد موارد قريبة من الخطاف!");
     }
+    updateUI();
+}
 
-    function drawFinishLine() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      ctx.fillRect(FINISH_LINE, ROAD_Y, 50, ROAD_WIDTH);
+function getItemName(type) {
+    if (type === 'wood') return 'خشب';
+    if (type === 'food') return 'طعام';
+    if (type === 'water') return 'ماء';
+    return 'خردة';
+}
 
-      ctx.fillStyle = '#fff';
-      for (let i = 0; i < ROAD_WIDTH; i += 20) {
-        ctx.fillRect(FINISH_LINE, ROAD_Y + i, 25, 20);
-        ctx.fillStyle = '#000';
-        ctx.fillRect(FINISH_LINE + 25, ROAD_Y + i, 25, 20);
-        ctx.fillStyle = '#fff';
-      }
+function eatFood() {
+    if (state.food > 0 && state.hunger < 100) {
+        state.food--;
+        state.hunger = Math.min(100, state.hunger + 30);
+        sfx.playEat();
+        showToast("قم بتبديل طاقتك بالطعام (+30 جوع)");
+        updateUI();
+    } else if (state.food <= 0) {
+        showToast("ليس لديك طعام!");
     }
+}
 
-    function updateUI() {
-      document.getElementById('car1Speed').textContent = Math.floor(car1.speed * 10);
-      document.getElementById('car2Speed').textContent = Math.floor(car2.speed * 10);
-      document.getElementById('car1Dist').textContent = car1.getDistance();
-      document.getElementById('car2Dist').textContent = car2.getDistance();
+function drinkWater() {
+    if (state.water > 0 && state.thirst < 100) {
+        state.water--;
+        state.thirst = Math.min(100, state.thirst + 35);
+        sfx.playDrink();
+        showToast("ارتويت بالماء النقي (+35 عطش)");
+        updateUI();
+    } else if (state.water <= 0) {
+        showToast("ليس لديك ماء!");
     }
+}
 
-    function checkWinner() {
-      if (car1.x > FINISH_LINE && car2.x <= FINISH_LINE) {
-        return 'الأحمر 🏁 فاز!';
-      }
-      if (car2.x > FINISH_LINE && car1.x <= FINISH_LINE) {
-        return 'الأزرق 🏁 فاز!';
-      }
-      return null;
+function repairRaft() {
+    if (state.wood >= 2 && state.scrap >= 1 && state.raftDurability < 100) {
+        state.wood -= 2;
+        state.scrap -= 1;
+        state.raftDurability = Math.min(100, state.raftDurability + 25);
+        sfx.playRepair();
+        showToast("تم إصلاح وتدعيم القارب (+25% صلابة)");
+        updateUI();
+    } else if (state.raftDurability >= 100) {
+        showToast("القارب في حالة ممتازة بالفعل!");
+    } else {
+        showToast("يلزمك: 2 خشب و 1 خردة للإصلاح!");
     }
+}
 
-    let gameRunning = true;
+// Notification Toast
+function showToast(msg) {
+    const toast = document.getElementById('warning-toast');
+    document.getElementById('warning-msg').innerText = msg;
+    toast.classList.remove('opacity-0');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+    }, 2500);
+}
 
-    function gameLoop() {
-      // Clear
-      ctx.fillStyle = 'rgba(135, 206, 235, 0.3)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+// 3D Floating Score Text
+function showFloatingText(text, pos3D) {
+    const el = document.createElement('div');
+    el.className = 'floating-text text-amber-300 text-lg';
+    el.innerText = text;
 
-      // Draw game
-      drawRoad();
-      drawObstacles();
-      drawHoles();
-      drawFinishLine();
+    // Convert 3D position to Screen Coordinates
+    const vector = pos3D.clone();
+    vector.project(camera);
+    const x = (vector.x * .5 + .5) * window.innerWidth;
+    const y = (-(vector.y * .5) + .5) * window.innerHeight;
 
-      // Update
-      aiController.update(keys);
-      car1.update(keys);
-      car2.update(keys);
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    document.body.appendChild(el);
 
-      // Draw cars
-      car1.draw();
-      car2.draw();
+    setTimeout(() => el.remove(), 1200);
+}
 
-      updateUI();
+// Update UI Numbers & Progress Bars
+function updateUI() {
+    document.getElementById('inv-wood').innerText = state.wood;
+    document.getElementById('inv-food').innerText = state.food;
+    document.getElementById('inv-water').innerText = state.water;
+    document.getElementById('inv-scrap').innerText = state.scrap;
 
-      // Check winner
-      if (gameRunning) {
-        const winner = checkWinner();
-        if (winner) {
-          gameRunning = false;
-          document.getElementById('winner').textContent = winner;
-          document.getElementById('winner').style.display = 'block';
-        }
-      }
+    document.getElementById('val-health').innerText = `${Math.round(state.health)}%`;
+    document.getElementById('bar-health').style.width = `${state.health}%`;
 
-      requestAnimationFrame(gameLoop);
+    document.getElementById('val-hunger').innerText = `${Math.round(state.hunger)}%`;
+    document.getElementById('bar-hunger').style.width = `${state.hunger}%`;
+
+    document.getElementById('val-thirst').innerText = `${Math.round(state.thirst)}%`;
+    document.getElementById('bar-thirst').style.width = `${state.thirst}%`;
+
+    document.getElementById('val-raft').innerText = `${Math.round(state.raftDurability)}%`;
+    document.getElementById('bar-raft').style.width = `${state.raftDurability}%`;
+}
+
+// Main Game Loop & Physics Update
+let sharkAngle = 0;
+let lastSharkAttack = 0;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    if (state.gameOver) return;
+
+    const time = clock.getElapsedTime();
+
+    // 1. Ocean Wave Animation & Vertex Deformation
+    const pos = oceanMesh.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+        const u = pos.getX(i);
+        const v = pos.getZ(i);
+        pos.setY(i, getWaveHeight(u, v, time));
     }
+    pos.needsUpdate = true;
 
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    // 2. Raft Movement & Water Physics Floating
+    const raftX = raftGroup.position.x;
+    const raftZ = raftGroup.position.z;
+
+    // Steering Controls
+    const speed = 0.08;
+    raftGroup.position.x += move.right * speed;
+    raftGroup.position.z -= move.forward * speed;
+
+    // Bobbing and Tilting with Waves
+    const waveH = getWaveHeight(raftX, raftZ, time);
+    raftGroup.position.y = waveH + 0.2;
+    raftGroup.rotation.z = Math.sin(time * 1.5) * 0.05;
+    raftGroup.rotation.x = Math.cos(time * 1.2) * 0.05;
+
+    // Smooth Third-Person Camera Follow
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, raftGroup.position.x, 0.05);
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, raftGroup.position.z + 14, 0.05);
+    camera.lookAt(raftGroup.position.x, raftGroup.position.y + 1, raftGroup.position.z);
+
+    // 3. Floating Items Logic & Drift
+    itemsInSea.forEach((item, idx) => {
+        // Drift items towards raft gradually
+        const dir = new THREE.Vector3().subVectors(raftGroup.position, item.position).normalize();
+        item.position.x += dir.x * item.userData.driftSpeed;
+        item.position.z += dir.z * item.userData.driftSpeed;
+
+        // Item Float on Waves
+        item.position.y = getWaveHeight(item.position.x, item.position.z, time) + 0.3;
+        item.rotation.y += 0.01;
     });
 
-    gameLoop();
-  </script>
+    // 4. Shark AI Swimming & Attack Logic
+    sharkAngle += 0.015;
+    const sharkDist = 12 + Math.sin(time) * 4;
+    sharkGroup.position.x = raftGroup.position.x + Math.cos(sharkAngle) * sharkDist;
+    sharkGroup.position.z = raftGroup.position.z + Math.sin(sharkAngle) * sharkDist;
+    sharkGroup.position.y = getWaveHeight(sharkGroup.position.x, sharkGroup.position.z, time);
+    sharkGroup.rotation.y = -sharkAngle + Math.PI / 2;
+
+    // Periodic Shark Attack
+    if (time - lastSharkAttack > 18) {
+        lastSharkAttack = time;
+        sfx.playSharkAttack();
+        showToast("⚠️ أقرش يحاول تدمير أخشاب القارب!");
+        state.raftDurability = Math.max(0, state.raftDurability - 20);
+        updateUI();
+
+        if (state.raftDurability <= 0) {
+            triggerGameOver("دمر القرش قاربك وسقطت في الأعماق!");
+        }
+    }
+
+    // 5. Day / Night Cycle Simulation
+    state.dayTime = (time * 0.02) % 1;
+    const sunAngle = state.dayTime * Math.PI * 2;
+    sunLight.position.x = Math.cos(sunAngle) * 60;
+    sunLight.position.y = Math.sin(sunAngle) * 60;
+
+    const dayIndicator = document.getElementById('day-night-indicator');
+    if (sunLight.position.y > 0) {
+        scene.background.setHSL(0.6, 0.5, 0.2);
+        scene.fog.color.setHSL(0.6, 0.5, 0.2);
+        dayIndicator.innerHTML = '<i class="fa-solid fa-sun ml-1 text-amber-400"></i> النهار';
+    } else {
+        scene.background.setHSL(0.6, 0.8, 0.03);
+        scene.fog.color.setHSL(0.6, 0.8, 0.03);
+        dayIndicator.innerHTML = '<i class="fa-solid fa-moon ml-1 text-indigo-300"></i> الليل';
+    }
+
+    // Render 3D Scene
+    renderer.render(scene, camera);
+}
+
+// Survival Decay Timers (Hunger, Thirst, Survival Time)
+setInterval(() => {
+    if (state.gameOver) return;
+
+    state.timeSurvived++;
+    state.hunger = Math.max(0, state.hunger - 0.8);
+    state.thirst = Math.max(0, state.thirst - 1.2);
+
+    // Starvation / Dehydration Penalty
+    if (state.hunger <= 0 || state.thirst <= 0) {
+        state.health = Math.max(0, state.health - 4);
+        sfx.playSharkAttack();
+    }
+
+    if (state.health <= 0) {
+        triggerGameOver(state.hunger <= 0 ? "مت بسبب الموت جوعاً!" : "مت بسبب الجفاف العديد!");
+    }
+
+    updateUI();
+}, 1000);
+
+// Spawners Interval
+setInterval(spawnSeaItem, 3500);
+
+// Window Resize
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function triggerGameOver(reason) {
+    state.gameOver = true;
+    document.getElementById('death-cause').innerText = reason;
+    
+    const mins = Math.floor(state.timeSurvived / 60).toString().padStart(2, '0');
+    const secs = (state.timeSurvived % 60).toString().padStart(2, '0');
+    document.getElementById('stat-survival-time').innerText = `${mins}:${secs}`;
+    document.getElementById('stat-collected').innerText = state.totalCollected;
+
+    document.getElementById('game-over-modal').classList.remove('hidden');
+    document.getElementById('game-over-modal').classList.add('flex');
+}
+
+function restartGame() {
+    state.health = 100;
+    state.hunger = 100;
+    state.thirst = 100;
+    state.raftDurability = 100;
+    state.wood = 5;
+    state.food = 3;
+    state.water = 3;
+    state.scrap = 2;
+    state.timeSurvived = 0;
+    state.totalCollected = 0;
+    state.gameOver = false;
+
+    // Clear Sea Items
+    itemsInSea.forEach(item => scene.remove(item));
+    itemsInSea = [];
+
+    raftGroup.position.set(0, 0, 0);
+
+    document.getElementById('game-over-modal').classList.add('hidden');
+    document.getElementById('game-over-modal').classList.remove('flex');
+
+    updateUI();
+}
+
+// Start Game Engine on Window Load
+window.onload = () => {
+    initEngine();
+    setupInputs();
+    updateUI();
+    animate();
+};
+</script>
 </body>
-</html>
+  </html>
