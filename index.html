@@ -1,839 +1,738 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>حرب الدول</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Tahoma", sans-serif;
-      background: linear-gradient(135deg, #0f172a, #111827);
-      color: #e5e7eb;
-    }
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    h1 {
-      margin: 0;
-      color: #fbbf24;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    button:hover { filter: brightness(1.1); }
-    .danger { background: #dc2626; }
-    .success { background: #16a34a; }
-    .warning { background: #f59e0b; color: #111827; }
-    .secondary { background: #374151; }
+"""
+لعبة محاكي الدول - Nation War Game Simulator
+نظام كامل لحرب الدول مع موارد واقتصاد ودبلوماسية
+"""
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1.3fr 1fr;
-      gap: 18px;
-    }
-    .panel {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .panel h3 {
-      margin-top: 0;
-      color: #93c5fd;
-      border-bottom: 1px solid rgba(147,197,253,0.2);
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(120px, 1fr));
-      gap: 10px;
-    }
-    .stat {
-      background: rgba(30,41,59,0.9);
-      border-radius: 10px;
-      padding: 10px;
-      border: 1px solid rgba(148,163,184,0.2);
-    }
-    .stat label {
-      display: block;
-      font-size: 12px;
-      color: #cbd5e1;
-      margin-bottom: 5px;
-    }
-    .stat strong {
-      font-size: 1.05rem;
-      color: #f8fafc;
-    }
-    .resource-list, .list {
-      display: grid;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .resource-item {
-      display: flex;
-      justify-content: space-between;
-      background: rgba(30,41,59,0.8);
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(148,163,184,0.15);
-    }
-    .resource-item span:first-child {
-      color: #cbd5e1;
-    }
-    .action-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .action-card {
-      background: rgba(30,41,59,0.8);
-      border: 1px solid rgba(148,163,184,0.2);
-      border-radius: 10px;
-      padding: 10px;
-    }
-    .action-card h4 {
-      margin: 0 0 8px 0;
-      color: #fcd34d;
-    }
-    .action-card p {
-      font-size: 13px;
-      color: #dbeafe;
-      margin: 0 0 8px 0;
-      min-height: 40px;
-    }
-    .action-card button {
-      width: 100%;
-      margin-top: 5px;
-    }
-    .log {
-      max-height: 280px;
-      overflow-y: auto;
-      padding: 8px;
-      background: rgba(2,6,23,0.7);
-      border-radius: 10px;
-      border: 1px solid rgba(148,163,184,0.15);
-    }
-    .log-item {
-      border-bottom: 1px solid rgba(148,163,184,0.1);
-      padding: 8px 0;
-      color: #e2e8f0;
-      font-size: 13px;
-    }
-    .enemy-box {
-      background: linear-gradient(135deg, rgba(127,29,29,0.4), rgba(69,10,10,0.2));
-      border: 1px solid rgba(248,113,113,0.25);
-      padding: 12px;
-      border-radius: 10px;
-    }
-    .small {
-      font-size: 12px;
-      color: #cbd5e1;
-    }
-    .flex {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .battle-results {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 10px;
-      background: rgba(17,24,39,0.9);
-      border: 1px solid rgba(148,163,184,0.15);
-    }
-    .value {
-      color: #facc15;
-      font-weight: bold;
-    }
-    @media (max-width: 1100px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="topbar">
-      <h1>⚔️ حرب الدول</h1>
-      <div class="controls">
-        <button class="success" id="nextTurnBtn">الذهاب للمرحلة التالية</button>
-        <button class="warning" id="saveBtn">حفظ اللعبة</button>
-        <button class="secondary" id="resetBtn">إعادة البداية</button>
-      </div>
-    </div>
+import random
+import json
+from dataclasses import dataclass, asdict
+from typing import List, Dict, Tuple
+from enum import Enum
+import math
 
-    <div class="grid">
-      <!-- Left -->
-      <div class="panel">
-        <h3>الدولة</h3>
-        <div class="stats">
-          <div class="stat"><label>اسم الدولة</label><strong id="countryName"></strong></div>
-          <div class="stat"><label>المستوى</label><strong id="level"></strong></div>
-          <div class="stat"><label>السكان</label><strong id="population"></strong></div>
-          <div class="stat"><label>النقود</label><strong id="money"></strong></div>
-          <div class="stat"><label>التقنية</label><strong id="tech"></strong></div>
-          <div class="stat"><label>الحكمة</label><strong id="wisdom"></strong></div>
-        </div>
 
-        <div class="resource-list" id="resourceList"></div>
-      </div>
+class ResourceType(Enum):
+    """أنواع الموارد في اللعبة"""
+    FOOD = "غذاء"
+    WOOD = "خشب"
+    STONE = "حجر"
+    OIL = "نفط"
+    METAL = "معدن"
+    MONEY = "نقد"
 
-      <!-- Middle -->
-      <div class="panel">
-        <h3>الجيش والأسلحة</h3>
 
-        <div class="stats">
-          <div class="stat"><label>الجنود</label><strong id="troops"></strong></div>
-          <div class="stat"><label>الدبابات</label><strong id="tanks"></strong></div>
-          <div class="stat"><label>المدفعية</label><strong id="artillery"></strong></div>
-          <div class="stat"><label>الطائرات</label><strong id="planes"></strong></div>
-          <div class="stat"><label>السفن</label><strong id="ships"></strong></div>
-          <div class="stat"><label>الصواريخ</label><strong id="missiles"></strong></div>
-        </div>
+class AllianceType(Enum):
+    """أنواع التحالفات"""
+    NEUTRAL = "محايدة"
+    ALLIANCE = "تحالف"
+    ENEMY = "عدو"
+    TRADE = "تجارة"
 
-        <div class="action-grid">
-          <div class="action-card">
-            <h4>تجنيد جنود</h4>
-            <p>زيادة عدد المشاة والقدرة على القتال.</p>
-            <button onclick="recruitTroops()">تجنيد 10</button>
-          </div>
 
-          <div class="action-card">
-            <h4>إنتاج دبابات</h4>
-            <p>دبابات قوية في الهجمات البرية.</p>
-            <button onclick="buildTank()">إنتاج</button>
-          </div>
+@dataclass
+class Resource:
+    """فئة الموارد"""
+    food: int = 1000
+    wood: int = 800
+    stone: int = 600
+    oil: int = 400
+    metal: int = 500
+    money: int = 5000
 
-          <div class="action-card">
-            <h4>إنتاج مدفعية</h4>
-            <p>تزيد قوة النيران ومقاومة الدفاع.</p>
-            <button onclick="buildArtillery()">إنتاج</button>
-          </div>
+    def add(self, resource_type: ResourceType, amount: int):
+        """إضافة موارد"""
+        if resource_type == ResourceType.FOOD:
+            self.food += amount
+        elif resource_type == ResourceType.WOOD:
+            self.wood += amount
+        elif resource_type == ResourceType.STONE:
+            self.stone += amount
+        elif resource_type == ResourceType.OIL:
+            self.oil += amount
+        elif resource_type == ResourceType.METAL:
+            self.metal += amount
+        elif resource_type == ResourceType.MONEY:
+            self.money += amount
 
-          <div class="action-card">
-            <h4>إنتاج طائرات</h4>
-            <p>قوة جوية قوية في الهجمات.</p>
-            <button onclick="buildPlane()">إنتاج</button>
-          </div>
+    def get(self, resource_type: ResourceType) -> int:
+        """الحصول على كمية مورد"""
+        if resource_type == ResourceType.FOOD:
+            return self.food
+        elif resource_type == ResourceType.WOOD:
+            return self.wood
+        elif resource_type == ResourceType.STONE:
+            return self.stone
+        elif resource_type == ResourceType.OIL:
+            return self.oil
+        elif resource_type == ResourceType.METAL:
+            return self.metal
+        elif resource_type == ResourceType.MONEY:
+            return self.money
+        return 0
 
-          <div class="action-card">
-            <h4>إنتاج سفن</h4>
-            <p>للدفاع البحري والهجمات عبر البحر.</p>
-            <button onclick="buildShip()">إنتاج</button>
-          </div>
+    def can_afford(self, cost: Dict[ResourceType, int]) -> bool:
+        """التحقق من القدرة على شراء"""
+        for resource_type, amount in cost.items():
+            if self.get(resource_type) < amount:
+                return False
+        return True
 
-          <div class="action-card">
-            <h4>صواريخ</h4>
-            <p>أسلحة قادرة على إحداث ضرر كبير.</p>
-            <button onclick="buildMissile()">إنتاج</button>
-          </div>
-        </div>
-      </div>
+    def pay(self, cost: Dict[ResourceType, int]) -> bool:
+        """دفع الثمن"""
+        if not self.can_afford(cost):
+            return False
+        for resource_type, amount in cost.items():
+            self.add(resource_type, -amount)
+        return True
 
-      <!-- Right -->
-      <div class="panel">
-        <h3>الاقتصاد والإدارة</h3>
+    def total_value(self) -> int:
+        """القيمة الإجمالية للموارد"""
+        return (self.food * 1 + self.wood * 2 + self.stone * 2 + 
+                self.oil * 5 + self.metal * 4 + self.money)
 
-        <div class="action-grid">
-          <div class="action-card">
-            <h4>إنتاج غذاء</h4>
-            <p>يزيد الطعام ويخفض خطر المجاعة.</p>
-            <button onclick="produceFood()">إنتاج</button>
-          </div>
 
-          <div class="action-card">
-            <h4>تعدين الحديد</h4>
-            <p>الحديد ضروري للأسلحة والمعدات.</p>
-            <button onclick="mineIron()">تعدين</button>
-          </div>
+@dataclass
+class Military:
+    """فئة الجيش"""
+    soldiers: int = 1000
+    tanks: int = 50
+    aircraft: int = 20
+    navy: int = 15
 
-          <div class="action-card">
-            <h4>تجميع النفط</h4>
-            <p>النفط مخصص للجيش والاقتصاد.</p>
-            <button onclick="extractOil()">استخراج</button>
-          </div>
+    def total_power(self) -> int:
+        """حساب القوة العسكرية الإجمالية"""
+        return (self.soldiers * 1 + self.tanks * 10 + 
+                self.aircraft * 8 + self.navy * 12)
 
-          <div class="action-card">
-            <h4>قطع الخشب</h4>
-            <p>لبناء القواعد والتجهيزات.</p>
-            <button onclick="collectWood()">قطع</button>
-          </div>
+    def casualties(self, percentage: float):
+        """خسائر عسكرية"""
+        self.soldiers = int(self.soldiers * (1 - percentage))
+        self.tanks = int(self.tanks * (1 - percentage))
+        self.aircraft = int(self.aircraft * (1 - percentage))
+        self.navy = int(self.navy * (1 - percentage))
 
-          <div class="action-card">
-            <h4>استخراج اليورانيوم</h4>
-            <p>مهم لصناعة الأسلحة المتقدمة.</p>
-            <button onclick="mineUranium()">استخراج</button>
-          </div>
 
-          <div class="action-card">
-            <h4>تطوير الصناعة</h4>
-            <p>يزيد فعالية الإنتاج والجيش.</p>
-            <button onclick="upgradeIndustry()">تطوير</button>
-          </div>
-        </div>
+class Nation:
+    """فئة الدول"""
+    
+    def __init__(self, name: str, capital: str, x: float, y: float):
+        self.name = name
+        self.capital = capital
+        self.position = (x, y)
+        self.resources = Resource()
+        self.military = Military()
+        self.population = 10000000
+        self.happiness = 70
+        self.technology_level = 1
+        self.alliances: Dict[str, AllianceType] = {}
+        self.trade_deals: Dict[str, Dict] = {}
+        self.is_player = False
+        self.turn = 0
+        self.treasury_tax_rate = 0.15
+        self.production_rate = 1.0
 
-        <div class="action-grid" style="margin-top: 14px;">
-          <div class="action-card">
-            <h4>الضرائب</h4>
-            <p>تحصيل مال من الشعب.</p>
-            <button onclick="collectTaxes()">تحصيل</button>
-          </div>
+    def __repr__(self):
+        return f"🌍 {self.name} (عاصمة: {self.capital})"
 
-          <div class="action-card">
-            <h4>التجارة</h4>
-            <p>توسيع السوق والربح.</p>
-            <button onclick="trade()">تجارة</button>
-          </div>
+    def distance_to(self, other: 'Nation') -> float:
+        """حساب المسافة بين دولتين"""
+        x1, y1 = self.position
+        x2, y2 = other.position
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
-          <div class="action-card">
-            <h4>حرب</h4>
-            <p>هجوم على دولة عدو مجاورة.</p>
-            <button class="danger" onclick="attackEnemy()">هجوم</button>
-          </div>
-
-          <div class="action-card">
-            <h4>دفاع</h4>
-            <p>تعزيز الجبهات والمناطق المحيطة.</p>
-            <button class="warning" onclick="fortify()">تعزيز</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid" style="margin-top: 18px;">
-      <div class="panel">
-        <h3>الدولة العدوة</h3>
-        <div class="enemy-box">
-          <div class="flex">
-            <strong id="enemyName"></strong>
-            <span class="small" id="enemyMotto"></span>
-          </div>
-          <div class="stats" style="margin-top: 10px;">
-            <div class="stat"><label>العسكرية</label><strong id="enemyArmy"></strong></div>
-            <div class="stat"><label>الدفاع</label><strong id="enemyDefense"></strong></div>
-            <div class="stat"><label>الذهب</label><strong id="enemyMoney"></strong></div>
-            <div class="stat"><label>الموارد</label><strong id="enemyResources"></strong></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>سجل الأحداث</h3>
-        <div class="log" id="log"></div>
-      </div>
-
-      <div class="panel">
-        <h3>ملخص الحملة</h3>
-        <div class="list">
-          <div class="resource-item"><span>النصر</span><strong id="wins">0</strong></div>
-          <div class="resource-item"><span>الهزائم</span><strong id="losses">0</strong></div>
-          <div class="resource-item"><span>المرحلة</span><strong id="turnCounter">1</strong></div>
-          <div class="resource-item"><span>الموارد الحالية</span><strong id="totalResources">0</strong></div>
-        </div>
-        <div class="battle-results" id="battleResults">
-          لا توجد نتيجة معركة حتى الآن.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const resourceNames = ["money", "food", "iron", "oil", "wood", "uranium"];
-    const resourceLabels = {
-      money: "الفلوس",
-      food: "الغذاء",
-      iron: "الحديد",
-      oil: "النفط",
-      wood: "الخشب",
-      uranium: "اليورانيوم"
-    };
-
-    const defaultState = {
-      countryName: "مملكة النور",
-      level: 1,
-      population: 1500000,
-      money: 5000,
-      tech: 1,
-      wisdom: 1,
-      resources: {
-        food: 400,
-        iron: 200,
-        oil: 180,
-        wood: 220,
-        uranium: 30,
-        money: 5000
-      },
-      army: {
-        infantry: 120,
-        tanks: 5,
-        artillery: 4,
-        planes: 2,
-        ships: 1,
-        missiles: 1
-      },
-      wins: 0,
-      losses: 0,
-      turn: 1,
-      totalResources: 0,
-      enemy: {
-        name: "إمبراطورية الشمال",
-        army: 110,
-        defense: 55,
-        money: 4500,
-        resources: 220
-      },
-      log: []
-    };
-
-    let state = loadGame();
-
-    function init() {
-      render();
-      addLog("تم تحميل الدولة بنجاح. أنت مستعد للحرب.");
-    }
-
-    function saveGame() {
-      localStorage.setItem("warNationsGame", JSON.stringify(state));
-      addLog("تم حفظ اللعبة بنجاح.");
-      render();
-    }
-
-    function loadGame() {
-      const saved = localStorage.getItem("warNationsGame");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.warn("فشل في قراءة الحفظ:", e);
+    def produce_resources(self):
+        """إنتاج الموارد كل دور"""
+        production = {
+            ResourceType.FOOD: int(500 * self.production_rate),
+            ResourceType.WOOD: int(300 * self.production_rate),
+            ResourceType.STONE: int(200 * self.production_rate),
+            ResourceType.OIL: int(150 * self.production_rate),
+            ResourceType.METAL: int(250 * self.production_rate),
         }
-      }
-      return structuredClone(defaultState);
-    }
+        
+        for resource_type, amount in production.items():
+            self.resources.add(resource_type, amount)
 
-    function resetGame() {
-      state = structuredClone(defaultState);
-      localStorage.removeItem("warNationsGame");
-      addLog("تمت إعادة البداية.");
-      render();
-    }
+    def collect_taxes(self):
+        """جمع الضرائب من السكان"""
+        tax_revenue = int(self.population * self.treasury_tax_rate / 1000)
+        self.resources.add(ResourceType.MONEY, tax_revenue)
 
-    function addLog(text) {
-      state.log.unshift({ text, time: new Date().toLocaleTimeString() });
-      state.log = state.log.slice(0, 40);
-    }
+    def consume_food(self):
+        """استهلاك الغذاء من السكان"""
+        food_needed = self.population // 1000
+        if self.resources.food >= food_needed:
+            self.resources.add(ResourceType.FOOD, -food_needed)
+            self.happiness = min(100, self.happiness + 2)
+        else:
+            # جوع يقلل السكان والسعادة
+            deficit = food_needed - self.resources.food
+            self.population -= deficit * 100
+            self.happiness = max(0, self.happiness - 10)
+            self.resources.food = 0
 
-    function getTotalResources() {
-      let sum = 0;
-      for (const key of resourceNames) {
-        if (key === "money") {
-          sum += state.resources.money;
-        } else {
-          sum += state.resources[key];
+    def train_military(self, soldiers: int = 100, tanks: int = 5, 
+                       aircraft: int = 2, navy: int = 1) -> bool:
+        """تدريب الجيش"""
+        cost = {
+            ResourceType.MONEY: soldiers * 10 + tanks * 5000 + aircraft * 10000 + navy * 20000,
+            ResourceType.METAL: soldiers // 50 + tanks * 20 + aircraft * 30 + navy * 40,
         }
-      }
-      return sum;
-    }
+        
+        if self.resources.pay(cost):
+            self.military.soldiers += soldiers
+            self.military.tanks += tanks
+            self.military.aircraft += aircraft
+            self.military.navy += navy
+            return True
+        return False
 
-    function render() {
-      document.getElementById("countryName").textContent = state.countryName;
-      document.getElementById("level").textContent = state.level;
-      document.getElementById("population").textContent = formatNumber(state.population);
-      document.getElementById("money").textContent = formatNumber(state.resources.money) + " $";
-      document.getElementById("tech").textContent = state.tech;
-      document.getElementById("wisdom").textContent = state.wisdom;
-
-      document.getElementById("troops").textContent = formatNumber(state.army.infantry);
-      document.getElementById("tanks").textContent = formatNumber(state.army.tanks);
-      document.getElementById("artillery").textContent = formatNumber(state.army.artillery);
-      document.getElementById("planes").textContent = formatNumber(state.army.planes);
-      document.getElementById("ships").textContent = formatNumber(state.army.ships);
-      document.getElementById("missiles").textContent = formatNumber(state.army.missiles);
-
-      document.getElementById("enemyName").textContent = state.enemy.name;
-      document.getElementById("enemyMotto").textContent = "عدوّ متقدم";
-      document.getElementById("enemyArmy").textContent = formatNumber(state.enemy.army);
-      document.getElementById("enemyDefense").textContent = formatNumber(state.enemy.defense);
-      document.getElementById("enemyMoney").textContent = formatNumber(state.enemy.money) + " $";
-      document.getElementById("enemyResources").textContent = formatNumber(state.enemy.resources);
-
-      document.getElementById("wins").textContent = state.wins;
-      document.getElementById("losses").textContent = state.losses;
-      document.getElementById("turnCounter").textContent = state.turn;
-      state.totalResources = getTotalResources();
-      document.getElementById("totalResources").textContent = formatNumber(state.totalResources);
-
-      renderResources();
-      renderLog();
-    }
-
-    function renderResources() {
-      const container = document.getElementById("resourceList");
-      container.innerHTML = "";
-      resourceNames.forEach(key => {
-        const val = key === "money" ? state.resources.money : state.resources[key];
-        const item = document.createElement("div");
-        item.className = "resource-item";
-        item.innerHTML = `<span>${resourceLabels[key]}</span><strong>${formatNumber(val)}</strong>`;
-        container.appendChild(item);
-      });
-    }
-
-    function renderLog() {
-      const logEl = document.getElementById("log");
-      logEl.innerHTML = "";
-      state.log.forEach(entry => {
-        const div = document.createElement("div");
-        div.className = "log-item";
-        div.innerHTML = `<strong>${entry.time}</strong> - ${entry.text}`;
-        logEl.appendChild(div);
-      });
-    }
-
-    function formatNumber(num) {
-      return Number(num).toLocaleString("ar-EG");
-    }
-
-    function safeSpend(costs) {
-      for (const [key, value] of Object.entries(costs)) {
-        if (key === "money") {
-          if (state.resources.money < value) return false;
-        } else {
-          if (state.resources[key] < value) return false;
+    def build_infrastructure(self, infrastructure_type: str) -> bool:
+        """بناء البنية التحتية"""
+        costs = {
+            "factory": {ResourceType.METAL: 500, ResourceType.MONEY: 10000},
+            "farm": {ResourceType.WOOD: 200, ResourceType.STONE: 200, ResourceType.MONEY: 3000},
+            "harbor": {ResourceType.STONE: 300, ResourceType.METAL: 200, ResourceType.MONEY: 8000},
+            "research_lab": {ResourceType.METAL: 400, ResourceType.MONEY: 15000},
         }
-      }
-      for (const [key, value] of Object.entries(costs)) {
-        if (key === "money") state.resources.money -= value;
-        else state.resources[key] -= value;
-      }
-      return true;
-    }
+        
+        if infrastructure_type in costs:
+            if self.resources.pay(costs[infrastructure_type]):
+                self.production_rate += 0.1
+                self.technology_level += 1
+                return True
+        return False
 
-    function payCosts(costs) {
-      return safeSpend(costs);
-    }
+    def propose_trade(self, other: 'Nation', 
+                     give: Dict[ResourceType, int],
+                     receive: Dict[ResourceType, int]) -> bool:
+        """اقتراح صفقة تجارة"""
+        if not self.resources.can_afford(give):
+            return False
+        
+        self.resources.pay(give)
+        other.resources.pay(receive)
+        
+        for resource_type, amount in receive.items():
+            self.resources.add(resource_type, amount)
+        for resource_type, amount in give.items():
+            other.resources.add(resource_type, amount)
+        
+        self.trade_deals[other.name] = {
+            "give": {str(k): v for k, v in give.items()},
+            "receive": {str(k): v for k, v in receive.items()},
+            "turn": self.turn
+        }
+        
+        return True
 
-    function nextTurn() {
-      state.turn++;
+    def attack(self, other: 'Nation') -> Dict:
+        """مهاجمة دولة أخرى"""
+        my_power = self.military.total_power()
+        their_power = other.military.total_power()
+        
+        # حساب احتمالية الانتصار
+        win_chance = my_power / (my_power + their_power)
+        
+        result = {
+            "attacker": self.name,
+            "defender": other.name,
+            "attacker_power": my_power,
+            "defender_power": their_power,
+            "win_chance": win_chance
+        }
+        
+        if random.random() < win_chance:
+            # انتصار المهاجم
+            casualties_attacker = 0.1 + (1 - win_chance) * 0.3
+            casualties_defender = 0.3 + (1 - win_chance) * 0.2
+            
+            self.military.casualties(casualties_attacker)
+            other.military.casualties(casualties_defender)
+            
+            # نهب الموارد
+            looted = {
+                ResourceType.MONEY: int(other.resources.money * 0.3),
+                ResourceType.METAL: int(other.resources.metal * 0.2),
+                ResourceType.OIL: int(other.resources.oil * 0.2),
+            }
+            
+            for resource_type, amount in looted.items():
+                self.resources.add(resource_type, amount)
+                other.resources.add(resource_type, -amount)
+            
+            result["winner"] = self.name
+            result["loot"] = looted
+            result["outcome"] = "🏆 انتصار!"
+        else:
+            # هزيمة المهاجم
+            casualties_attacker = 0.3 + win_chance * 0.3
+            casualties_defender = 0.1 + win_chance * 0.2
+            
+            self.military.casualties(casualties_attacker)
+            other.military.casualties(casualties_defender)
+            
+            result["winner"] = other.name
+            result["outcome"] = "💔 هزيمة!"
+        
+        return result
 
-      // دخل اقتصادي
-      const income = Math.round(
-        state.population * 0.00008 +
-        state.army.infantry * 0.42 +
-        state.army.tanks * 4 +
-        state.resources.oil * 0.18 +
-        state.resources.food * 0.08 +
-        state.wisdom * 15
-      );
+    def form_alliance(self, other: 'Nation', alliance_type: AllianceType):
+        """تشكيل تحالف مع دولة أخرى"""
+        self.alliances[other.name] = alliance_type
+        other.alliances[self.name] = alliance_type
 
-      state.resources.money += income;
-      state.resources.food += Math.round(state.population * 0.00005);
-      state.resources.wood += 10 + state.level * 3;
-      state.resources.iron += 12 + state.level * 4;
-      state.resources.oil += 8 + state.level * 3;
+    def get_status(self) -> str:
+        """الحصول على حالة الدولة"""
+        status = f"""
+╔════════════════════════════════════════════════════╗
+║ 🌍 حالة الدولة: {self.name:.<30} ║
+╠════════════════════════════════════════════════════╣
+║ 📍 العاصمة: {self.capital:<35} ║
+║ 👥 السكان: {self.population:>40,} ║
+║ 😊 السعادة: {self.happiness}% {'🟢' if self.happiness > 60 else '🟡' if self.happiness > 30 else '🔴':<27} ║
+╠════════════════════════════════════════════════════╣
+║ 💰 الموارد:                                          ║
+║   💵 نقد: {self.resources.money:>40,} ║
+║   🌾 غذاء: {self.resources.food:>38,} ║
+║   🌳 خشب: {self.resources.wood:>38,} ║
+║   🪨 حجر: {self.resources.stone:>38,} ║
+║   🛢️  نفط: {self.resources.oil:>38,} ║
+║   ⚒️  معدن: {self.resources.metal:>37,} ║
+╠════════════════════════════════════════════════════╣
+║ ⚔️  الجيش:                                           ║
+║   👮 جنود: {self.military.soldiers:>37,} ║
+║   🚗 دبابات: {self.military.tanks:>35,} ║
+║   ✈️  طائرات: {self.military.aircraft:>33,} ║
+║   🚢 سفن: {self.military.navy:>37,} ║
+║   ⚡ القوة العسكرية: {self.military.total_power():>25,} ║
+╠════════════════════════════════════════════════════╣
+║ 🔬 مستوى التكنولوجيا: {self.technology_level:<24} ║
+║ 📈 معدل الإنتاج: {self.production_rate:.2f}x{' '*30} ║
+║ 💼 التحالفات: {len(self.alliances):<35} ║
+╚════════════════════════════════════════════════════╝
+        """
+        return status
 
-      // تكلفة الصيانة
-      const upkeep = Math.round(
-        state.army.infantry * 0.28 +
-        state.army.tanks * 18 +
-        state.army.artillery * 12 +
-        state.army.planes * 30 +
-        state.army.ships * 24 +
-        state.army.missiles * 25
-      );
 
-      state.resources.money -= upkeep;
-      if (state.resources.money < 0) state.resources.money = 0;
+class GameMap:
+    """فئة الخريطة"""
+    
+    def __init__(self, width: float = 100, height: float = 100):
+        self.width = width
+        self.height = height
+        self.nations: Dict[str, Nation] = {}
 
-      // مستوى الدولة
-      if (state.turn % 3 === 0) {
-        state.level++;
-        state.tech += 1;
-        state.wisdom += 1;
-        addLog(`تم تحديث الدولة إلى المستوى ${state.level}.`);
-      }
+    def add_nation(self, nation: Nation):
+        """إضافة دولة للخريطة"""
+        self.nations[nation.name] = nation
 
-      // حدث عشوائي
-      const rnd = Math.random();
-      if (rnd < 0.18) {
-        const bonus = 250 + Math.random() * 500;
-        state.resources.money += bonus;
-        addLog(`حدث اقتصادي: حصلت الدولة على ${Math.round(bonus)} عملة إضافية من التجارة والضرائب.`);
-      } else if (rnd < 0.32) {
-        const loss = 120 + Math.random() * 300;
-        state.resources.food -= loss;
-        if (state.resources.food < 0) state.resources.food = 0;
-        addLog(`حدث سلبي: خسرنا ${Math.round(loss)} من الغذاء بسبب التوزيع أو الفقد.`);
-      } else if (rnd < 0.45) {
-        state.resources.oil += 50;
-        addLog("تم اكتشاف مخزون نفطي صغير في المناطق الشمالية.");
-      } else if (rnd < 0.56) {
-        state.army.infantry += 15;
-        addLog("تم تجنيد وحدة إضافية من المجندين.");
-      }
+    def get_nation(self, name: str) -> Nation:
+        """الحصول على دولة"""
+        return self.nations.get(name)
 
-      // تجديد_enemy
-      state.enemy.army += Math.round(Math.random() * 18);
-      state.enemy.defense += Math.round(Math.random() * 12);
-      state.enemy.money += Math.round(Math.random() * 400);
-      state.enemy.resources += Math.round(Math.random() * 30);
+    def get_nearby_nations(self, nation: Nation, distance: float = 30) -> List[Nation]:
+        """الحصول على الدول القريبة"""
+        nearby = []
+        for other in self.nations.values():
+            if other.name != nation.name and nation.distance_to(other) <= distance:
+                nearby.append(other)
+        return nearby
 
-      addLog(`انتهت الدورة ${state.turn}. دخل الدولة: ${formatNumber(income)} $ | نفقات الصيانة: ${formatNumber(upkeep)} $`);
-      render();
-    }
+    def display_map(self):
+        """عرض الخريطة"""
+        print("\n" + "="*80)
+        print("🗺️  خريطة العالم".center(80))
+        print("="*80)
+        for nation in sorted(self.nations.values(), key=lambda n: n.name):
+            x, y = nation.position
+            power = nation.military.total_power()
+            wealth = nation.resources.money
+            status = "💪" if power > 50000 else "📊" if wealth > 50000 else "🏛️"
+            print(f"{status} {nation.name:<20} | الموقع: ({x:.1f}, {y:.1f}) | القوة: {power:,} | الثروة: {wealth:,}")
+        print("="*80 + "\n")
 
-    function recruitTroops() {
-      const cost = { money: 300, food: 30 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لتجنيد الجنود.");
-        return;
-      }
-      state.army.infantry += 10;
-      state.population += 5000;
-      addLog("تم تجنيد 10 جنود إضافيين.");
-      render();
-    }
 
-    function buildTank() {
-      const cost = { money: 900, iron: 80, oil: 35 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لإنتاج دبابات.");
-        return;
-      }
-      state.army.tanks += 1;
-      addLog("تم إنتاج دبابة جديدة.");
-      render();
-    }
+class GameEngine:
+    """محرك اللعبة الرئيسي"""
+    
+    def __init__(self):
+        self.map = GameMap()
+        self.current_turn = 0
+        self.game_running = True
+        self.history = []
 
-    function buildArtillery() {
-      const cost = { money: 700, iron: 60, oil: 25 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لإنتاج مدفعية.");
-        return;
-      }
-      state.army.artillery += 1;
-      addLog("تم إنتاج وحدة مدفعية جديدة.");
-      render();
-    }
+    def initialize_game(self):
+        """تهيئة اللعبة بالدول الأساسية"""
+        nations_data = [
+            ("مصر", "القاهرة", 30, 30),
+            ("السعودية", "الرياض", 45, 25),
+            ("الإمارات", "أبو ظبي", 55, 28),
+            ("تركيا", "أنقرة", 35, 60),
+            ("إيران", "طهران", 60, 50),
+            ("العراق", "بغداد", 45, 45),
+            ("الأردن", "عمّان", 35, 38),
+            ("سوريا", "دمشق", 37, 48),
+            ("لبنان", "بيروت", 33, 52),
+            ("باكستان", "إسلام أباد", 70, 45),
+        ]
 
-    function buildPlane() {
-      const cost = { money: 1200, iron: 70, oil: 50, uranium: 8 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لإنتاج طائرات.");
-        return;
-      }
-      state.army.planes += 1;
-      addLog("تم إنتاج طائرة هجومية جديدة.");
-      render();
-    }
+        for name, capital, x, y in nations_data:
+            nation = Nation(name, capital, x, y)
+            
+            # تنويع الموارد
+            bonus = random.randint(-20, 50)
+            nation.resources.food += bonus * 100
+            nation.resources.money += bonus * 500
+            nation.resources.metal += bonus * 100
+            
+            self.map.add_nation(nation)
 
-    function buildShip() {
-      const cost = { money: 1000, iron: 90, oil: 60 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لإنتاج سفن.");
-        return;
-      }
-      state.army.ships += 1;
-      addLog("تم إنتاج سفينة جديدة.");
-      render();
-    }
+    def player_choose_nation(self) -> Nation:
+        """اختيار الدولة التي يلعبها اللاعب"""
+        print("\n" + "="*80)
+        print("🎮 اختر دولتك".center(80))
+        print("="*80)
+        
+        nations_list = list(self.map.nations.values())
+        for i, nation in enumerate(nations_list, 1):
+            print(f"{i}. {nation.name} (عاصمة: {nation.capital})")
+        
+        while True:
+            try:
+                choice = int(input("\nاختر رقم الدولة: "))
+                if 1 <= choice <= len(nations_list):
+                    player_nation = nations_list[choice - 1]
+                    player_nation.is_player = True
+                    print(f"\n✅ اخترت: {player_nation.name}")
+                    return player_nation
+            except ValueError:
+                pass
+            print("❌ اختيار غير صحيح، حاول مرة أخرى")
 
-    function buildMissile() {
-      const cost = { money: 1700, iron: 100, oil: 80, uranium: 18 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لإنتاج صواريخ.");
-        return;
-      }
-      state.army.missiles += 1;
-      addLog("تم إنتاج صاروخ جديد.");
-      render();
-    }
+    def ai_turn(self, nation: Nation):
+        """دور الذكاء الاصطناعي للدولة"""
+        if nation.is_player:
+            return
 
-    function produceFood() {
-      const cost = { money: 120, wood: 15 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لإنتاج الغذاء.");
-        return;
-      }
-      state.resources.food += 80 + state.level * 20;
-      addLog("تم زيادة المخزون الغذائي.");
-      render();
-    }
+        # إنتاج وتجميع موارد
+        nation.produce_resources()
+        nation.collect_taxes()
+        nation.consume_food()
 
-    function mineIron() {
-      const cost = { money: 100 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لتعدين الحديد.");
-        return;
-      }
-      state.resources.iron += 50 + state.level * 15;
-      addLog("تم تعدين الحديد بنجاح.");
-      render();
-    }
+        # القرارات العشوائية
+        if random.random() < 0.3 and nation.resources.money > 50000:
+            # بناء البنية التحتية
+            infrastructure = random.choice(["factory", "farm", "harbor", "research_lab"])
+            nation.build_infrastructure(infrastructure)
 
-    function extractOil() {
-      const cost = { money: 150 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لاستخراج النفط.");
-        return;
-      }
-      state.resources.oil += 60 + state.level * 20;
-      addLog("تم استخراج النفط بنجاح.");
-      render();
-    }
+        if random.random() < 0.2 and nation.resources.money > 30000:
+            # تدريب الجيش
+            nation.train_military(
+                soldiers=random.randint(50, 200),
+                tanks=random.randint(2, 8),
+                aircraft=random.randint(1, 4),
+                navy=random.randint(0, 2)
+            )
 
-    function collectWood() {
-      const cost = { money: 80 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لقطع الخشب.");
-        return;
-      }
-      state.resources.wood += 50 + state.level * 12;
-      addLog("تم جمع الخشب.");
-      render();
-    }
+        # التجارة مع الدول القريبة
+        nearby = self.map.get_nearby_nations(nation)
+        if nearby and random.random() < 0.15:
+            partner = random.choice(nearby)
+            give = {ResourceType.MONEY: random.randint(1000, 5000)}
+            receive = {ResourceType.FOOD: random.randint(200, 500)}
+            nation.propose_trade(partner, give, receive)
 
-    function mineUranium() {
-      const cost = { money: 220, iron: 30 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لاستخراج اليورانيوم.");
-        return;
-      }
-      state.resources.uranium += 8 + state.level * 4;
-      addLog("تم استخراج اليورانيوم بنجاح.");
-      render();
-    }
+        # تشكيل تحالفات
+        if random.random() < 0.1:
+            nearby = self.map.get_nearby_nations(nation)
+            if nearby:
+                ally = random.choice(nearby)
+                alliance_type = random.choice([AllianceType.TRADE, AllianceType.ALLIANCE])
+                nation.form_alliance(ally, alliance_type)
 
-    function upgradeIndustry() {
-      const cost = { money: 800, iron: 50, wood: 40, oil: 20 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لتطوير الصناعة.");
-        return;
-      }
-      state.tech += 1;
-      state.level += 1;
-      addLog("تم تطوير الصناعة وزيادة الكفاءة العسكرية والاقتصادية.");
-      render();
-    }
+        # الهجوم على دول ضعيفة (نادر)
+        if random.random() < 0.05:
+            nearby = self.map.get_nearby_nations(nation)
+            if nearby:
+                target = min(nearby, key=lambda n: n.military.total_power())
+                if nation.military.total_power() > target.military.total_power() * 1.5:
+                    result = nation.attack(target)
+                    self.history.append(result)
+                    if result["winner"] == nation.name:
+                        print(f"\n⚠️  {nation.name} هاجمت {target.name} وانتصرت! 🏆")
+                    else:
+                        print(f"\n⚠️  {nation.name} هاجمت {target.name} وخسرت! 💔")
 
-    function collectTaxes() {
-      const income = Math.round(state.population * 0.00012 + state.tech * 40);
-      state.resources.money += income;
-      addLog(`تم تحصيل الضرائب بقيمة ${formatNumber(income)} $.`);
-      render();
-    }
+        nation.turn += 1
 
-    function trade() {
-      const income = 300 + Math.random() * 1200;
-      state.resources.money += income;
-      state.resources.food += 25;
-      addLog(`تمت تجارة ناجحة، وتمت جني ${Math.round(income)} $`);
-      render();
-    }
+    def player_turn(self, player: Nation):
+        """دور اللاعب"""
+        print("\n" + "="*80)
+        print(f"🎮 الدور {self.current_turn} - دورك أنت: {player.name}".center(80))
+        print("="*80)
+        
+        menu = """
+1. 📊 عرض حالتي
+2. 💰 الموارد والاقتصاد
+3. ⚔️  الجيش والدفاع
+4. 🏗️  البنية التحتية
+5. 🤝 التحالفات والتجارة
+6. ⚔️  الحرب والهجوم
+7. 🗺️  عرض الخريطة
+8. ⏭️  إنهاء الدور
+9. 🚪 خروج من اللعبة
+        """
+        print(menu)
+        
+        choice = input("اختر: ").strip()
 
-    function fortify() {
-      const cost = { money: 500, wood: 30, iron: 25 };
-      if (!payCosts(cost)) {
-        addLog("لا توجد موارد كافية لتقوية الدفاعات.");
-        return;
-      }
-      state.enemy.defense += 10;
-      state.enemy.army += 8;
-      state.wisdom += 1;
-      addLog("تم تعزيز الحصون والمواقع الدفاعية.");
-      render();
-    }
+        if choice == "1":
+            print(player.get_status())
+        
+        elif choice == "2":
+            self.economy_menu(player)
+        
+        elif choice == "3":
+            self.military_menu(player)
+        
+        elif choice == "4":
+            self.infrastructure_menu(player)
+        
+        elif choice == "5":
+            self.diplomacy_menu(player)
+        
+        elif choice == "6":
+            self.war_menu(player)
+        
+        elif choice == "7":
+            self.map.display_map()
+        
+        elif choice == "8":
+            player.produce_resources()
+            player.collect_taxes()
+            player.consume_food()
+            print("\n✅ تم إنهاء دورك")
+        
+        elif choice == "9":
+            self.game_running = False
+            print("\n👋 شكراً للعب!")
 
-    function attackEnemy() {
-      const playerPower =
-        state.army.infantry * 1.2 +
-        state.army.tanks * 18 +
-        state.army.artillery * 11 +
-        state.army.planes * 16 +
-        state.army.ships * 10 +
-        state.army.missiles * 24 +
-        state.tech * 30;
+    def economy_menu(self, player: Nation):
+        """قائمة الاقتصاد"""
+        print("\n💰 قائمة الاقتصاد".center(80))
+        print("="*80)
+        print(f"""
+الموارد الحالية:
+  💵 نقد: {player.resources.money:,}
+  🌾 غذاء: {player.resources.food:,}
+  🌳 خشب: {player.resources.wood:,}
+  🪨 حجر: {player.resources.stone:,}
+  🛢️  نفط: {player.resources.oil:,}
+  ⚒️  معدن: {player.resources.metal:,}
+  
+معدل الضريبة: {player.treasury_tax_rate * 100:.1f}%
+السكان: {player.population:,}
+        """)
+        
+        print("1. جمع الضرائب")
+        print("2. إنتاج موارد")
+        print("3. استهلاك غذاء")
+        choice = input("اختر: ").strip()
+        
+        if choice == "1":
+            player.collect_taxes()
+            print(f"✅ تم جمع الضرائب!")
+        elif choice == "2":
+            player.produce_resources()
+            print(f"✅ تم إنتاج الموارد!")
+        elif choice == "3":
+            player.consume_food()
+            print(f"✅ تم استهلاك الغذاء!")
 
-      const enemyPower =
-        state.enemy.army * 1.1 +
-        state.enemy.defense * 1.5 +
-        Math.random() * 120;
+    def military_menu(self, player: Nation):
+        """قائمة الجيش"""
+        print("\n⚔️  قائمة الجيش".center(80))
+        print("="*80)
+        print(f"""
+الجيش الحالي:
+  👮 جنود: {player.military.soldiers:,}
+  🚗 دبابات: {player.military.tanks:,}
+  ✈️  طائرات: {player.military.aircraft:,}
+  🚢 سفن: {player.military.navy:,}
+  ⚡ القوة الإجمالية: {player.military.total_power():,}
+        """)
+        
+        print("1. تدريب جنود (+100)")
+        print("2. شراء دبابات (+5)")
+        print("3. شراء طائرات (+2)")
+        print("4. شراء سفن (+1)")
+        choice = input("اختر: ").strip()
+        
+        costs = {
+            "1": (100, 0, 0, 0),
+            "2": (0, 5, 0, 0),
+            "3": (0, 0, 2, 0),
+            "4": (0, 0, 0, 1)
+        }
+        
+        if choice in costs:
+            soldiers, tanks, aircraft, navy = costs[choice]
+            if player.train_military(soldiers, tanks, aircraft, navy):
+                print("✅ تم التدريب بنجاح!")
+            else:
+                print("❌ لا توجد موارد كافية!")
 
-      const resultEl = document.getElementById("battleResults");
-      if (playerPower > enemyPower) {
-        const rewardMoney = 900 + Math.random() * 2000;
-        const rewardResources = Math.round(Math.random() * 120);
-        state.wins++;
-        state.resources.money += rewardMoney;
-        state.resources.food += 40;
-        state.resources.iron += 35;
-        state.resources.oil += 25;
-        state.enemy.money = Math.max(0, state.enemy.money - rewardMoney * 0.4);
-        state.enemy.resources -= rewardResources;
+    def infrastructure_menu(self, player: Nation):
+        """قائمة البنية التحتية"""
+        print("\n🏗️  قائمة البنية التحتية".center(80))
+        print("="*80)
+        print(f"""
+مستوى التكنولوجيا الحالي: {player.technology_level}
+معدل الإنتاج: {player.production_rate:.2f}x
+        """)
+        
+        print("1. مصنع (معدن: 500، نقد: 10000)")
+        print("2. مزرعة (خشب: 200، حجر: 200، نقد: 3000)")
+        print("3. ميناء (حجر: 300، معدن: 200، نقد: 8000)")
+        print("4. مختبر بحث (معدن: 400، نقد: 15000)")
+        choice = input("اختر: ").strip()
+        
+        infrastructure_map = {
+            "1": "factory",
+            "2": "farm",
+            "3": "harbor",
+            "4": "research_lab"
+        }
+        
+        if choice in infrastructure_map:
+            if player.build_infrastructure(infrastructure_map[choice]):
+                print(f"✅ تم البناء بنجاح! التكنولوجيا الآن: {player.technology_level}")
+            else:
+                print("❌ لا توجد موارد كافية!")
 
-        addLog(`انتصرت الدولة في المعركة! تم جمع ${Math.round(rewardMoney)} $ ومصادر إضافية.`);
-        resultEl.innerHTML = `
-          <strong style="color:#4ade80;">انتصار</strong><br>
-          قوة الدولة: <span class="value">${Math.round(playerPower)}</span><br>
-          قوة العدو: <span class="value">${Math.round(enemyPower)}</span><br>
-          المكسب: <span class="value">${Math.round(rewardMoney)} $</span>
-        `;
-      } else {
-        const lossMoney = 250 + Math.random() * 1200;
-        const lossTroops = Math.round(Math.random() * 30 + 15);
-        state.losses++;
-        state.resources.money = Math.max(0, state.resources.money - lossMoney);
-        state.army.infantry = Math.max(0, state.army.infantry - lossTroops);
-        state.enemy.money += lossMoney * 0.3;
+    def diplomacy_menu(self, player: Nation):
+        """قائمة الدبلوماسية والتجارة"""
+        print("\n🤝 قائمة الدبلوماسية والتجارة".center(80))
+        print("="*80)
+        
+        nearby = self.map.get_nearby_nations(player, distance=50)
+        if not nearby:
+            print("❌ لا توجد دول قريبة!")
+            return
+        
+        print("الدول القريبة:")
+        for i, nation in enumerate(nearby, 1):
+            print(f"{i}. {nation.name} - المسافة: {player.distance_to(nation):.1f}")
+        
+        try:
+            choice = int(input("اختر دولة للتفاوض معها: ")) - 1
+            if 0 <= choice < len(nearby):
+                target = nearby[choice]
+                print(f"\n1. تجارة مع {target.name}")
+                print("2. تشكيل تحالف")
+                action = input("اختر: ").strip()
+                
+                if action == "1":
+                    print(f"موارد {target.name}: نقد: {target.resources.money}")
+                    give_amount = int(input("كم نقد تريد إعطاء؟ "))
+                    if player.resources.money >= give_amount:
+                        player.propose_trade(
+                            target,
+                            {ResourceType.MONEY: give_amount},
+                            {ResourceType.FOOD: give_amount // 2}
+                        )
+                        print(f"✅ تم التبادل مع {target.name}!")
+                    else:
+                        print("❌ لا توجد نقود كافية!")
+                
+                elif action == "2":
+                    alliance = random.choice([AllianceType.ALLIANCE, AllianceType.TRADE])
+                    player.form_alliance(target, alliance)
+                    print(f"✅ تم تشكيل تحالف {alliance.value} مع {target.name}!")
+        except (ValueError, IndexError):
+            print("❌ اختيار غير صحيح!")
 
-        addLog(`تعرضت الدولة لهزيمة! خسرت ${Math.round(lossMoney)} $ و${lossTroops} جندي.`);
-        resultEl.innerHTML = `
-          <strong style="color:#f87171;">هزيمة</strong><br>
-          قوة الدولة: <span class="value">${Math.round(playerPower)}</span><br>
-          قوة العدو: <span class="value">${Math.round(enemyPower)}</span><br>
-          الخسارة: <span class="value">${Math.round(lossMoney)} $</span>
-        `;
-      }
+    def war_menu(self, player: Nation):
+        """قائمة الحرب"""
+        print("\n⚔️  قائمة الحرب".center(80))
+        print("="*80)
+        
+        nearby = self.map.get_nearby_nations(player, distance=50)
+        if not nearby:
+            print("❌ لا توجد دول قريبة للهجوم!")
+            return
+        
+        print("الدول المتاحة للهجوم:")
+        for i, nation in enumerate(nearby, 1):
+            power_ratio = player.military.total_power() / (nation.military.total_power() or 1)
+            status = "✅ قابل" if power_ratio > 0.8 else "⚠️  محفوف" if power_ratio > 0.5 else "❌ خطر"
+            print(f"{i}. {nation.name} - القوة: {nation.military.total_power():,} {status}")
+        
+        try:
+            choice = int(input("اختر دولة للهجوم عليها: ")) - 1
+            if 0 <= choice < len(nearby):
+                target = nearby[choice]
+                confirm = input(f"هل أنت متأكد من مهاجمة {target.name}؟ (نعم/لا): ").lower()
+                if confirm == "نعم":
+                    result = player.attack(target)
+                    print(f"\n{'='*80}")
+                    print(f"🔥 نتيجة الحرب: {result['outcome']}")
+                    print(f"قوتك: {result['attacker_power']:,} | قوتهم: {result['defender_power']:,}")
+                    if result.get("loot"):
+                        print("الغنيمة:")
+                        for resource, amount in result["loot"].items():
+                            print(f"  {resource.value}: +{amount}")
+                    print(f"{'='*80}")
+        except (ValueError, IndexError):
+            print("❌ اختيار غير صحيح!")
 
-      state.enemy.army = Math.max(50, state.enemy.army + (Math.random() > 0.5 ? 15 : -10));
-      state.enemy.defense = Math.max(20, state.enemy.defense + Math.round(Math.random() * 12));
-      render();
-    }
+    def run(self):
+        """تشغيل اللعبة"""
+        print("\n" + "🎮"*40)
+        print("لعبة محاكي الدول - Nation War Game Simulator".center(80))
+        print("🎮"*40)
+        
+        self.initialize_game()
+        player = self.player_choose_nation()
+        
+        print(player.get_status())
+        
+        while self.game_running:
+            # دور الذكاء الاصطناعي
+            for nation in self.map.nations.values():
+                if not nation.is_player:
+                    self.ai_turn(nation)
+            
+            # دور اللاعب
+            self.player_turn(player)
+            
+            self.current_turn += 1
+            player.turn = self.current_turn
+            
+            if not self.game_running:
+                break
+            
+            # عرض ملخص بعد كل دور
+            print("\n" + "="*80)
+            print(f"📊 ملخص الدور {self.current_turn}".center(80))
+            print("="*80)
+            print(f"قوتك: {player.military.total_power():,}")
+            print(f"ثروتك: {player.resources.money:,}")
+            print(f"سعادة الشعب: {player.happiness}%")
+            print("="*80)
 
-    document.getElementById("nextTurnBtn").addEventListener("click", nextTurn);
-    document.getElementById("saveBtn").addEventListener("click", saveGame);
-    document.getElementById("resetBtn").addEventListener("click", resetGame);
 
-    init();
-  </script>
-</body>
-</html>
+def main():
+    """البرنامج الرئيسي"""
+    game = GameEngine()
+    try:
+        game.run()
+    except KeyboardInterrupt:
+        print("\n\n👋 تم إيقاف اللعبة")
+    except Exception as e:
+        print(f"\n❌ حدث خطأ: {e}")
+
+
+if __name__ == "__main__":
+    main()
