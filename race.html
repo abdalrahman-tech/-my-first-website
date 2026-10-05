@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سباق العربيات</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 100%;
+      height: 100vh;
+      background: #000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .game-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 100%);
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ui {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #000;
+      font-weight: bold;
+      font-size: 18px;
+      z-index: 100;
+    }
+
+    .ui div {
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+
+    .winner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: #ffff00;
+      padding: 30px 50px;
+      border-radius: 15px;
+      font-size: 40px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 200;
+      display: none;
+    }
+
+    .instructions {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: #000;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      max-width: 300px;
+      z-index: 100;
+    }
+
+    .instructions strong {
+      color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="ui">
+      <div>🏁 السرعة - الأحمر: <span id="car1Speed">0</span></div>
+      <div>🏁 السرعة - الأزرق: <span id="car2Speed">0</span></div>
+      <div>📊 المسافة - الأحمر: <span id="car1Dist">0</span>m</div>
+      <div>📊 المسافة - الأزرق: <span id="car2Dist">0</span>m</div>
+    </div>
+
+    <div class="instructions">
+      <strong>التحكم - العربية الحمراء:</strong><br>
+      ⬆️ أعلى = تسريع<br>
+      ⬇️ أسفل = إبطاء<br>
+      ⬅️ يسار = انحراف يسار<br>
+      ➡️ يمين = انحراف يمين<br>
+      <br>
+      <strong style="color: #1976d2;">التحكم - العربية الزرقاء:</strong><br>
+      W = تسريع<br>
+      S = إبطاء<br>
+      A = انحراف يسار<br>
+      D = انحراف يمين
+    </strong>
+    </div>
+
+    <div class="winner" id="winner"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const ROAD_WIDTH = 200;
+    const ROAD_Y = canvas.height / 2 - ROAD_WIDTH / 2;
+    const FINISH_LINE = 8000;
+    const CAR_WIDTH = 40;
+    const CAR_HEIGHT = 60;
+
+    // العوامل والعواقب
+    const obstacles = [
+      { x: 800, y: ROAD_Y + 50, w: 60, h: 40, type: 'rock' },
+      { x: 1200, y: ROAD_Y + 120, w: 80, h: 50, type: 'tree' },
+      { x: 1800, y: ROAD_Y + 40, w: 100, h: 60, type: 'car' },
+      { x: 2400, y: ROAD_Y + 100, w: 70, h: 50, type: 'rock' },
+      { x: 3000, y: ROAD_Y + 60, w: 90, h: 70, type: 'tree' },
+      { x: 3600, y: ROAD_Y + 110, w: 80, h: 60, type: 'rock' },
+      { x: 4200, y: ROAD_Y + 50, w: 100, h: 80, type: 'car' },
+      { x: 4800, y: ROAD_Y + 90, w: 70, h: 50, type: 'tree' },
+      { x: 5400, y: ROAD_Y + 40, w: 85, h: 60, type: 'rock' },
+      { x: 6000, y: ROAD_Y + 100, w: 95, h: 70, type: 'car' },
+      { x: 6600, y: ROAD_Y + 60, w: 80, h: 50, type: 'tree' },
+      { x: 7200, y: ROAD_Y + 110, w: 90, h: 60, type: 'rock' },
+      { x: 7800, y: ROAD_Y + 50, w: 100, h: 80, type: 'car' },
+    ];
+
+    // حفر الطريق
+    const holes = [
+      { x: 2000, y: ROAD_Y + 60, w: 120, h: 80 },
+      { x: 3400, y: ROAD_Y + 80, w: 150, h: 100 },
+      { x: 5000, y: ROAD_Y + 70, w: 110, h: 90 },
+      { x: 6800, y: ROAD_Y + 75, w: 130, h: 85 },
+    ];
+
+    class Car {
+      constructor(x, y, color, isPlayer) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.speed = 0;
+        this.maxSpeed = 8;
+        this.acceleration = 0.3;
+        this.friction = 0.92;
+        this.color = color;
+        this.isPlayer = isPlayer;
+        this.angle = 0;
+        this.crashed = false;
+        this.crashTime = 0;
+      }
+
+      update(keys) {
+        if (this.crashed) {
+          this.crashTime--;
+          if (this.crashTime <= 0) {
+            this.crashed = false;
+          }
+          this.speed *= 0.85;
+        } else {
+          if (this.isPlayer) {
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) this.speed = Math.min(this.maxSpeed, this.speed + this.acceleration);
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) this.speed = Math.max(-2, this.speed - 0.2);
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) this.vy = Math.max(-3, this.vy - 0.15);
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) this.vy = Math.min(3, this.vy + 0.15);
+          }
+        }
+
+        this.vy *= this.friction;
+        this.speed *= this.friction;
+
+        this.x += this.speed;
+        this.y += this.vy;
+
+        // حدود الطريق
+        const minY = ROAD_Y + 10;
+        const maxY = ROAD_Y + ROAD_WIDTH - CAR_HEIGHT - 10;
+        if (this.y < minY) {
+          this.y = minY;
+          this.vy = 0;
+          this.crashed = true;
+          this.crashTime = 20;
+        }
+        if (this.y > maxY) {
+          this.y = maxY;
+          this.vy = 0;
+          this.crashed = true;
+          this.crashTime = 20;
+        }
+
+        // تصادم العوامل
+        obstacles.forEach(obs => {
+          if (this.collidesWith(obs)) {
+            this.crashed = true;
+            this.crashTime = 30;
+            this.speed *= 0.4;
+          }
+        });
+
+        // تصادم الحفر
+        holes.forEach(hole => {
+          if (this.collidesWith(hole)) {
+            this.speed *= 0.5;
+            this.crashed = true;
+            this.crashTime = 35;
+          }
+        });
+      }
+
+      collidesWith(obj) {
+        return !(this.x + CAR_WIDTH < obj.x ||
+                 this.x > obj.x + obj.w ||
+                 this.y + CAR_HEIGHT < obj.y ||
+                 this.y > obj.y + obj.h);
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x + CAR_WIDTH / 2, this.y + CAR_HEIGHT / 2);
+
+        if (this.crashed) {
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
+          ctx.fillRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+          ctx.strokeStyle = '#ff0000';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+
+          ctx.fillStyle = '#ffff00';
+          ctx.font = 'bold 20px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('💥', 0, 5);
+        } else {
+          ctx.fillStyle = this.color;
+          ctx.fillRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+
+          ctx.fillStyle = '#333';
+          ctx.fillRect(-CAR_WIDTH / 2 + 5, -CAR_HEIGHT / 2 + 5, CAR_WIDTH - 10, 15);
+        }
+
+        ctx.restore();
+      }
+
+      getDistance() {
+        return Math.floor(this.x);
+      }
+    };
+
+    class AIController {
+      constructor(car) {
+        this.car = car;
+        this.targetY = car.y;
+      }
+
+      update(keys) {
+        const lookahead = 300;
+        const checkX = this.car.x + lookahead;
+
+        let safeZones = [];
+        safeZones.push({ y: ROAD_Y + 20, w: 1000 });
+        safeZones.push({ y: ROAD_Y + 100, w: 1000 });
+
+        let bestY = this.car.y;
+        let bestScore = -9999;
+
+        for (let testY = ROAD_Y + 20; testY < ROAD_Y + ROAD_WIDTH - CAR_HEIGHT; testY += 15) {
+          let score = 0;
+
+          // تجنب العوامل
+          let safe = true;
+          obstacles.forEach(obs => {
+            if (obs.x < checkX + 100 && obs.x + obs.w > checkX - 100) {
+              const dist = Math.abs(testY + CAR_HEIGHT / 2 - (obs.y + obs.h / 2));
+              if (dist < 150) {
+                safe = false;
+                score -= (150 - dist);
+              }
+            }
+          });
+
+          if (safe) score += 100;
+
+          // تجنب الحفر
+          holes.forEach(hole => {
+            if (hole.x < checkX + 150 && hole.x + hole.w > checkX - 150) {
+              const dist = Math.abs(testY + CAR_HEIGHT / 2 - (hole.y + hole.h / 2));
+              if (dist < 200) {
+                score -= (200 - dist) * 0.5;
+              }
+            }
+          });
+
+          // تفضيل الوسط
+          const centerDist = Math.abs(testY - (ROAD_Y + ROAD_WIDTH / 2));
+          score -= centerDist * 0.3;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestY = testY;
+          }
+        }
+
+        this.targetY = bestY;
+
+        // التحكم بالسرعة
+        const obstacleAhead = obstacles.some(obs =>
+          obs.x > this.car.x && obs.x < this.car.x + 400
+        );
+        const holeAhead = holes.some(hole =>
+          hole.x > this.car.x && hole.x < this.car.x + 350
+        );
+
+        if (obstacleAhead || holeAhead) {
+          keys['s'] = true;
+        } else {
+          keys['w'] = true;
+        }
+
+        // الانحراف
+        if (this.targetY < this.car.y - 10) {
+          keys['a'] = true;
+        } else if (this.targetY > this.car.y + 10) {
+          keys['d'] = true;
+        }
+      }
+    }
+
+    const car1 = new Car(100, ROAD_Y + 40, '#d32f2f', true);
+    const car2 = new Car(100, ROAD_Y + 120, '#1976d2', false);
+    const aiController = new AIController(car2);
+
+    const keys = {};
+    window.addEventListener('keydown', (e) => {
+      keys[e.key] = true;
+    });
+    window.addEventListener('keyup', (e) => {
+      keys[e.key] = false;
+    });
+
+    function drawRoad() {
+      // الطريق
+      ctx.fillStyle = '#444';
+      ctx.fillRect(0, ROAD_Y, canvas.width * 2, ROAD_WIDTH);
+
+      // الخطوط الوسط
+      ctx.strokeStyle = '#ffff00';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([30, 20]);
+      ctx.beginPath();
+      ctx.moveTo(0, ROAD_Y + ROAD_WIDTH / 2);
+      ctx.lineTo(canvas.width * 2, ROAD_Y + ROAD_WIDTH / 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // الخطوط الجانبية
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(0, ROAD_Y);
+      ctx.lineTo(canvas.width * 2, ROAD_Y);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(0, ROAD_Y + ROAD_WIDTH);
+      ctx.lineTo(canvas.width * 2, ROAD_Y + ROAD_WIDTH);
+      ctx.stroke();
+    }
+
+    function drawObstacles() {
+      obstacles.forEach(obs => {
+        ctx.fillStyle = obs.type === 'rock' ? '#888' : obs.type === 'tree' ? '#228B22' : '#555';
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+
+        if (obs.type === 'rock') {
+          ctx.fillStyle = '#666';
+          ctx.fillRect(obs.x + 5, obs.y + 5, obs.w - 10, obs.h - 10);
+        } else if (obs.type === 'tree') {
+          ctx.fillStyle = '#32CD32';
+          ctx.beginPath();
+          ctx.arc(obs.x + obs.w / 2, obs.y + obs.h / 2, obs.w / 2 - 5, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#777';
+          ctx.fillRect(obs.x + 3, obs.y + 3, obs.w - 6, obs.h - 6);
+        }
+      });
+    }
+
+    function drawHoles() {
+      holes.forEach(hole => {
+        ctx.fillStyle = '#222';
+        ctx.fillRect(hole.x, hole.y, hole.w, hole.h);
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(hole.x, hole.y, hole.w, hole.h);
+
+        ctx.fillStyle = '#111';
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.arc(hole.x + 20 + i * 25, hole.y + hole.h / 2, 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    function drawFinishLine() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(FINISH_LINE, ROAD_Y, 50, ROAD_WIDTH);
+
+      ctx.fillStyle = '#fff';
+      for (let i = 0; i < ROAD_WIDTH; i += 20) {
+        ctx.fillRect(FINISH_LINE, ROAD_Y + i, 25, 20);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(FINISH_LINE + 25, ROAD_Y + i, 25, 20);
+        ctx.fillStyle = '#fff';
+      }
+    }
+
+    function updateUI() {
+      document.getElementById('car1Speed').textContent = Math.floor(car1.speed * 10);
+      document.getElementById('car2Speed').textContent = Math.floor(car2.speed * 10);
+      document.getElementById('car1Dist').textContent = car1.getDistance();
+      document.getElementById('car2Dist').textContent = car2.getDistance();
+    }
+
+    function checkWinner() {
+      if (car1.x > FINISH_LINE && car2.x <= FINISH_LINE) {
+        return 'الأحمر 🏁 فاز!';
+      }
+      if (car2.x > FINISH_LINE && car1.x <= FINISH_LINE) {
+        return 'الأزرق 🏁 فاز!';
+      }
+      return null;
+    }
+
+    let gameRunning = true;
+
+    function gameLoop() {
+      // Clear
+      ctx.fillStyle = 'rgba(135, 206, 235, 0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw game
+      drawRoad();
+      drawObstacles();
+      drawHoles();
+      drawFinishLine();
+
+      // Update
+      aiController.update(keys);
+      car1.update(keys);
+      car2.update(keys);
+
+      // Draw cars
+      car1.draw();
+      car2.draw();
+
+      updateUI();
+
+      // Check winner
+      if (gameRunning) {
+        const winner = checkWinner();
+        if (winner) {
+          gameRunning = false;
+          document.getElementById('winner').textContent = winner;
+          document.getElementById('winner').style.display = 'block';
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    gameLoop();
+  </script>
+</body>
+</html>
