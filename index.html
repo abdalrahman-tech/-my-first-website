@@ -3,844 +3,494 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>محاكي الدول</title>
+  <title>سباق العربيات</title>
   <style>
-    :root {
-      --bg: #06151f;
-      --bg2: #0b2331;
-      --panel: rgba(13, 33, 48, 0.95);
-      --panel2: rgba(17, 43, 61, 0.96);
-      --border: rgba(93, 215, 255, 0.7);
-      --gold: #f9d976;
-      --green: #7ef7b0;
-      --red: #ff7b7b;
-      --blue: #5dc9ff;
-      --text: #edf7ff;
-      --muted: #b3cfde;
-      --shadow: rgba(0, 0, 0, 0.35);
-    }
-
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
-      color: var(--text);
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      padding: 12px;
-    }
-
-    .app {
       width: 100%;
-      height: 100%;
-      display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(290px, 410px);
-      grid-template-rows: 78px minmax(0, 1fr) 110px;
-      gap: 12px;
-    }
-
-    .topbar, .board, .sidebar, .bottombar {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 12px 28px var(--shadow);
-    }
-
-    .topbar {
-      grid-column: 1 / -1;
+      height: 100vh;
+      background: #000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 26px;
-      background: linear-gradient(90deg, rgba(12, 38, 54, 0.95), rgba(14, 49, 76, 0.95));
+      justify-content: center;
     }
-
-    .title {
-      font-size: clamp(22px, 2vw, 30px);
-      font-weight: 900;
-      color: var(--gold);
-      text-shadow: 0 0 18px rgba(249, 217, 118, 0.5);
-    }
-
-    .turnbox {
-      background: rgba(249, 217, 118, 0.08);
-      border: 1px solid rgba(249, 217, 118, 0.6);
-      color: var(--gold);
-      border-radius: 999px;
-      padding: 10px 18px;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .board {
+    
+    .game-container {
+      width: 100vw;
+      height: 100vh;
       position: relative;
+      background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 100%);
       overflow: hidden;
-      background: radial-gradient(circle at 50% 20%, rgba(27, 77, 104, 0.9) 0%, rgba(7, 20, 30, 1) 58%);
     }
 
-    #mapCanvas {
+    canvas {
+      display: block;
       width: 100%;
       height: 100%;
-      display: block;
-      cursor: pointer;
     }
 
-    .countryTip {
+    .ui {
       position: absolute;
-      display: none;
-      min-width: 210px;
-      background: rgba(7, 21, 30, 0.96);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
-      padding: 10px 12px;
-      font-size: 12px;
-      line-height: 1.7;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    .sidebar {
-      padding: 14px;
-      overflow-y: auto;
-      background: linear-gradient(180deg, rgba(13, 34, 49, 0.96), rgba(14, 44, 64, 0.96));
-    }
-
-    .panel {
-      background: rgba(18, 45, 64, 0.9);
-      border: 1px solid rgba(93, 215, 255, 0.3);
-      border-radius: 12px;
-      padding: 14px 12px;
-      margin-bottom: 14px;
-    }
-
-    .panel h3 {
-      margin: 0 0 10px;
+      top: 20px;
+      left: 20px;
+      color: #000;
+      font-weight: bold;
       font-size: 18px;
-      color: var(--gold);
-      border-bottom: 1px solid rgba(93, 215, 255, 0.45);
-      padding-bottom: 8px;
+      z-index: 100;
     }
 
-    .stat {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 4px 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .stat strong { color: var(--text); font-weight: 700; }
-
-    .meter {
-      width: 100%;
-      height: 8px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 999px;
-      overflow: hidden;
-      margin: 6px 0 10px;
-    }
-
-    .meter-fill {
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--blue), var(--green));
-    }
-
-    .list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .nation-card {
-      background: rgba(93, 215, 255, 0.06);
-      border: 1px solid rgba(93, 215, 255, 0.18);
-      border-left: 4px solid var(--blue);
+    .ui div {
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px 15px;
       border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12px;
-      line-height: 1.7;
-      cursor: pointer;
-      transition: all 0.2s ease;
     }
 
-    .nation-card:hover {
-      background: rgba(93, 215, 255, 0.12);
-      transform: translateX(-2px);
-    }
-
-    .nation-card.active {
-      border-left-color: var(--gold);
-      background: rgba(249, 217, 118, 0.08);
-    }
-
-    .bottombar {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: repeat(6, minmax(140px, 1fr));
-      gap: 10px;
-      padding: 12px;
-      background: linear-gradient(180deg, rgba(14, 45, 66, 0.97), rgba(10, 26, 38, 1));
-    }
-
-    button {
-      border: none;
-      border-radius: 10px;
-      font-weight: 800;
-      cursor: pointer;
-      padding: 12px 10px;
-      background: linear-gradient(135deg, var(--blue), #2db4ff);
-      color: #06222d;
-      box-shadow: 0 6px 18px rgba(93, 215, 255, 0.24);
-      transition: transform 0.15s ease, filter 0.15s ease;
-    }
-
-    button:hover { transform: translateY(-1px); filter: brightness(1.04); }
-    button.gold { background: linear-gradient(135deg, var(--gold), #ffb74d); }
-    button.green { background: linear-gradient(135deg, var(--green), #4ddc97); }
-    button.red { background: linear-gradient(135deg, #ff9b9b, #ff6b6b); }
-
-    .toast {
-      position: fixed;
+    .winner {
+      position: absolute;
+      top: 50%;
       left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      min-width: 240px;
-      max-width: 420px;
-      padding: 12px 16px;
-      border-radius: 10px;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: #ffff00;
+      padding: 30px 50px;
+      border-radius: 15px;
+      font-size: 40px;
+      font-weight: bold;
       text-align: center;
-      font-weight: 700;
-      color: #031923;
-      background: rgba(93, 215, 255, 0.94);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.32);
+      z-index: 200;
       display: none;
-      z-index: 50;
     }
 
-    .toast.show {
-      display: block;
-      animation: appears 0.25s ease;
+    .instructions {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: #000;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      max-width: 300px;
+      z-index: 100;
     }
 
-    .toast.success { background: rgba(126, 247, 176, 0.95); }
-    .toast.warning { background: rgba(249, 217, 118, 0.95); }
-    .toast.error { background: rgba(255, 123, 123, 0.95); }
-
-    @keyframes appears {
-      from { transform: translateX(-50%) translateY(12px); opacity: 0; }
-      to   { transform: translateX(-50%) translateY(0); opacity: 1; }
-    }
-
-    @media (max-width: 1120px) {
-      .app {
-        grid-template-columns: 1fr;
-        grid-template-rows: 78px minmax(0, 1fr) minmax(260px, 380px) 110px;
-      }
-      .sidebar { grid-column: 1; }
+    .instructions strong {
+      color: #d32f2f;
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="title">🌍 محاكي الدول</div>
-      <div class="turnbox">الدور: <span id="turnCounter">1</span></div>
-    </header>
-
-    <div class="board">
-      <canvas id="mapCanvas"></canvas>
-      <div id="countryTip" class="countryTip"></div>
+  <div class="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="ui">
+      <div>🏁 السرعة - الأحمر: <span id="car1Speed">0</span></div>
+      <div>🏁 السرعة - الأزرق: <span id="car2Speed">0</span></div>
+      <div>📊 المسافة - الأحمر: <span id="car1Dist">0</span>m</div>
+      <div>📊 المسافة - الأزرق: <span id="car2Dist">0</span>m</div>
     </div>
 
-    <aside class="sidebar">
-      <div class="panel">
-        <h3>🏛️ الدولة المختارة</h3>
-        <div id="countryInfo"></div>
-      </div>
-
-      <div class="panel">
-        <h3>💰 الموارد</h3>
-        <div id="resourcesInfo"></div>
-      </div>
-
-      <div class="panel">
-        <h3>⚔️ الجيش</h3>
-        <div id="militaryInfo"></div>
-      </div>
-
-      <div class="panel">
-        <h3>🤝 الدول القريبة</h3>
-        <div id="nearbyInfo" class="list"></div>
-      </div>
-    </aside>
-
-    <div class="bottombar">
-      <button id="nextTurnBtn">⏭️ الدور التالي</button>
-      <button class="gold" id="collectTaxBtn">💵 جمع الضرائب</button>
-      <button class="green" id="trainBtn">👮 تدريب جيش</button>
-      <button class="gold" id="buildBtn">🏗️ بناء</button>
-      <button id="tradeBtn">🤝 تجارة</button>
-      <button class="red" id="warBtn">⚔️ حرب</button>
+    <div class="instructions">
+      <strong>التحكم - العربية الحمراء:</strong><br>
+      ⬆️ أعلى = تسريع<br>
+      ⬇️ أسفل = إبطاء<br>
+      ⬅️ يسار = انحراف يسار<br>
+      ➡️ يمين = انحراف يمين<br>
+      <br>
+      <strong style="color: #1976d2;">التحكم - العربية الزرقاء:</strong><br>
+      W = تسريع<br>
+      S = إبطاء<br>
+      A = انحراف يسار<br>
+      D = انحراف يمين
+    </strong>
     </div>
+
+    <div class="winner" id="winner"></div>
   </div>
 
-  <div id="toast" class="toast"></div>
-
   <script>
-    const nationsData = [
-      { name: 'مصر', capital: 'القاهرة', flag: '🇪🇬', x: 32, y: 40, color: '#ffd166' },
-      { name: 'السعودية', capital: 'الرياض', flag: '🇸🇦', x: 42, y: 28, color: '#8ecae6' },
-      { name: 'الإمارات', capital: 'أبو ظبي', flag: '🇦🇪', x: 50, y: 31, color: '#90be6d' },
-      { name: 'تركيا', capital: 'أنقرة', flag: '🇹🇷', x: 39, y: 59, color: '#f4a261' },
-      { name: 'إيران', capital: 'طهران', flag: '🇮🇷', x: 58, y: 46, color: '#ffb703' },
-      { name: 'العراق', capital: 'بغداد', flag: '🇮🇶', x: 45, y: 44, color: '#a3b18a' },
-      { name: 'الأردن', capital: 'عمّان', flag: '🇯🇴', x: 35, y: 42, color: '#9ad0c2' },
-      { name: 'سوريا', capital: 'دمشق', flag: '🇸🇾', x: 38, y: 50, color: '#d9ed92' },
-      { name: 'لبنان', capital: 'بيروت', flag: '🇱🇧', x: 35, y: 53, color: '#f7b267' },
-      { name: 'باكستان', capital: 'إسلام أباد', flag: '🇵🇰', x: 70, y: 42, color: '#76c893' }
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const ROAD_WIDTH = 200;
+    const ROAD_Y = canvas.height / 2 - ROAD_WIDTH / 2;
+    const FINISH_LINE = 8000;
+    const CAR_WIDTH = 40;
+    const CAR_HEIGHT = 60;
+
+    // العوامل والعواقب
+    const obstacles = [
+      { x: 800, y: ROAD_Y + 50, w: 60, h: 40, type: 'rock' },
+      { x: 1200, y: ROAD_Y + 120, w: 80, h: 50, type: 'tree' },
+      { x: 1800, y: ROAD_Y + 40, w: 100, h: 60, type: 'car' },
+      { x: 2400, y: ROAD_Y + 100, w: 70, h: 50, type: 'rock' },
+      { x: 3000, y: ROAD_Y + 60, w: 90, h: 70, type: 'tree' },
+      { x: 3600, y: ROAD_Y + 110, w: 80, h: 60, type: 'rock' },
+      { x: 4200, y: ROAD_Y + 50, w: 100, h: 80, type: 'car' },
+      { x: 4800, y: ROAD_Y + 90, w: 70, h: 50, type: 'tree' },
+      { x: 5400, y: ROAD_Y + 40, w: 85, h: 60, type: 'rock' },
+      { x: 6000, y: ROAD_Y + 100, w: 95, h: 70, type: 'car' },
+      { x: 6600, y: ROAD_Y + 60, w: 80, h: 50, type: 'tree' },
+      { x: 7200, y: ROAD_Y + 110, w: 90, h: 60, type: 'rock' },
+      { x: 7800, y: ROAD_Y + 50, w: 100, h: 80, type: 'car' },
     ];
 
-    const state = {
-      turn: 1,
-      selected: null,
-      nations: []
+    // حفر الطريق
+    const holes = [
+      { x: 2000, y: ROAD_Y + 60, w: 120, h: 80 },
+      { x: 3400, y: ROAD_Y + 80, w: 150, h: 100 },
+      { x: 5000, y: ROAD_Y + 70, w: 110, h: 90 },
+      { x: 6800, y: ROAD_Y + 75, w: 130, h: 85 },
+    ];
+
+    class Car {
+      constructor(x, y, color, isPlayer) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.speed = 0;
+        this.maxSpeed = 8;
+        this.acceleration = 0.3;
+        this.friction = 0.92;
+        this.color = color;
+        this.isPlayer = isPlayer;
+        this.angle = 0;
+        this.crashed = false;
+        this.crashTime = 0;
+      }
+
+      update(keys) {
+        if (this.crashed) {
+          this.crashTime--;
+          if (this.crashTime <= 0) {
+            this.crashed = false;
+          }
+          this.speed *= 0.85;
+        } else {
+          if (this.isPlayer) {
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) this.speed = Math.min(this.maxSpeed, this.speed + this.acceleration);
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) this.speed = Math.max(-2, this.speed - 0.2);
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) this.vy = Math.max(-3, this.vy - 0.15);
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) this.vy = Math.min(3, this.vy + 0.15);
+          }
+        }
+
+        this.vy *= this.friction;
+        this.speed *= this.friction;
+
+        this.x += this.speed;
+        this.y += this.vy;
+
+        // حدود الطريق
+        const minY = ROAD_Y + 10;
+        const maxY = ROAD_Y + ROAD_WIDTH - CAR_HEIGHT - 10;
+        if (this.y < minY) {
+          this.y = minY;
+          this.vy = 0;
+          this.crashed = true;
+          this.crashTime = 20;
+        }
+        if (this.y > maxY) {
+          this.y = maxY;
+          this.vy = 0;
+          this.crashed = true;
+          this.crashTime = 20;
+        }
+
+        // تصادم العوامل
+        obstacles.forEach(obs => {
+          if (this.collidesWith(obs)) {
+            this.crashed = true;
+            this.crashTime = 30;
+            this.speed *= 0.4;
+          }
+        });
+
+        // تصادم الحفر
+        holes.forEach(hole => {
+          if (this.collidesWith(hole)) {
+            this.speed *= 0.5;
+            this.crashed = true;
+            this.crashTime = 35;
+          }
+        });
+      }
+
+      collidesWith(obj) {
+        return !(this.x + CAR_WIDTH < obj.x ||
+                 this.x > obj.x + obj.w ||
+                 this.y + CAR_HEIGHT < obj.y ||
+                 this.y > obj.y + obj.h);
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x + CAR_WIDTH / 2, this.y + CAR_HEIGHT / 2);
+
+        if (this.crashed) {
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
+          ctx.fillRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+          ctx.strokeStyle = '#ff0000';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+
+          ctx.fillStyle = '#ffff00';
+          ctx.font = 'bold 20px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('💥', 0, 5);
+        } else {
+          ctx.fillStyle = this.color;
+          ctx.fillRect(-CAR_WIDTH / 2, -CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT);
+
+          ctx.fillStyle = '#333';
+          ctx.fillRect(-CAR_WIDTH / 2 + 5, -CAR_HEIGHT / 2 + 5, CAR_WIDTH - 10, 15);
+        }
+
+        ctx.restore();
+      }
+
+      getDistance() {
+        return Math.floor(this.x);
+      }
     };
 
-    function makeNation(data) {
-      return {
-        ...data,
-        population: 10000000,
-        happiness: 70,
-        technology: 1,
-        production: 1.0,
-        resources: {
-          money: 12000,
-          food: 2000,
-          wood: 1500,
-          stone: 1200,
-          oil: 900,
-          metal: 1400
-        },
-        military: {
-          soldiers: 1500,
-          tanks: 35,
-          aircraft: 18,
-          navy: 12
-        },
-        alliances: [],
-        isPlayer: false
-      };
-    }
-
-    function initGame() {
-      state.nations = nationsData.map(makeNation);
-      state.selected = state.nations[0];
-      state.selected.isPlayer = true;
-      render();
-    }
-
-    function getPlayer() {
-      return state.selected || state.nations[0];
-    }
-
-    function distance(a, b) {
-      return Math.hypot(a.x - b.x, a.y - b.y);
-    }
-
-    function militaryPower(n) {
-      return n.military.soldiers + n.military.tanks * 16 + n.military.aircraft * 22 + n.military.navy * 30;
-    }
-
-    function toast(msg, type = 'success') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = `toast show ${type}`;
-      clearTimeout(toast.timer);
-      toast.timer = setTimeout(() => t.classList.remove('show'), 2200);
-    }
-
-    function render() {
-      renderHeader();
-      renderCountryInfo();
-      renderResources();
-      renderMilitary();
-      renderNearby();
-      renderMap();
-    }
-
-    function renderHeader() {
-      document.getElementById('turnCounter').textContent = state.turn;
-    }
-
-    function renderCountryInfo() {
-      const n = state.selected || state.nations[0];
-      const rows = [
-        ['الدولة', `${n.flag} ${n.name}`],
-        ['العاصمة', n.capital],
-        ['السكان', `${(n.population / 1000000).toFixed(1)} مليون`],
-        ['السعادة', `${n.happiness}%`],
-        ['التكنولوجيا', `المستوى ${n.technology}`],
-        ['الإنتاج', `${n.production.toFixed(2)}x`],
-        ['التحالفات', n.alliances.length]
-      ];
-      document.getElementById('countryInfo').innerHTML = rows.map(([k, v]) => `
-        <div class="stat"><span>${k}</span><strong>${v}</strong></div>
-      `).join('');
-    }
-
-    function renderResources() {
-      const n = state.selected || state.nations[0];
-      const items = [
-        ['💵 نقد', n.resources.money, 20000],
-        ['🌾 غذاء', n.resources.food, 3000],
-        ['🌳 خشب', n.resources.wood, 2200],
-        ['🪨 حجر', n.resources.stone, 1800],
-        ['🛢️ نفط', n.resources.oil, 1500],
-        ['⚒️ معدن', n.resources.metal, 2200]
-      ];
-      document.getElementById('resourcesInfo').innerHTML = items.map(([label, value, max]) => {
-        const pct = Math.min(100, (value / max) * 100);
-        return `
-          <div>
-            <div class="stat"><span>${label}</span><strong>${Math.floor(value)}</strong></div>
-            <div class="meter"><div class="meter-fill" style="width:${pct}%"></div></div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderMilitary() {
-      const n = state.selected || state.nations[0];
-      const power = militaryPower(n);
-      const rows = [
-        ['👮 جنود', Math.floor(n.military.soldiers)],
-        ['🚗 دبابات', Math.floor(n.military.tanks)],
-        ['✈️ طائرات', Math.floor(n.military.aircraft)],
-        ['🚢 سفن', Math.floor(n.military.navy)],
-        ['⚡ القوة', Math.floor(power)]
-      ];
-      document.getElementById('militaryInfo').innerHTML = rows.map(([label, value]) => `
-        <div class="stat"><span>${label}</span><strong>${value}</strong></div>
-      `).join('');
-    }
-
-    function renderNearby() {
-      const n = state.selected || state.nations[0];
-      const arr = state.nations
-        .filter(x => x !== n && distance(n, x) <= 32)
-        .sort((a, b) => distance(n, a) - distance(n, b));
-
-      if (!arr.length) {
-        document.getElementById('nearbyInfo').innerHTML = '<div class="nation-card">لا توجد دول قريبة</div>';
-        return;
+    class AIController {
+      constructor(car) {
+        this.car = car;
+        this.targetY = car.y;
       }
 
-      document.getElementById('nearbyInfo').innerHTML = arr.map(x => `
-        <div class="nation-card" onclick="selectNation('${x.name}')">
-          ${x.flag} ${x.name}<br>
-          المسافة: ${distance(n, x).toFixed(1)}<br>
-          القوة: ${Math.floor(militaryPower(x))}
-        </div>
-      `).join('');
-    }
+      update(keys) {
+        const lookahead = 300;
+        const checkX = this.car.x + lookahead;
 
-    function renderMap() {
-      const canvas = document.getElementById('mapCanvas');
-      const ctx = canvas.getContext('2d');
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      canvas.width = w;
-      canvas.height = h;
+        let safeZones = [];
+        safeZones.push({ y: ROAD_Y + 20, w: 1000 });
+        safeZones.push({ y: ROAD_Y + 100, w: 1000 });
 
-      const grad = ctx.createLinearGradient(0,0,0,h);
-      grad.addColorStop(0, '#183f5d');
-      grad.addColorStop(1, '#071b2a');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0,0,w,h);
+        let bestY = this.car.y;
+        let bestScore = -9999;
 
-      // world-style continent shapes
-      ctx.fillStyle = 'rgba(130, 202, 255, 0.09)';
-      ctx.beginPath();
-      ctx.moveTo(80, 120);
-      ctx.lineTo(210, 70);
-      ctx.lineTo(410, 100);
-      ctx.lineTo(520, 160);
-      ctx.lineTo(470, 250);
-      ctx.lineTo(340, 310);
-      ctx.lineTo(180, 260);
-      ctx.lineTo(90, 180);
-      ctx.closePath();
-      ctx.fill();
+        for (let testY = ROAD_Y + 20; testY < ROAD_Y + ROAD_WIDTH - CAR_HEIGHT; testY += 15) {
+          let score = 0;
 
-      ctx.beginPath();
-      ctx.moveTo(510, 160);
-      ctx.lineTo(700, 120);
-      ctx.lineTo(820, 180);
-      ctx.lineTo(780, 320);
-      ctx.lineTo(600, 360);
-      ctx.lineTo(500, 280);
-      ctx.closePath();
-      ctx.fill();
-
-      // alliance lines
-      state.nations.forEach(a => {
-        a.alliances.forEach(name => {
-          const b = state.nations.find(x => x.name === name);
-          if (!b) return;
-          ctx.beginPath();
-          ctx.moveTo((a.x/100)*w, (a.y/100)*h);
-          ctx.lineTo((b.x/100)*w, (b.y/100)*h);
-          ctx.strokeStyle = 'rgba(126,247,176,0.42)';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        });
-      });
-
-      // draw countries as rounded polygons/regions
-      state.nations.forEach(n => {
-        const px = (n.x/100) * w;
-        const py = (n.y/100) * h;
-        const radiusX = 46;
-        const radiusY = 28;
-        const selected = n === state.selected;
-
-        ctx.beginPath();
-        ctx.moveTo(px + radiusX, py);
-        ctx.quadraticCurveTo(px + radiusX, py - radiusY, px, py - radiusY);
-        ctx.quadraticCurveTo(px - radiusX, py - radiusY, px - radiusX, py);
-        ctx.quadraticCurveTo(px - radiusX, py + radiusY, px, py + radiusY);
-        ctx.quadraticCurveTo(px + radiusX, py + radiusY, px + radiusX, py);
-        ctx.closePath();
-
-        ctx.fillStyle = selected ? 'rgba(249,217,118,0.7)' : n.color + 'cc';
-        ctx.fill();
-
-        ctx.strokeStyle = selected ? '#ffd166' : 'rgba(255,255,255,0.7)';
-        ctx.lineWidth = selected ? 3 : 2;
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${n.flag} ${n.name}`, px, py - 10);
-      });
-    }
-
-    function selectNation(name) {
-      const nation = state.nations.find(n => n.name === name);
-      if (!nation) return;
-      state.selected = nation;
-      render();
-    }
-
-    function handleCanvasClick(event) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const w = rect.width;
-      const h = rect.height;
-      let found = null;
-      for (const n of state.nations) {
-        const px = (n.x/100) * w;
-        const py = (n.y/100) * h;
-        const dx = x - px;
-        const dy = y - py;
-        if (Math.abs(dx) <= 46 && Math.abs(dy) <= 28) {
-          found = n;
-          break;
-        }
-      }
-      if (found) {
-        state.selected = found;
-        render();
-      }
-    }
-
-    function handleCanvasHover(event) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const w = rect.width;
-      const h = rect.height;
-      const tip = document.getElementById('countryTip');
-      let found = null;
-      for (const n of state.nations) {
-        const px = (n.x/100) * w;
-        const py = (n.y/100) * h;
-        if (Math.abs(x - px) <= 46 && Math.abs(y - py) <= 28) {
-          found = n;
-          break;
-        }
-      }
-      if (!found) {
-        tip.style.display = 'none';
-        return;
-      }
-      tip.innerHTML = `
-        <div><strong>${found.flag} ${found.name}</strong></div>
-        <div>العاصمة: ${found.capital}</div>
-        <div>القوة: ${Math.floor(militaryPower(found))}</div>
-        <div>السكان: ${(found.population / 1000000).toFixed(1)}M</div>
-        <div>السعادة: ${found.happiness}%</div>
-      `;
-      tip.style.left = `${event.clientX + 14}px`;
-      tip.style.top = `${event.clientY + 12}px`;
-      tip.style.display = 'block';
-    }
-
-    function collectTaxes() {
-      const player = getPlayer();
-      player.resources.money += Math.floor((player.population * 0.12) / 1000);
-      toast('💵 تم جمع الضرائب!', 'success');
-      render();
-    }
-
-    function train(soldiers, tanks, aircraft, navy) {
-      const player = getPlayer();
-      const cost = {
-        money: soldiers * 12 + tanks * 5000 + aircraft * 12000 + navy * 25000,
-        metal: soldiers * 0.5 + tanks * 40 + aircraft * 50 + navy * 80
-      };
-      if (player.resources.money < cost.money || player.resources.metal < cost.metal) {
-        toast('❌ لا توجد موارد كافية!', 'error');
-        return;
-      }
-      player.resources.money -= cost.money;
-      player.resources.metal -= cost.metal;
-      player.military.soldiers += soldiers;
-      player.military.tanks += tanks;
-      player.military.aircraft += aircraft;
-      player.military.navy += navy;
-      toast('✅ تم تدريب الجيش بنجاح!', 'success');
-      render();
-    }
-
-    function build(type) {
-      const player = getPlayer();
-      const costs = {
-        factory: { money: 8000, metal: 400 },
-        farm: { money: 3000, wood: 200, stone: 200 },
-        harbor: { money: 6000, stone: 300, metal: 250 },
-        lab: { money: 12000, metal: 500 }
-      };
-      const cost = costs[type];
-      if (!cost) return;
-      const can = Object.entries(cost).every(([key, value]) => player.resources[key] >= value);
-      if (!can) {
-        toast('❌ لا توجد موارد كافية!', 'error');
-        return;
-      }
-      Object.entries(cost).forEach(([key, value]) => player.resources[key] -= value);
-      player.production += 0.18;
-      player.technology += 1;
-      player.happiness = Math.min(100, player.happiness + 3);
-      toast('✅ تم البناء بنجاح!', 'success');
-      render();
-    }
-
-    function tradeWith(name) {
-      const player = getPlayer();
-      const target = state.nations.find(n => n.name === name);
-      if (!target) return;
-      const amount = 2500;
-      if (player.resources.money < amount) {
-        toast('❌ لا توجد نقود كافية!', 'error');
-        return;
-      }
-      player.resources.money -= amount;
-      target.resources.money += amount;
-      player.resources.food += 500;
-      target.resources.food -= 500;
-      if (!player.alliances.includes(target.name)) {
-        player.alliances.push(target.name);
-        target.alliances.push(player.name);
-      }
-      toast(`🤝 تم التبادل مع ${target.name}!`, 'success');
-      render();
-    }
-
-    function attackNation(name) {
-      const player = getPlayer();
-      const target = state.nations.find(n => n.name === name);
-      if (!target) return;
-      const myPower = militaryPower(player);
-      const enemyPower = militaryPower(target);
-      const chance = myPower / (myPower + enemyPower || 1);
-      const win = Math.random() < chance;
-
-      if (win) {
-        const loot = {
-          money: Math.floor(target.resources.money * 0.35),
-          metal: Math.floor(target.resources.metal * 0.2),
-          oil: Math.floor(target.resources.oil * 0.15)
-        };
-        player.resources.money += loot.money;
-        player.resources.metal += loot.metal;
-        player.resources.oil += loot.oil;
-        target.resources.money -= loot.money;
-        target.resources.metal -= loot.metal;
-        target.resources.oil -= loot.oil;
-        toast(`🏆 انتصرت على ${target.name}!`, 'success');
-      } else {
-        player.resources.money = Math.max(0, player.resources.money - 1800);
-        player.military.soldiers = Math.max(0, player.military.soldiers - Math.floor(player.military.soldiers * 0.12));
-        toast(`💔 خسرت حربك ضد ${target.name}!`, 'error');
-      }
-      render();
-    }
-
-    function openActionPanel(title, innerHtml) {
-      const panel = document.createElement('div');
-      panel.style.position = 'fixed';
-      panel.style.left = '50%';
-      panel.style.top = '50%';
-      panel.style.transform = 'translate(-50%, -50%)';
-      panel.style.width = 'min(500px, 90vw)';
-      panel.style.background = 'rgba(10,25,35,0.96)';
-      panel.style.border = '1px solid var(--border)';
-      panel.style.borderRadius = '16px';
-      panel.style.boxShadow = '0 12px 35px rgba(0,0,0,0.45)';
-      panel.style.padding = '18px';
-      panel.style.zIndex = '200';
-      panel.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center; margin-bottom: 16px;">
-          <h3 style="margin:0; color:#f9d976;">${title}</h3>
-          <button class="red" onclick="this.parentElement.parentElement.remove()" style="padding:8px 12px;">إغلاق</button>
-        </div>
-        <div>${innerHtml}</div>
-      `;
-      document.body.appendChild(panel);
-    }
-
-    function buildActions() {
-      openActionPanel('🏗️ البنية', `
-        <div class="list">
-          <button class="gold" onclick="build('factory')">🏭 مصنع (8000 نقد + 400 معدن)</button>
-          <button class="gold" onclick="build('farm')">🌾 مزرعة (3000 نقد + 200 خشب + 200 حجر)</button>
-          <button class="gold" onclick="build('harbor')">🏖️ ميناء (6000 نقد + 300 حجر + 250 معدن)</button>
-          <button class="gold" onclick="build('lab')">🔬 مختبر (12000 نقد + 500 معدن)</button>
-        </div>
-      `);
-    }
-
-    function trainActions() {
-      openActionPanel('👮 التدريب', `
-        <div class="list">
-          <button class="green" onclick="train(100,0,0,0)">👮 تدريب 100 جندي</button>
-          <button class="green" onclick="train(0,5,0,0)">🚗 شراء 5 دبابات</button>
-          <button class="green" onclick="train(0,0,2,0)">✈️ شراء 2 طائرات</button>
-          <button class="green" onclick="train(0,0,0,1)">🚢 شراء سفينة</button>
-        </div>
-      `);
-    }
-
-    function tradeActions() {
-      const player = getPlayer();
-      const nearby = state.nations.filter(n => n !== player && distance(player, n) <= 32);
-      let html = nearby.length ? nearby.map(n => `
-        <button onclick="tradeWith('${n.name}')">${n.flag} ${n.name}</button>
-      `).join('') : '<div class="nation-card">لا توجد دول قريبة للتجارة</div>';
-      openActionPanel('🤝 التجارة', `<div class="list">${html}</div>`);
-    }
-
-    function warActions() {
-      const player = getPlayer();
-      const nearby = state.nations.filter(n => n !== player && distance(player, n) <= 32);
-      let html = nearby.length ? nearby.map(n => `
-        <button class="red" onclick="attackNation('${n.name}')">${n.flag} ${n.name}</button>
-      `).join('') : '<div class="nation-card">لا توجد دول قريبة للهجوم</div>';
-      openActionPanel('⚔️ الحرب', `<div class="list">${html}</div>`);
-    }
-
-    function aiTurn() {
-      state.nations.forEach(n => {
-        if (n === getPlayer()) return;
-
-        n.resources.food += 280 * n.production;
-        n.resources.money += 520 * n.production;
-        n.resources.wood += 220 * n.production;
-        n.resources.stone += 170 * n.production;
-        n.resources.oil += 130 * n.production;
-        n.resources.metal += 190 * n.production;
-
-        if (Math.random() < 0.25) {
-          const type = ['factory', 'farm', 'harbor', 'lab'][Math.floor(Math.random() * 4)];
-          const costs = {
-            factory: { money: 8000, metal: 400 },
-            farm: { money: 3000, wood: 200, stone: 200 },
-            harbor: { money: 6000, stone: 300, metal: 250 },
-            lab: { money: 12000, metal: 500 }
-          };
-          const cost = costs[type];
-          const can = cost && Object.entries(cost).every(([k, v]) => n.resources[k] >= v);
-          if (can) {
-            Object.entries(cost).forEach(([k, v]) => n.resources[k] -= v);
-            n.production += 0.15;
-            n.technology += 1;
-          }
-        }
-
-        if (Math.random() < 0.18) {
-          n.military.soldiers += 120 + Math.floor(Math.random() * 150);
-        }
-
-        if (Math.random() < 0.08) {
-          const nearby = state.nations.filter(x => x !== n && distance(n, x) <= 32);
-          if (nearby.length) {
-            const target = nearby.reduce((a, b) => militaryPower(a) < militaryPower(b) ? a : b);
-            if (militaryPower(n) > militaryPower(target) * 1.25) {
-              n.attack = function (enemy) {
-                const myPower = militaryPower(this);
-                const enemyPower = militaryPower(enemy);
-                const chance = myPower / (myPower + enemyPower || 1);
-                if (Math.random() < chance) {
-                  this.happiness += 4;
-                  enemy.happiness = Math.max(0, enemy.happiness - 8);
-                  return true;
-                }
-                return false;
-              };
-              n.attack(target);
+          // تجنب العوامل
+          let safe = true;
+          obstacles.forEach(obs => {
+            if (obs.x < checkX + 100 && obs.x + obs.w > checkX - 100) {
+              const dist = Math.abs(testY + CAR_HEIGHT / 2 - (obs.y + obs.h / 2));
+              if (dist < 150) {
+                safe = false;
+                score -= (150 - dist);
+              }
             }
+          });
+
+          if (safe) score += 100;
+
+          // تجنب الحفر
+          holes.forEach(hole => {
+            if (hole.x < checkX + 150 && hole.x + hole.w > checkX - 150) {
+              const dist = Math.abs(testY + CAR_HEIGHT / 2 - (hole.y + hole.h / 2));
+              if (dist < 200) {
+                score -= (200 - dist) * 0.5;
+              }
+            }
+          });
+
+          // تفضيل الوسط
+          const centerDist = Math.abs(testY - (ROAD_Y + ROAD_WIDTH / 2));
+          score -= centerDist * 0.3;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestY = testY;
           }
         }
-      });
+
+        this.targetY = bestY;
+
+        // التحكم بالسرعة
+        const obstacleAhead = obstacles.some(obs =>
+          obs.x > this.car.x && obs.x < this.car.x + 400
+        );
+        const holeAhead = holes.some(hole =>
+          hole.x > this.car.x && hole.x < this.car.x + 350
+        );
+
+        if (obstacleAhead || holeAhead) {
+          keys['s'] = true;
+        } else {
+          keys['w'] = true;
+        }
+
+        // الانحراف
+        if (this.targetY < this.car.y - 10) {
+          keys['a'] = true;
+        } else if (this.targetY > this.car.y + 10) {
+          keys['d'] = true;
+        }
+      }
     }
 
-    function nextTurn() {
-      state.turn += 1;
-      const player = getPlayer();
-      player.resources.food += 250;
-      player.resources.money += 700;
-      player.resources.wood += 180;
-      player.resources.stone += 150;
-      player.resources.oil += 120;
-      player.resources.metal += 200;
-      player.happiness = Math.min(100, Math.max(20, player.happiness + (Math.random() > 0.5 ? 2 : -2)));
-      aiTurn();
-      render();
-      toast('🔄 بدأ دور جديد', 'warning');
-    }
+    const car1 = new Car(100, ROAD_Y + 40, '#d32f2f', true);
+    const car2 = new Car(100, ROAD_Y + 120, '#1976d2', false);
+    const aiController = new AIController(car2);
 
-    document.getElementById('nextTurnBtn').addEventListener('click', nextTurn);
-    document.getElementById('collectTaxBtn').addEventListener('click', collectTaxes);
-    document.getElementById('trainBtn').addEventListener('click', trainActions);
-    document.getElementById('buildBtn').addEventListener('click', buildActions);
-    document.getElementById('tradeBtn').addEventListener('click', tradeActions);
-    document.getElementById('warBtn').addEventListener('click', warActions);
-    document.getElementById('mapCanvas').addEventListener('click', handleCanvasClick);
-    document.getElementById('mapCanvas').addEventListener('mousemove', handleCanvasHover);
-    document.getElementById('mapCanvas').addEventListener('mouseleave', () => {
-      document.getElementById('countryTip').style.display = 'none';
+    const keys = {};
+    window.addEventListener('keydown', (e) => {
+      keys[e.key] = true;
+    });
+    window.addEventListener('keyup', (e) => {
+      keys[e.key] = false;
     });
 
-    initGame();
+    function drawRoad() {
+      // الطريق
+      ctx.fillStyle = '#444';
+      ctx.fillRect(0, ROAD_Y, canvas.width * 2, ROAD_WIDTH);
+
+      // الخطوط الوسط
+      ctx.strokeStyle = '#ffff00';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([30, 20]);
+      ctx.beginPath();
+      ctx.moveTo(0, ROAD_Y + ROAD_WIDTH / 2);
+      ctx.lineTo(canvas.width * 2, ROAD_Y + ROAD_WIDTH / 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // الخطوط الجانبية
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(0, ROAD_Y);
+      ctx.lineTo(canvas.width * 2, ROAD_Y);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(0, ROAD_Y + ROAD_WIDTH);
+      ctx.lineTo(canvas.width * 2, ROAD_Y + ROAD_WIDTH);
+      ctx.stroke();
+    }
+
+    function drawObstacles() {
+      obstacles.forEach(obs => {
+        ctx.fillStyle = obs.type === 'rock' ? '#888' : obs.type === 'tree' ? '#228B22' : '#555';
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+
+        if (obs.type === 'rock') {
+          ctx.fillStyle = '#666';
+          ctx.fillRect(obs.x + 5, obs.y + 5, obs.w - 10, obs.h - 10);
+        } else if (obs.type === 'tree') {
+          ctx.fillStyle = '#32CD32';
+          ctx.beginPath();
+          ctx.arc(obs.x + obs.w / 2, obs.y + obs.h / 2, obs.w / 2 - 5, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#777';
+          ctx.fillRect(obs.x + 3, obs.y + 3, obs.w - 6, obs.h - 6);
+        }
+      });
+    }
+
+    function drawHoles() {
+      holes.forEach(hole => {
+        ctx.fillStyle = '#222';
+        ctx.fillRect(hole.x, hole.y, hole.w, hole.h);
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(hole.x, hole.y, hole.w, hole.h);
+
+        ctx.fillStyle = '#111';
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.arc(hole.x + 20 + i * 25, hole.y + hole.h / 2, 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    function drawFinishLine() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(FINISH_LINE, ROAD_Y, 50, ROAD_WIDTH);
+
+      ctx.fillStyle = '#fff';
+      for (let i = 0; i < ROAD_WIDTH; i += 20) {
+        ctx.fillRect(FINISH_LINE, ROAD_Y + i, 25, 20);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(FINISH_LINE + 25, ROAD_Y + i, 25, 20);
+        ctx.fillStyle = '#fff';
+      }
+    }
+
+    function updateUI() {
+      document.getElementById('car1Speed').textContent = Math.floor(car1.speed * 10);
+      document.getElementById('car2Speed').textContent = Math.floor(car2.speed * 10);
+      document.getElementById('car1Dist').textContent = car1.getDistance();
+      document.getElementById('car2Dist').textContent = car2.getDistance();
+    }
+
+    function checkWinner() {
+      if (car1.x > FINISH_LINE && car2.x <= FINISH_LINE) {
+        return 'الأحمر 🏁 فاز!';
+      }
+      if (car2.x > FINISH_LINE && car1.x <= FINISH_LINE) {
+        return 'الأزرق 🏁 فاز!';
+      }
+      return null;
+    }
+
+    let gameRunning = true;
+
+    function gameLoop() {
+      // Clear
+      ctx.fillStyle = 'rgba(135, 206, 235, 0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw game
+      drawRoad();
+      drawObstacles();
+      drawHoles();
+      drawFinishLine();
+
+      // Update
+      aiController.update(keys);
+      car1.update(keys);
+      car2.update(keys);
+
+      // Draw cars
+      car1.draw();
+      car2.draw();
+
+      updateUI();
+
+      // Check winner
+      if (gameRunning) {
+        const winner = checkWinner();
+        if (winner) {
+          gameRunning = false;
+          document.getElementById('winner').textContent = winner;
+          document.getElementById('winner').style.display = 'block';
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    gameLoop();
   </script>
 </body>
 </html>
