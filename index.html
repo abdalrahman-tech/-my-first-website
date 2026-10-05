@@ -1,765 +1,839 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>استراتيجية القوى العالمية - World War Strategy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #070b14;
-            --panel-bg: rgba(15, 23, 42, 0.92);
-            --border-glow: #38bdf8;
-            --accent-gold: #fbbf24;
-            --danger-red: #ef4444;
-            --success-green: #22c55e;
-            --text-light: #f8fafc;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حرب الدول</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Tahoma", sans-serif;
+      background: linear-gradient(135deg, #0f172a, #111827);
+      color: #e5e7eb;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    h1 {
+      margin: 0;
+      color: #fbbf24;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { filter: brightness(1.1); }
+    .danger { background: #dc2626; }
+    .success { background: #16a34a; }
+    .warning { background: #f59e0b; color: #111827; }
+    .secondary { background: #374151; }
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-        }
-
-        /* SVG Map Styling */
-        .country-path {
-            fill: #1e293b;
-            stroke: #475569;
-            stroke-width: 1.2;
-            transition: all 0.25s stroke, all 0.25s fill;
-            cursor: pointer;
-        }
-
-        .country-path:hover, .country-path:active {
-            fill: #334155;
-            stroke: var(--border-glow);
-            stroke-width: 2.5;
-            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6));
-        }
-
-        .country-path.player-owned {
-            fill: #065f46;
-            stroke: #34d399;
-        }
-
-        .country-path.selected-country {
-            fill: #1e3a8a !important;
-            stroke: #60a5fa !important;
-            stroke-width: 3 !important;
-            filter: drop-shadow(0 0 15px #3b82f6);
-        }
-
-        .country-path.ally-country {
-            fill: #1e3a8a;
-            stroke: #38bdf8;
-        }
-
-        .country-path.enemy-country {
-            fill: #7f1d1d;
-            stroke: #f87171;
-        }
-
-        /* Responsive Layout Panels */
-        .glass-hud {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(12px);
-            border-color: rgba(56, 189, 248, 0.25);
-        }
-
-        .treaty-paper {
-            background: #fffbeb;
-            color: #78350f;
-            background-image: radial-gradient(#fde68a 1px, transparent 0);
-            background-size: 14px 14px;
-            box-shadow: inset 0 0 20px rgba(180, 83, 9, 0.15);
-            border: 2px solid #d97706;
-        }
-
-        /* Animations */
-        @keyframes pulseAlert {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
-        }
-        .animate-alert {
-            animation: pulseAlert 1.5s infinite;
-        }
-
-        /* Custom Scrollbar for mobile panels */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #0284c7;
-            border-radius: 2px;
-        }
-    </style>
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.3fr 1fr;
+      gap: 18px;
+    }
+    .panel {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .panel h3 {
+      margin-top: 0;
+      color: #93c5fd;
+      border-bottom: 1px solid rgba(147,197,253,0.2);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+    }
+    .stat {
+      background: rgba(30,41,59,0.9);
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid rgba(148,163,184,0.2);
+    }
+    .stat label {
+      display: block;
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+    .stat strong {
+      font-size: 1.05rem;
+      color: #f8fafc;
+    }
+    .resource-list, .list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .resource-item {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(30,41,59,0.8);
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(148,163,184,0.15);
+    }
+    .resource-item span:first-child {
+      color: #cbd5e1;
+    }
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .action-card {
+      background: rgba(30,41,59,0.8);
+      border: 1px solid rgba(148,163,184,0.2);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .action-card h4 {
+      margin: 0 0 8px 0;
+      color: #fcd34d;
+    }
+    .action-card p {
+      font-size: 13px;
+      color: #dbeafe;
+      margin: 0 0 8px 0;
+      min-height: 40px;
+    }
+    .action-card button {
+      width: 100%;
+      margin-top: 5px;
+    }
+    .log {
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 8px;
+      background: rgba(2,6,23,0.7);
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.15);
+    }
+    .log-item {
+      border-bottom: 1px solid rgba(148,163,184,0.1);
+      padding: 8px 0;
+      color: #e2e8f0;
+      font-size: 13px;
+    }
+    .enemy-box {
+      background: linear-gradient(135deg, rgba(127,29,29,0.4), rgba(69,10,10,0.2));
+      border: 1px solid rgba(248,113,113,0.25);
+      padding: 12px;
+      border-radius: 10px;
+    }
+    .small {
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .flex {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .battle-results {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(17,24,39,0.9);
+      border: 1px solid rgba(148,163,184,0.15);
+    }
+    .value {
+      color: #facc15;
+      font-weight: bold;
+    }
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden">
-
-<div id="app" class="flex flex-col h-full w-full relative">
-    
-    <!-- TOP HUD: Stats & Turn Control -->
-    <header class="glass-hud h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 border-b z-20 shrink-0">
-        <!-- Nation Info & Date -->
-        <div class="flex items-center gap-2 sm:gap-3">
-            <span class="text-2xl sm:text-3xl">🇪🇬</span>
-            <div>
-                <h1 class="text-xs sm:text-sm font-black text-white leading-tight" id="player-nation-title">مصر والقوة العربية</h1>
-                <span class="text-[10px] sm:text-xs text-amber-400 font-bold" id="hud-date">يناير 2026</span>
-            </div>
-        </div>
-
-        <!-- Resources Pill Bar (Scrollable on small screens) -->
-        <div class="flex items-center gap-1.5 sm:gap-3 overflow-x-auto py-1 max-w-[55%] sm:max-w-none">
-            <div class="bg-slate-800/80 px-2 py-1 rounded-lg border border-emerald-500/30 flex items-center gap-1 shrink-0">
-                <span class="text-xs">💰</span>
-                <span class="text-xs font-bold text-emerald-400" id="res-money">1,500$</span>
-            </div>
-            <div class="bg-slate-800/80 px-2 py-1 rounded-lg border border-amber-500/30 flex items-center gap-1 shrink-0">
-                <span class="text-xs">🛢️</span>
-                <span class="text-xs font-bold text-amber-400" id="res-oil">100</span>
-            </div>
-            <div class="bg-slate-800/80 px-2 py-1 rounded-lg border border-yellow-500/30 flex items-center gap-1 shrink-0">
-                <span class="text-xs">🪙</span>
-                <span class="text-xs font-bold text-yellow-300" id="res-gold">50</span>
-            </div>
-            <div class="bg-slate-800/80 px-2 py-1 rounded-lg border border-slate-500/30 flex items-center gap-1 shrink-0">
-                <span class="text-xs">⚙️</span>
-                <span class="text-xs font-bold text-slate-300" id="res-iron">80</span>
-            </div>
-            <div class="bg-slate-800/80 px-2 py-1 rounded-lg border border-red-500/30 flex items-center gap-1 shrink-0">
-                <span class="text-xs">🌾</span>
-                <span class="text-xs font-bold text-red-400" id="res-food">200</span>
-            </div>
-            <div class="bg-slate-800/80 px-2 py-1 rounded-lg border border-sky-500/30 flex items-center gap-1 shrink-0">
-                <span class="text-xs">🪖</span>
-                <span class="text-xs font-bold text-sky-400" id="res-army">50k</span>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center gap-1.5">
-            <button onclick="toggleSound()" id="sound-btn" class="p-1.5 bg-slate-800 rounded-lg text-xs border border-slate-700">🔊</button>
-            <button onclick="endTurn()" class="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-lg shadow-md border border-emerald-400/40 active:scale-95 transition">
-                الشهر التالي ⏭️
-            </button>
-        </div>
-    </header>
-
-    <!-- MAIN VIEWPORT: SVG MAP + SIDEBAR -->
-    <div class="flex-1 relative flex overflow-hidden">
-        
-        <!-- SVG WORLD MAP CONTAINER -->
-        <div id="map-container" class="flex-1 h-full w-full relative bg-slate-950 flex items-center justify-center p-2">
-            
-            <svg id="svg-world" viewBox="0 0 1000 500" class="w-full h-full max-h-full object-contain">
-                <rect width="1000" height="500" fill="#030712"/>
-                
-                <!-- SVG World Map Regions (Colored Vectors) -->
-                <g id="countries-group">
-                    <!-- Egypt & North Africa (Player Base) -->
-                    <path id="path-eg" class="country-path player-owned" d="M 500,200 L 560,190 L 580,240 L 530,260 L 490,230 Z" data-id="eg"></path>
-                    <text x="535" y="225" fill="#fff" font-size="10" font-weight="bold" pointer-events="none">🇪🇬 مصر</text>
-
-                    <!-- Saudi Arabia & Gulf -->
-                    <path id="path-sa" class="country-path" d="M 585,220 L 640,210 L 660,260 L 610,285 L 580,250 Z" data-id="sa"></path>
-                    <text x="615" y="245" fill="#fff" font-size="10" font-weight="bold" pointer-events="none">🇸🇦 السعودية</text>
-
-                    <!-- Europe Union -->
-                    <path id="path-eu" class="country-path" d="M 460,100 L 530,90 L 550,150 L 480,165 L 440,130 Z" data-id="eu"></path>
-                    <text x="490" y="125" fill="#fff" font-size="10" font-weight="bold" pointer-events="none">🇪🇺 أوروبا</text>
-
-                    <!-- Russia -->
-                    <path id="path-ru" class="country-path" d="M 560,50 L 850,40 L 880,120 L 580,130 Z" data-id="ru"></path>
-                    <text x="700" y="85" fill="#fff" font-size="12" font-weight="bold" pointer-events="none">🇷🇺 روسيا</text>
-
-                    <!-- China -->
-                    <path id="path-cn" class="country-path" d="M 720,150 L 860,140 L 880,230 L 730,240 Z" data-id="cn"></path>
-                    <text x="790" y="190" fill="#fff" font-size="12" font-weight="bold" pointer-events="none">🇨🇳 الصين</text>
-
-                    <!-- USA & North America -->
-                    <path id="path-us" class="country-path" d="M 120,90 L 320,80 L 300,180 L 150,190 Z" data-id="us"></path>
-                    <text x="210" y="135" fill="#fff" font-size="12" font-weight="bold" pointer-events="none">🇺🇸 أمريكا</text>
-
-                    <!-- Brazil & South America -->
-                    <path id="path-br" class="country-path" d="M 280,260 L 370,250 L 390,380 L 310,400 Z" data-id="br"></path>
-                    <text x="335" y="325" fill="#fff" font-size="11" font-weight="bold" pointer-events="none">🇧🇷 البرازيل</text>
-
-                    <!-- South Africa / Sub-Saharan -->
-                    <path id="path-za" class="country-path" d="M 510,275 L 590,270 L 570,410 L 500,390 Z" data-id="za"></path>
-                    <text x="535" y="340" fill="#fff" font-size="10" font-weight="bold" pointer-events="none">🇿🇦 جنوب أفريقيا</text>
-
-                    <!-- Australia -->
-                    <path id="path-au" class="country-path" d="M 820,320 L 930,310 L 920,420 L 800,410 Z" data-id="au"></path>
-                    <text x="855" y="365" fill="#fff" font-size="10" font-weight="bold" pointer-events="none">🇦🇺 أستراليا</text>
-                </g>
-            </svg>
-
-            <!-- Currency & Inflation Indicator Badge -->
-            <div class="absolute top-3 left-3 bg-slate-900/90 border border-slate-700/80 px-2.5 py-1.5 rounded-xl text-[11px] shadow-lg flex items-center gap-2">
-                <span>💱 قوة الجنيه:</span>
-                <span id="hud-currency-rate" class="font-bold text-sky-400">1.00$</span>
-            </div>
-
-            <!-- Ticker News Log -->
-            <div class="absolute bottom-2 left-2 right-2 sm:left-4 sm:right-auto sm:w-96 glass-hud p-2.5 rounded-xl border border-slate-700/80 text-xs max-h-28 overflow-y-auto" id="ticker-box">
-                <div class="text-[10px] text-sky-400 font-bold mb-1 flex justify-between">
-                    <span>📡 شريط الأخبار والاستخبارات</span>
-                    <span class="text-emerald-400 animate-pulse">مباشر ●</span>
-                </div>
-                <div id="ticker-log" class="space-y-1 text-slate-300">
-                    <p class="text-slate-400 italic">بدء محاكاة الحرب والاستراتيجية. اضغط على أي دولة للبدء.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SIDEBAR PANEL (Slide in/out on Mobile) -->
-        <aside id="sidebar-panel" class="absolute lg:relative inset-y-0 right-0 w-full sm:w-80 lg:w-80 glass-hud border-l border-slate-700/60 z-30 flex flex-col transform translate-x-full lg:translate-x-0 transition-transform duration-300">
-            
-            <!-- Sidebar Header -->
-            <div class="p-3 border-b border-slate-700/60 flex items-center justify-between bg-slate-900/80">
-                <div class="flex items-center gap-2">
-                    <span id="target-flag" class="text-2xl">🌐</span>
-                    <div>
-                        <h2 id="target-name" class="font-bold text-white text-sm">اختر دولة</h2>
-                        <span id="target-status" class="text-[10px] text-slate-400">انقر على الخريطة</span>
-                    </div>
-                </div>
-                <button onclick="closeSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1">✕</button>
-            </div>
-
-            <!-- Country Detailed View -->
-            <div id="target-details" class="p-3 space-y-3 flex-1 overflow-y-auto hidden">
-                
-                <!-- Power & Relations Bars -->
-                <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50 space-y-2">
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-400">القوة العسكرية:</span>
-                            <span id="target-army-text" class="text-sky-400 font-bold">0</span>
-                        </div>
-                        <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                            <div id="target-army-bar" class="bg-sky-500 h-full w-0 transition-all"></div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-slate-400">احتمال هجومها علينا:</span>
-                            <span id="target-threat-text" class="text-red-400 font-bold">0%</span>
-                        </div>
-                        <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                            <div id="target-threat-bar" class="bg-red-500 h-full w-0 transition-all"></div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-1.5 text-[11px] pt-1">
-                        <div class="bg-slate-900/60 p-1.5 rounded-lg">
-                            <span class="text-slate-400 block text-[9px]">العلاقة:</span>
-                            <span id="target-rel-text" class="font-bold text-amber-400">محايدة</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-1.5 rounded-lg">
-                            <span class="text-slate-400 block text-[9px]">المعاهدة:</span>
-                            <span id="target-treaty-text" class="font-bold text-slate-300">لا يوجد</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Economic Resource Trading Section -->
-                <div class="space-y-1.5">
-                    <h3 class="text-[11px] font-bold text-amber-400">💼 التبادل التجاري والموارد</h3>
-                    
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <button onclick="tradeResource('gold')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs border border-slate-700 flex justify-between items-center">
-                            <span>🪙 بيع ذهب</span>
-                            <span class="text-emerald-400 font-bold">+200$</span>
-                        </button>
-                        <button onclick="tradeResource('oil')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs border border-slate-700 flex justify-between items-center">
-                            <span>🛢️ بيع بترول</span>
-                            <span class="text-emerald-400 font-bold">+100$</span>
-                        </button>
-                        <button onclick="tradeResource('iron')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs border border-slate-700 flex justify-between items-center">
-                            <span>⚙️ بيع حديد</span>
-                            <span class="text-emerald-400 font-bold">+120$</span>
-                        </button>
-                        <button onclick="tradeResource('food')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-xs border border-slate-700 flex justify-between items-center">
-                            <span>🌾 بيع طعام</span>
-                            <span class="text-emerald-400 font-bold">+80$</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Diplomacy & Treaties -->
-                <div class="space-y-1.5">
-                    <h3 class="text-[11px] font-bold text-sky-400">📜 الدبلوماسية والعقود</h3>
-                    <button onclick="openTreatyModal()" class="w-full p-2 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white font-bold text-xs rounded-lg shadow border border-amber-400/40">
-                        مفاوضات عقود اتفاق رسمية
-                    </button>
-                </div>
-
-                <!-- War & Invasion -->
-                <div class="space-y-1.5 pt-2 border-t border-slate-800">
-                    <h3 class="text-[11px] font-bold text-red-400">⚔️️ العمليات العسكرية</h3>
-                    <button onclick="declareWar()" class="w-full p-2.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold text-xs rounded-lg shadow-lg border border-red-400/40 flex justify-between items-center">
-                        <span>إعلان الحرب الغاشمة!</span>
-                        <span class="text-[10px] bg-red-800 px-1.5 py-0.5 rounded">غزو</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Empty Sidebar State -->
-            <div id="target-empty" class="p-6 text-center text-slate-500 flex-1 flex flex-col justify-center items-center">
-                <div class="text-4xl mb-2 opacity-50">🗺️</div>
-                <p class="text-xs">اضغط على أي دولة في الخريطة لاستعراض قوة جيشها واقتصادها وبدء التفاعل.</p>
-            </div>
-        </aside>
-
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1>⚔️ حرب الدول</h1>
+      <div class="controls">
+        <button class="success" id="nextTurnBtn">الذهاب للمرحلة التالية</button>
+        <button class="warning" id="saveBtn">حفظ اللعبة</button>
+        <button class="secondary" id="resetBtn">إعادة البداية</button>
+      </div>
     </div>
 
-    <!-- BOTTOM DECK: Quick Actions & Economic Investment -->
-    <footer class="h-16 glass-hud border-t border-slate-700/60 flex items-center justify-around px-2 z-20 shrink-0">
-        <button onclick="investEconomic('factory')" class="flex flex-col items-center justify-center p-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs hover:border-emerald-400">
-            <span>🏭 مصانع</span>
-            <span class="text-[9px] text-emerald-400">-500$ (+دخل)</span>
-        </button>
-        <button onclick="investEconomic('drill')" class="flex flex-col items-center justify-center p-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs hover:border-amber-400">
-            <span>⛽ حفر نفط</span>
-            <span class="text-[9px] text-amber-400">-300$ (+نفط)</span>
-        </button>
-        <button onclick="recruitTroops()" class="flex flex-col items-center justify-center p-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs hover:border-sky-400">
-            <span>🪖 تجنيد</span>
-            <span class="text-[9px] text-sky-400">-400$ (+15k)</span>
-        </button>
-        <button onclick="collectEmergencyTaxes()" class="flex flex-col items-center justify-center p-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs hover:border-purple-400">
-            <span>🏛️ ضريبة</span>
-            <span class="text-[9px] text-purple-400">+600$ (ضرائب)</span>
-        </button>
-    </footer>
-
-    <!-- TREATY MODAL -->
-    <div id="treaty-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="max-w-md w-full glass-hud rounded-2xl p-4 sm:p-6 border-2 border-amber-500/60 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h3 class="text-sm sm:text-base font-bold text-amber-400">📜 عقد اتفاقية ومعاهدة دولية</h3>
-                <button onclick="closeTreatyModal()" class="text-slate-400 hover:text-white">✕</button>
-            </div>
-
-            <div class="treaty-paper p-4 rounded-xl text-center space-y-1.5">
-                <span class="text-[10px] uppercase font-bold text-amber-900 tracking-wider">وثيقة معاهدة رسمية</span>
-                <h4 id="treaty-country-heading" class="text-sm font-black text-slate-900">معاهدة مع دولة</h4>
-                <p id="treaty-description" class="text-xs text-slate-800 py-1">
-                    تنص هذه المعاهدة الرسمية على تنظيم العلاقات السياسية والعسكرية والتجارية بين الطرفين لضمان المصالح المشتركة.
-                </p>
-            </div>
-
-            <div class="space-y-2">
-                <button onclick="signTreaty('non_aggression')" class="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs flex justify-between items-center">
-                    <span>توقيع معاهدة عدم اعتداء (سلام)</span>
-                    <span class="text-[9px] bg-emerald-700 px-1.5 py-0.5 rounded">+25 علاقات</span>
-                </button>
-                <button onclick="signTreaty('alliance')" class="w-full py-2 px-3 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-bold text-xs flex justify-between items-center">
-                    <span>توقيع حلف دفاع عسكري مشترك</span>
-                    <span class="text-[9px] bg-sky-700 px-1.5 py-0.5 rounded">دعم حربي</span>
-                </button>
-                <button onclick="signTreaty('trade')" class="w-full py-2 px-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold text-xs flex justify-between items-center">
-                    <span>اتفاقية تبادل تجاري مفتوح</span>
-                    <span class="text-[9px] bg-amber-700 px-1.5 py-0.5 rounded">+150$/شهر</span>
-                </button>
-            </div>
-
-            <button onclick="closeTreatyModal()" class="w-full text-center text-xs text-slate-400 hover:text-white pt-1">إلغاء</button>
+    <div class="grid">
+      <!-- Left -->
+      <div class="panel">
+        <h3>الدولة</h3>
+        <div class="stats">
+          <div class="stat"><label>اسم الدولة</label><strong id="countryName"></strong></div>
+          <div class="stat"><label>المستوى</label><strong id="level"></strong></div>
+          <div class="stat"><label>السكان</label><strong id="population"></strong></div>
+          <div class="stat"><label>النقود</label><strong id="money"></strong></div>
+          <div class="stat"><label>التقنية</label><strong id="tech"></strong></div>
+          <div class="stat"><label>الحكمة</label><strong id="wisdom"></strong></div>
         </div>
+
+        <div class="resource-list" id="resourceList"></div>
+      </div>
+
+      <!-- Middle -->
+      <div class="panel">
+        <h3>الجيش والأسلحة</h3>
+
+        <div class="stats">
+          <div class="stat"><label>الجنود</label><strong id="troops"></strong></div>
+          <div class="stat"><label>الدبابات</label><strong id="tanks"></strong></div>
+          <div class="stat"><label>المدفعية</label><strong id="artillery"></strong></div>
+          <div class="stat"><label>الطائرات</label><strong id="planes"></strong></div>
+          <div class="stat"><label>السفن</label><strong id="ships"></strong></div>
+          <div class="stat"><label>الصواريخ</label><strong id="missiles"></strong></div>
+        </div>
+
+        <div class="action-grid">
+          <div class="action-card">
+            <h4>تجنيد جنود</h4>
+            <p>زيادة عدد المشاة والقدرة على القتال.</p>
+            <button onclick="recruitTroops()">تجنيد 10</button>
+          </div>
+
+          <div class="action-card">
+            <h4>إنتاج دبابات</h4>
+            <p>دبابات قوية في الهجمات البرية.</p>
+            <button onclick="buildTank()">إنتاج</button>
+          </div>
+
+          <div class="action-card">
+            <h4>إنتاج مدفعية</h4>
+            <p>تزيد قوة النيران ومقاومة الدفاع.</p>
+            <button onclick="buildArtillery()">إنتاج</button>
+          </div>
+
+          <div class="action-card">
+            <h4>إنتاج طائرات</h4>
+            <p>قوة جوية قوية في الهجمات.</p>
+            <button onclick="buildPlane()">إنتاج</button>
+          </div>
+
+          <div class="action-card">
+            <h4>إنتاج سفن</h4>
+            <p>للدفاع البحري والهجمات عبر البحر.</p>
+            <button onclick="buildShip()">إنتاج</button>
+          </div>
+
+          <div class="action-card">
+            <h4>صواريخ</h4>
+            <p>أسلحة قادرة على إحداث ضرر كبير.</p>
+            <button onclick="buildMissile()">إنتاج</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="panel">
+        <h3>الاقتصاد والإدارة</h3>
+
+        <div class="action-grid">
+          <div class="action-card">
+            <h4>إنتاج غذاء</h4>
+            <p>يزيد الطعام ويخفض خطر المجاعة.</p>
+            <button onclick="produceFood()">إنتاج</button>
+          </div>
+
+          <div class="action-card">
+            <h4>تعدين الحديد</h4>
+            <p>الحديد ضروري للأسلحة والمعدات.</p>
+            <button onclick="mineIron()">تعدين</button>
+          </div>
+
+          <div class="action-card">
+            <h4>تجميع النفط</h4>
+            <p>النفط مخصص للجيش والاقتصاد.</p>
+            <button onclick="extractOil()">استخراج</button>
+          </div>
+
+          <div class="action-card">
+            <h4>قطع الخشب</h4>
+            <p>لبناء القواعد والتجهيزات.</p>
+            <button onclick="collectWood()">قطع</button>
+          </div>
+
+          <div class="action-card">
+            <h4>استخراج اليورانيوم</h4>
+            <p>مهم لصناعة الأسلحة المتقدمة.</p>
+            <button onclick="mineUranium()">استخراج</button>
+          </div>
+
+          <div class="action-card">
+            <h4>تطوير الصناعة</h4>
+            <p>يزيد فعالية الإنتاج والجيش.</p>
+            <button onclick="upgradeIndustry()">تطوير</button>
+          </div>
+        </div>
+
+        <div class="action-grid" style="margin-top: 14px;">
+          <div class="action-card">
+            <h4>الضرائب</h4>
+            <p>تحصيل مال من الشعب.</p>
+            <button onclick="collectTaxes()">تحصيل</button>
+          </div>
+
+          <div class="action-card">
+            <h4>التجارة</h4>
+            <p>توسيع السوق والربح.</p>
+            <button onclick="trade()">تجارة</button>
+          </div>
+
+          <div class="action-card">
+            <h4>حرب</h4>
+            <p>هجوم على دولة عدو مجاورة.</p>
+            <button class="danger" onclick="attackEnemy()">هجوم</button>
+          </div>
+
+          <div class="action-card">
+            <h4>دفاع</h4>
+            <p>تعزيز الجبهات والمناطق المحيطة.</p>
+            <button class="warning" onclick="fortify()">تعزيز</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-</div>
+    <div class="grid" style="margin-top: 18px;">
+      <div class="panel">
+        <h3>الدولة العدوة</h3>
+        <div class="enemy-box">
+          <div class="flex">
+            <strong id="enemyName"></strong>
+            <span class="small" id="enemyMotto"></span>
+          </div>
+          <div class="stats" style="margin-top: 10px;">
+            <div class="stat"><label>العسكرية</label><strong id="enemyArmy"></strong></div>
+            <div class="stat"><label>الدفاع</label><strong id="enemyDefense"></strong></div>
+            <div class="stat"><label>الذهب</label><strong id="enemyMoney"></strong></div>
+            <div class="stat"><label>الموارد</label><strong id="enemyResources"></strong></div>
+          </div>
+        </div>
+      </div>
 
-<script>
-// Sound Audio Synthesizer Engine
-class SoundEngine {
-    constructor() {
-        this.ctx = null;
-        this.muted = false;
+      <div class="panel">
+        <h3>سجل الأحداث</h3>
+        <div class="log" id="log"></div>
+      </div>
+
+      <div class="panel">
+        <h3>ملخص الحملة</h3>
+        <div class="list">
+          <div class="resource-item"><span>النصر</span><strong id="wins">0</strong></div>
+          <div class="resource-item"><span>الهزائم</span><strong id="losses">0</strong></div>
+          <div class="resource-item"><span>المرحلة</span><strong id="turnCounter">1</strong></div>
+          <div class="resource-item"><span>الموارد الحالية</span><strong id="totalResources">0</strong></div>
+        </div>
+        <div class="battle-results" id="battleResults">
+          لا توجد نتيجة معركة حتى الآن.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const resourceNames = ["money", "food", "iron", "oil", "wood", "uranium"];
+    const resourceLabels = {
+      money: "الفلوس",
+      food: "الغذاء",
+      iron: "الحديد",
+      oil: "النفط",
+      wood: "الخشب",
+      uranium: "اليورانيوم"
+    };
+
+    const defaultState = {
+      countryName: "مملكة النور",
+      level: 1,
+      population: 1500000,
+      money: 5000,
+      tech: 1,
+      wisdom: 1,
+      resources: {
+        food: 400,
+        iron: 200,
+        oil: 180,
+        wood: 220,
+        uranium: 30,
+        money: 5000
+      },
+      army: {
+        infantry: 120,
+        tanks: 5,
+        artillery: 4,
+        planes: 2,
+        ships: 1,
+        missiles: 1
+      },
+      wins: 0,
+      losses: 0,
+      turn: 1,
+      totalResources: 0,
+      enemy: {
+        name: "إمبراطورية الشمال",
+        army: 110,
+        defense: 55,
+        money: 4500,
+        resources: 220
+      },
+      log: []
+    };
+
+    let state = loadGame();
+
+    function init() {
+      render();
+      addLog("تم تحميل الدولة بنجاح. أنت مستعد للحرب.");
     }
 
-    init() {
-        if (!this.ctx) {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function saveGame() {
+      localStorage.setItem("warNationsGame", JSON.stringify(state));
+      addLog("تم حفظ اللعبة بنجاح.");
+      render();
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem("warNationsGame");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.warn("فشل في قراءة الحفظ:", e);
         }
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
+      }
+      return structuredClone(defaultState);
+    }
+
+    function resetGame() {
+      state = structuredClone(defaultState);
+      localStorage.removeItem("warNationsGame");
+      addLog("تمت إعادة البداية.");
+      render();
+    }
+
+    function addLog(text) {
+      state.log.unshift({ text, time: new Date().toLocaleTimeString() });
+      state.log = state.log.slice(0, 40);
+    }
+
+    function getTotalResources() {
+      let sum = 0;
+      for (const key of resourceNames) {
+        if (key === "money") {
+          sum += state.resources.money;
+        } else {
+          sum += state.resources[key];
         }
+      }
+      return sum;
     }
 
-    playClick() {
-        if (this.muted) return;
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(700, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.04);
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.04);
+    function render() {
+      document.getElementById("countryName").textContent = state.countryName;
+      document.getElementById("level").textContent = state.level;
+      document.getElementById("population").textContent = formatNumber(state.population);
+      document.getElementById("money").textContent = formatNumber(state.resources.money) + " $";
+      document.getElementById("tech").textContent = state.tech;
+      document.getElementById("wisdom").textContent = state.wisdom;
+
+      document.getElementById("troops").textContent = formatNumber(state.army.infantry);
+      document.getElementById("tanks").textContent = formatNumber(state.army.tanks);
+      document.getElementById("artillery").textContent = formatNumber(state.army.artillery);
+      document.getElementById("planes").textContent = formatNumber(state.army.planes);
+      document.getElementById("ships").textContent = formatNumber(state.army.ships);
+      document.getElementById("missiles").textContent = formatNumber(state.army.missiles);
+
+      document.getElementById("enemyName").textContent = state.enemy.name;
+      document.getElementById("enemyMotto").textContent = "عدوّ متقدم";
+      document.getElementById("enemyArmy").textContent = formatNumber(state.enemy.army);
+      document.getElementById("enemyDefense").textContent = formatNumber(state.enemy.defense);
+      document.getElementById("enemyMoney").textContent = formatNumber(state.enemy.money) + " $";
+      document.getElementById("enemyResources").textContent = formatNumber(state.enemy.resources);
+
+      document.getElementById("wins").textContent = state.wins;
+      document.getElementById("losses").textContent = state.losses;
+      document.getElementById("turnCounter").textContent = state.turn;
+      state.totalResources = getTotalResources();
+      document.getElementById("totalResources").textContent = formatNumber(state.totalResources);
+
+      renderResources();
+      renderLog();
     }
 
-    playWar() {
-        if (this.muted) return;
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.4);
-        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.4);
+    function renderResources() {
+      const container = document.getElementById("resourceList");
+      container.innerHTML = "";
+      resourceNames.forEach(key => {
+        const val = key === "money" ? state.resources.money : state.resources[key];
+        const item = document.createElement("div");
+        item.className = "resource-item";
+        item.innerHTML = `<span>${resourceLabels[key]}</span><strong>${formatNumber(val)}</strong>`;
+        container.appendChild(item);
+      });
     }
 
-    playCoins() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(900, now);
-        osc.frequency.setValueAtTime(1200, now + 0.06);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(now + 0.2);
-    }
-}
-
-const sound = new SoundEngine();
-
-function toggleSound() {
-    sound.muted = !sound.muted;
-    document.getElementById('sound-btn').innerText = sound.muted ? '🔇' : '🔊';
-}
-
-// Game State Architecture
-const gameState = {
-    turn: 1,
-    monthIndex: 0,
-    year: 2026,
-    months: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
-    player: {
-        id: 'eg',
-        name: 'مصر والقوة العربية',
-        flag: '🇪🇬',
-        money: 1500,
-        currencyRate: 1.0,
-        resources: {
-            oil: 100,
-            gold: 50,
-            food: 200,
-            iron: 80
-        },
-        army: 50000,
-        factories: 1
-    },
-    selectedCountryId: null,
-    countries: {
-        'eg': { name: 'مصر والعرب', flag: '🇪🇬', army: 50000, power: 75, relation: 100, threat: 0, treaty: 'الوطن', isPlayer: true },
-        'sa': { name: 'السعودية والخليج', flag: '🇸🇦', army: 60000, power: 85, relation: 80, threat: 5, treaty: 'لا يوجد' },
-        'eu': { name: 'الاتحاد الأوروبي', flag: '🇪🇺', army: 110000, power: 120, relation: 60, threat: 15, treaty: 'لا يوجد' },
-        'ru': { name: 'الاتحاد الروسي', flag: '🇷🇺', army: 170000, power: 160, relation: 45, threat: 30, treaty: 'لا يوجد' },
-        'cn': { name: 'جمهورية الصين', flag: '🇨🇳', army: 180000, power: 170, relation: 65, threat: 20, treaty: 'لا يوجد' },
-        'us': { name: 'الولايات المتحدة', flag: '🇺🇸', army: 190000, power: 180, relation: 50, threat: 25, treaty: 'لا يوجد' },
-        'br': { name: 'البرازيل وأمريكا ج', flag: '🇧🇷', army: 70000, power: 70, relation: 55, threat: 10, treaty: 'لا يوجد' },
-        'za': { name: 'جنوب أفريقيا', flag: '🇿🇦', army: 45000, power: 50, relation: 60, threat: 5, treaty: 'لا يوجد' },
-        'au': { name: 'أستراليا', flag: '🇦🇺', army: 50000, power: 65, relation: 70, threat: 5, treaty: 'لا يوجد' }
-    }
-};
-
-function initMapEvents() {
-    const paths = document.querySelectorAll('.country-path');
-    paths.forEach(p => {
-        p.addEventListener('click', (e) => {
-            const countryId = p.getAttribute('data-id');
-            selectCountry(countryId);
-        });
-    });
-}
-
-function selectCountry(id) {
-    sound.playClick();
-    const c = gameState.countries[id];
-    if (!c || c.isPlayer) return;
-
-    gameState.selectedCountryId = id;
-
-    // Highlight selected SVG Path
-    document.querySelectorAll('.country-path').forEach(el => el.classList.remove('selected-country'));
-    const targetPath = document.getElementById(`path-${id}`);
-    if (targetPath) targetPath.classList.add('selected-country');
-
-    // Update Sidebar Details
-    document.getElementById('target-flag').innerText = c.flag;
-    document.getElementById('target-name').innerText = c.name;
-    document.getElementById('target-status').innerText = c.treaty !== 'لا يوجد' ? `معاهدة: ${c.treaty}` : 'دولة مستقلة';
-
-    document.getElementById('target-army-text').innerText = c.army.toLocaleString();
-    document.getElementById('target-army-bar').style.width = `${Math.min(100, (c.army / 200000) * 100)}%`;
-
-    document.getElementById('target-threat-text').innerText = `${c.threat}%`;
-    document.getElementById('target-threat-bar').style.width = `${c.threat}%`;
-
-    document.getElementById('target-rel-text').innerText = `${c.relation > 70 ? 'ودية' : c.relation < 40 ? 'عدائية' : 'محايدة'} (${c.relation})`;
-    document.getElementById('target-treaty-text').innerText = c.treaty;
-
-    document.getElementById('target-empty').classList.add('hidden');
-    document.getElementById('target-details').classList.remove('hidden');
-
-    // Open sidebar on mobile
-    document.getElementById('sidebar-panel').classList.remove('translate-x-full');
-}
-
-function closeSidebar() {
-    document.getElementById('sidebar-panel').classList.add('translate-x-full');
-}
-
-// Turn Cycle & Economic Algorithms
-function endTurn() {
-    sound.playClick();
-
-    gameState.turn++;
-    gameState.monthIndex++;
-    if (gameState.monthIndex >= 12) {
-        gameState.monthIndex = 0;
-        gameState.year++;
+    function renderLog() {
+      const logEl = document.getElementById("log");
+      logEl.innerHTML = "";
+      state.log.forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "log-item";
+        div.innerHTML = `<strong>${entry.time}</strong> - ${entry.text}`;
+        logEl.appendChild(div);
+      });
     }
 
-    document.getElementById('hud-date').innerText = `${gameState.months[gameState.monthIndex]} ${gameState.year}`;
-
-    // 1. Economic Resource Extract & Taxation
-    const resPrices = { oil: 5, gold: 20, food: 2, iron: 8 };
-    let income = 0;
-
-    for (let r in gameState.player.resources) {
-        let extracted = gameState.player.resources[r] * 0.1;
-        income += extracted * resPrices[r];
-        gameState.player.resources[r] = Math.max(0, gameState.player.resources[r] - extracted * 0.05);
+    function formatNumber(num) {
+      return Number(num).toLocaleString("ar-EG");
     }
 
-    // Taxes & Army Upkeep
-    let taxIncome = (gameState.player.factories * 150) + 200;
-    let armyMaintenance = gameState.player.army * 0.01;
-    let netIncome = (income + taxIncome) - armyMaintenance;
-
-    gameState.player.money += netIncome;
-
-    // Currency Inflation Check
-    if (gameState.player.money < 500) {
-        gameState.player.currencyRate = 0.7;
-        addLog('⚠️️ تحذير: عملتك تسجل تراجعاً وبدء التضخم!', 'red');
-    } else {
-        gameState.player.currencyRate = 1.0;
-    }
-
-    // 2. AI Threat & Attack Probability Algorithm
-    for (let id in gameState.countries) {
-        let c = gameState.countries[id];
-        if (!c.isPlayer) {
-            let powerRatio = c.army / gameState.player.army;
-            c.threat = Math.min(100, Math.max(0, Math.floor((powerRatio * 35) - (c.relation * 0.3))));
-
-            if (c.threat > 65 && c.treaty === 'لا يوجد' && Math.random() < 0.3) {
-                addLog(`🚨 تحذير استخباراتي: ${c.name} تقوم بتحشيد قواتها!`, 'red');
-            }
+    function safeSpend(costs) {
+      for (const [key, value] of Object.entries(costs)) {
+        if (key === "money") {
+          if (state.resources.money < value) return false;
+        } else {
+          if (state.resources[key] < value) return false;
         }
+      }
+      for (const [key, value] of Object.entries(costs)) {
+        if (key === "money") state.resources.money -= value;
+        else state.resources[key] -= value;
+      }
+      return true;
     }
 
-    updateHUD();
-    if (gameState.selectedCountryId) selectCountry(gameState.selectedCountryId);
+    function payCosts(costs) {
+      return safeSpend(costs);
+    }
 
-    addLog(`📅 شهر جديد: صافي الدخل المالي كان ${netIncome > 0 ? '+' : ''}${Math.floor(netIncome)}$`);
-}
+    function nextTurn() {
+      state.turn++;
 
-function tradeResource(type) {
-    const c = gameState.countries[gameState.selectedCountryId];
-    if (!c) return;
+      // دخل اقتصادي
+      const income = Math.round(
+        state.population * 0.00008 +
+        state.army.infantry * 0.42 +
+        state.army.tanks * 4 +
+        state.resources.oil * 0.18 +
+        state.resources.food * 0.08 +
+        state.wisdom * 15
+      );
 
-    if (gameState.player.resources[type] < 10) {
-        addLog(`❌ لا تملك قدر كافي من المورد (${type}) للبيع!`, 'red');
+      state.resources.money += income;
+      state.resources.food += Math.round(state.population * 0.00005);
+      state.resources.wood += 10 + state.level * 3;
+      state.resources.iron += 12 + state.level * 4;
+      state.resources.oil += 8 + state.level * 3;
+
+      // تكلفة الصيانة
+      const upkeep = Math.round(
+        state.army.infantry * 0.28 +
+        state.army.tanks * 18 +
+        state.army.artillery * 12 +
+        state.army.planes * 30 +
+        state.army.ships * 24 +
+        state.army.missiles * 25
+      );
+
+      state.resources.money -= upkeep;
+      if (state.resources.money < 0) state.resources.money = 0;
+
+      // مستوى الدولة
+      if (state.turn % 3 === 0) {
+        state.level++;
+        state.tech += 1;
+        state.wisdom += 1;
+        addLog(`تم تحديث الدولة إلى المستوى ${state.level}.`);
+      }
+
+      // حدث عشوائي
+      const rnd = Math.random();
+      if (rnd < 0.18) {
+        const bonus = 250 + Math.random() * 500;
+        state.resources.money += bonus;
+        addLog(`حدث اقتصادي: حصلت الدولة على ${Math.round(bonus)} عملة إضافية من التجارة والضرائب.`);
+      } else if (rnd < 0.32) {
+        const loss = 120 + Math.random() * 300;
+        state.resources.food -= loss;
+        if (state.resources.food < 0) state.resources.food = 0;
+        addLog(`حدث سلبي: خسرنا ${Math.round(loss)} من الغذاء بسبب التوزيع أو الفقد.`);
+      } else if (rnd < 0.45) {
+        state.resources.oil += 50;
+        addLog("تم اكتشاف مخزون نفطي صغير في المناطق الشمالية.");
+      } else if (rnd < 0.56) {
+        state.army.infantry += 15;
+        addLog("تم تجنيد وحدة إضافية من المجندين.");
+      }
+
+      // تجديد_enemy
+      state.enemy.army += Math.round(Math.random() * 18);
+      state.enemy.defense += Math.round(Math.random() * 12);
+      state.enemy.money += Math.round(Math.random() * 400);
+      state.enemy.resources += Math.round(Math.random() * 30);
+
+      addLog(`انتهت الدورة ${state.turn}. دخل الدولة: ${formatNumber(income)} $ | نفقات الصيانة: ${formatNumber(upkeep)} $`);
+      render();
+    }
+
+    function recruitTroops() {
+      const cost = { money: 300, food: 30 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لتجنيد الجنود.");
         return;
+      }
+      state.army.infantry += 10;
+      state.population += 5000;
+      addLog("تم تجنيد 10 جنود إضافيين.");
+      render();
     }
 
-    sound.playCoins();
-
-    const prices = { gold: 20, oil: 10, iron: 12, food: 8 };
-    let earned = prices[type] * 10 * gameState.player.currencyRate;
-
-    gameState.player.resources[type] -= 10;
-    gameState.player.money += earned;
-    c.relation = Math.min(100, c.relation + 2);
-
-    addLog(`💼 تم بيع 10 من ${type} إلى ${c.name} بسعر +${Math.floor(earned)}$`, 'emerald');
-    updateHUD();
-    selectCountry(c.id);
-}
-
-function openTreatyModal() {
-    const c = gameState.countries[gameState.selectedCountryId];
-    if (!c) return;
-    document.getElementById('treaty-country-heading').innerText = `معاهدة رسمية مع ${c.name}`;
-    document.getElementById('treaty-modal').classList.remove('hidden');
-    document.getElementById('treaty-modal').classList.add('flex');
-}
-
-function closeTreatyModal() {
-    document.getElementById('treaty-modal').classList.add('hidden');
-    document.getElementById('treaty-modal').classList.remove('flex');
-}
-
-function signTreaty(type) {
-    const c = gameState.countries[gameState.selectedCountryId];
-    if (!c) return;
-
-    sound.playCoins();
-
-    if (type === 'non_aggression') {
-        c.treaty = 'عدم اعتداء';
-        c.relation = Math.min(100, c.relation + 25);
-        c.threat = Math.max(0, c.threat - 20);
-        addLog(`📜 تم توقيع معاهدة سلام وعدم اعتداء مع ${c.name}.`, 'emerald');
-    } else if (type === 'alliance') {
-        if (c.relation < 60) {
-            addLog(`❌ رفضت ${c.name} التحالف العسكري! العلاقات غير كافية.`, 'red');
-            closeTreatyModal();
-            return;
-        }
-        c.treaty = 'تحالف عسكري';
-        c.relation = 100;
-        c.threat = 0;
-        addLog(`🛡️ حلف عسكري: ${c.name} أصبحت حليفاً استراتيجياً!`, 'emerald');
-    } else if (type === 'trade') {
-        c.treaty = 'تبادل تجاري';
-        gameState.player.money += 300;
-        addLog(`💼 تم توقيع عقد تجاري مع ${c.name} (+300$).`, 'emerald');
+    function buildTank() {
+      const cost = { money: 900, iron: 80, oil: 35 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لإنتاج دبابات.");
+        return;
+      }
+      state.army.tanks += 1;
+      addLog("تم إنتاج دبابة جديدة.");
+      render();
     }
 
-    closeTreatyModal();
-    updateHUD();
-    selectCountry(c.id);
-}
-
-function declareWar() {
-    const c = gameState.countries[gameState.selectedCountryId];
-    if (!c) return;
-
-    sound.playWar();
-
-    // War Outcome Algorithm
-    let winChance = gameState.player.army / (gameState.player.army + c.army);
-    let roll = Math.random();
-
-    if (roll < winChance) {
-        let loot = Math.floor(c.army * 0.05);
-        gameState.player.money += loot;
-        gameState.player.army -= Math.floor(gameState.player.army * 0.15);
-        c.army = Math.floor(c.army * 0.4);
-        c.relation = 0;
-        addLog(`🔥 انتصار تاريخي! تم غزو موقع لـ ${c.name} ونهب ${loot}$.`, 'emerald');
-    } else {
-        gameState.player.army -= Math.floor(gameState.player.army * 0.3);
-        c.relation = 0;
-        addLog(`💥 هزيمة مؤلمة! تكبدت قواتك خسائر أمام ${c.name}.`, 'red');
+    function buildArtillery() {
+      const cost = { money: 700, iron: 60, oil: 25 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لإنتاج مدفعية.");
+        return;
+      }
+      state.army.artillery += 1;
+      addLog("تم إنتاج وحدة مدفعية جديدة.");
+      render();
     }
 
-    updateHUD();
-    selectCountry(c.id);
-}
-
-function investEconomic(type) {
-    if (type === 'factory') {
-        if (gameState.player.money >= 500) {
-            sound.playCoins();
-            gameState.player.money -= 500;
-            gameState.player.factories++;
-            addLog('🏭 تم بناء مجمع مصانع جديد (زيادة الدخل).', 'emerald');
-        } else addLog('❌ لا تملك المال الكافي للمصنع!', 'red');
-    } else if (type === 'drill') {
-        if (gameState.player.money >= 300) {
-            sound.playCoins();
-            gameState.player.money -= 300;
-            gameState.player.resources.oil += 100;
-            addLog('⛽ تم حفر بئر نفطي جديد (+100 برميل).', 'emerald');
-        } else addLog('❌ لا تملك المال الكافي للحفر!', 'red');
+    function buildPlane() {
+      const cost = { money: 1200, iron: 70, oil: 50, uranium: 8 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لإنتاج طائرات.");
+        return;
+      }
+      state.army.planes += 1;
+      addLog("تم إنتاج طائرة هجومية جديدة.");
+      render();
     }
-    updateHUD();
-}
 
-function recruitTroops() {
-    if (gameState.player.money >= 400) {
-        sound.playCoins();
-        gameState.player.money -= 400;
-        gameState.player.army += 15000;
-        addLog('🪖 تم تجنيد 15,000 جندي جديد.', 'emerald');
-        updateHUD();
-    } else addLog('❌ الفلوس لا تكفي للتجنيد!', 'red');
-}
+    function buildShip() {
+      const cost = { money: 1000, iron: 90, oil: 60 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لإنتاج سفن.");
+        return;
+      }
+      state.army.ships += 1;
+      addLog("تم إنتاج سفينة جديدة.");
+      render();
+    }
 
-function collectEmergencyTaxes() {
-    sound.playCoins();
-    gameState.player.money += 600;
-    addLog('🏛️ تم تحصيل ضرائب طوارئ من الشعب (+600$).', 'amber');
-    updateHUD();
-}
+    function buildMissile() {
+      const cost = { money: 1700, iron: 100, oil: 80, uranium: 18 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لإنتاج صواريخ.");
+        return;
+      }
+      state.army.missiles += 1;
+      addLog("تم إنتاج صاروخ جديد.");
+      render();
+    }
 
-function updateHUD() {
-    document.getElementById('res-money').innerText = `${Math.floor(gameState.player.money).toLocaleString()}$`;
-    document.getElementById('res-oil').innerText = Math.floor(gameState.player.resources.oil);
-    document.getElementById('res-gold').innerText = Math.floor(gameState.player.resources.gold);
-    document.getElementById('res-iron').innerText = Math.floor(gameState.player.resources.iron);
-    document.getElementById('res-food').innerText = Math.floor(gameState.player.resources.food);
-    document.getElementById('res-army').innerText = `${Math.floor(gameState.player.army / 1000)}k`;
-    document.getElementById('hud-currency-rate').innerText = `${gameState.player.currencyRate.toFixed(2)}$`;
-}
+    function produceFood() {
+      const cost = { money: 120, wood: 15 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لإنتاج الغذاء.");
+        return;
+      }
+      state.resources.food += 80 + state.level * 20;
+      addLog("تم زيادة المخزون الغذائي.");
+      render();
+    }
 
-function addLog(msg, color = 'slate') {
-    const box = document.getElementById('ticker-log');
-    const p = document.createElement('p');
-    if (color === 'red') p.className = 'text-red-400 font-bold';
-    else if (color === 'emerald') p.className = 'text-emerald-400 font-bold';
-    else if (color === 'amber') p.className = 'text-amber-400';
-    p.innerText = msg;
-    box.prepend(p);
-}
+    function mineIron() {
+      const cost = { money: 100 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لتعدين الحديد.");
+        return;
+      }
+      state.resources.iron += 50 + state.level * 15;
+      addLog("تم تعدين الحديد بنجاح.");
+      render();
+    }
 
-// Window Load Init
-window.onload = () => {
-    initMapEvents();
-    updateHUD();
-};
-</script>
+    function extractOil() {
+      const cost = { money: 150 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لاستخراج النفط.");
+        return;
+      }
+      state.resources.oil += 60 + state.level * 20;
+      addLog("تم استخراج النفط بنجاح.");
+      render();
+    }
+
+    function collectWood() {
+      const cost = { money: 80 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لقطع الخشب.");
+        return;
+      }
+      state.resources.wood += 50 + state.level * 12;
+      addLog("تم جمع الخشب.");
+      render();
+    }
+
+    function mineUranium() {
+      const cost = { money: 220, iron: 30 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لاستخراج اليورانيوم.");
+        return;
+      }
+      state.resources.uranium += 8 + state.level * 4;
+      addLog("تم استخراج اليورانيوم بنجاح.");
+      render();
+    }
+
+    function upgradeIndustry() {
+      const cost = { money: 800, iron: 50, wood: 40, oil: 20 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لتطوير الصناعة.");
+        return;
+      }
+      state.tech += 1;
+      state.level += 1;
+      addLog("تم تطوير الصناعة وزيادة الكفاءة العسكرية والاقتصادية.");
+      render();
+    }
+
+    function collectTaxes() {
+      const income = Math.round(state.population * 0.00012 + state.tech * 40);
+      state.resources.money += income;
+      addLog(`تم تحصيل الضرائب بقيمة ${formatNumber(income)} $.`);
+      render();
+    }
+
+    function trade() {
+      const income = 300 + Math.random() * 1200;
+      state.resources.money += income;
+      state.resources.food += 25;
+      addLog(`تمت تجارة ناجحة، وتمت جني ${Math.round(income)} $`);
+      render();
+    }
+
+    function fortify() {
+      const cost = { money: 500, wood: 30, iron: 25 };
+      if (!payCosts(cost)) {
+        addLog("لا توجد موارد كافية لتقوية الدفاعات.");
+        return;
+      }
+      state.enemy.defense += 10;
+      state.enemy.army += 8;
+      state.wisdom += 1;
+      addLog("تم تعزيز الحصون والمواقع الدفاعية.");
+      render();
+    }
+
+    function attackEnemy() {
+      const playerPower =
+        state.army.infantry * 1.2 +
+        state.army.tanks * 18 +
+        state.army.artillery * 11 +
+        state.army.planes * 16 +
+        state.army.ships * 10 +
+        state.army.missiles * 24 +
+        state.tech * 30;
+
+      const enemyPower =
+        state.enemy.army * 1.1 +
+        state.enemy.defense * 1.5 +
+        Math.random() * 120;
+
+      const resultEl = document.getElementById("battleResults");
+      if (playerPower > enemyPower) {
+        const rewardMoney = 900 + Math.random() * 2000;
+        const rewardResources = Math.round(Math.random() * 120);
+        state.wins++;
+        state.resources.money += rewardMoney;
+        state.resources.food += 40;
+        state.resources.iron += 35;
+        state.resources.oil += 25;
+        state.enemy.money = Math.max(0, state.enemy.money - rewardMoney * 0.4);
+        state.enemy.resources -= rewardResources;
+
+        addLog(`انتصرت الدولة في المعركة! تم جمع ${Math.round(rewardMoney)} $ ومصادر إضافية.`);
+        resultEl.innerHTML = `
+          <strong style="color:#4ade80;">انتصار</strong><br>
+          قوة الدولة: <span class="value">${Math.round(playerPower)}</span><br>
+          قوة العدو: <span class="value">${Math.round(enemyPower)}</span><br>
+          المكسب: <span class="value">${Math.round(rewardMoney)} $</span>
+        `;
+      } else {
+        const lossMoney = 250 + Math.random() * 1200;
+        const lossTroops = Math.round(Math.random() * 30 + 15);
+        state.losses++;
+        state.resources.money = Math.max(0, state.resources.money - lossMoney);
+        state.army.infantry = Math.max(0, state.army.infantry - lossTroops);
+        state.enemy.money += lossMoney * 0.3;
+
+        addLog(`تعرضت الدولة لهزيمة! خسرت ${Math.round(lossMoney)} $ و${lossTroops} جندي.`);
+        resultEl.innerHTML = `
+          <strong style="color:#f87171;">هزيمة</strong><br>
+          قوة الدولة: <span class="value">${Math.round(playerPower)}</span><br>
+          قوة العدو: <span class="value">${Math.round(enemyPower)}</span><br>
+          الخسارة: <span class="value">${Math.round(lossMoney)} $</span>
+        `;
+      }
+
+      state.enemy.army = Math.max(50, state.enemy.army + (Math.random() > 0.5 ? 15 : -10));
+      state.enemy.defense = Math.max(20, state.enemy.defense + Math.round(Math.random() * 12));
+      render();
+    }
+
+    document.getElementById("nextTurnBtn").addEventListener("click", nextTurn);
+    document.getElementById("saveBtn").addEventListener("click", saveGame);
+    document.getElementById("resetBtn").addEventListener("click", resetGame);
+
+    init();
+  </script>
 </body>
 </html>
