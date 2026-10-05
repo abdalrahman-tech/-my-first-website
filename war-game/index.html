@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة محاكاة الحرب - War Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🌍 محاكاة الحرب العالمية</h1>
+            <p>لعبة استراتيجية حروب مع موارد وتحالفات وعلاقات دبلوماسية</p>
+        </header>
+
+        <!-- Game Screen -->
+        <div class="game-screen">
+            <!-- World Map -->
+            <div class="world-map">
+                <h2>الخريطة العالمية</h2>
+                <div id="map" class="map-container"></div>
+            </div>
+
+            <!-- Right Sidebar - Game Info -->
+            <div class="sidebar">
+                <!-- Current Country Info -->
+                <div class="panel info-panel">
+                    <h3>🏛️ دولتك</h3>
+                    <div id="countryInfo" class="country-info">
+                        <p>اختر دولة لتبدأ</p>
+                    </div>
+                </div>
+
+                <!-- Resources -->
+                <div class="panel resources-panel">
+                    <h3>📊 الموارد</h3>
+                    <div id="resources" class="resources-list">
+                        <div class="resource-item">
+                            <span>💰 الأموال:</span>
+                            <span id="money">0</span>
+                        </div>
+                        <div class="resource-item">
+                            <span>🪖 الجيش:</span>
+                            <span id="army">0</span>
+                        </div>
+                        <div class="resource-item">
+                            <span>🔫 الأسلحة:</span>
+                            <span id="weapons">0</span>
+                        </div>
+                        <div class="resource-item">
+                            <span>❤️ الصحة:</span>
+                            <span id="health">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="panel actions-panel">
+                    <h3>⚔️ الإجراءات</h3>
+                    <button class="btn btn-primary" id="buyArmyBtn">شراء جيش</button>
+                    <button class="btn btn-primary" id="buyWeaponsBtn">شراء أسلحة</button>
+                    <button class="btn btn-primary" id="collectTaxBtn">جباية ضرائب</button>
+                    <button class="btn btn-success" id="diplomacyBtn">دبلوماسية</button>
+                </div>
+
+                <!-- Relations -->
+                <div class="panel relations-panel">
+                    <h3>🤝 العلاقات الدبلوماسية</h3>
+                    <div id="relations" class="relations-list"></div>
+                </div>
+
+                <!-- War Log -->
+                <div class="panel war-log-panel">
+                    <h3>📜 سجل الحروب</h3>
+                    <div id="warLog" class="war-log"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Diplomacy -->
+        <div id="diplomacyModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>الدبلوماسية</h2>
+                <div id="diplomacyOptions" class="diplomacy-options"></div>
+            </div>
+        </div>
+
+        <!-- Modal for Attack -->
+        <div id="attackModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>⚔️ الهجوم</h2>
+                <div id="attackInfo" class="attack-info"></div>
+            </div>
+        </div>
+
+        <!-- Turn Counter -->
+        <div class="turn-counter">
+            <span>الدورة:</span>
+            <span id="turn">1</span>
+            <button id="nextTurnBtn" class="btn btn-info">الدورة التالية</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
